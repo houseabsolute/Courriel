@@ -13,12 +13,6 @@ use Moose;
 
 with 'Courriel::Role::Part';
 
-has headers => (
-    is       => 'ro',
-    does     => 'Courriel::Headers',
-    required => 1,
-);
-
 has content => (
     is       => 'ro',
     isa      => StringRef,
@@ -28,6 +22,7 @@ has content => (
 );
 
 has raw_content => (
+    is       => 'ro',
     isa      => StringRef,
     coerce   => 1,
     required => 1,
@@ -50,9 +45,11 @@ sub _build_content_type {
 
         return $self->raw_content() if $unencoded{ lc $encoding };
 
-        return Email::MIME::Encodings::decode(
-            $encoding,
-            ${ $self->raw_content() }
+        return \(
+            Email::MIME::Encodings::decode(
+                $encoding,
+                ${ $self->raw_content() }
+            )
         );
     }
 }

@@ -10,12 +10,6 @@ use Moose;
 
 with 'Courriel::Role::Part', 'Courriel::Role::HasParts';
 
-has headers => (
-    is       => 'ro',
-    does     => 'Courriel::Headers',
-    required => 1,
-);
-
 has boundary => (
     is       => 'ro',
     isa      => NonEmptyStr,

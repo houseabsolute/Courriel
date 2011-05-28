@@ -30,6 +30,9 @@ subtype Headers,
 subtype Charset,
     as NonEmptyStr;
 
+subtype ContentType,
+    as class_type('Courriel::ContentType');
+
 subtype Encoding,
     as NonEmptyStr;
 
