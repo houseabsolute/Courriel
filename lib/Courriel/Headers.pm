@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use namespace::autoclean;
 
-use Courriel::Types qw( ArrayRef Defined EvenArrayRef HashRef NonEmptyStr StringRef );
+use Courriel::Types qw( ArrayRef Defined EvenArrayRef HashRef NonEmptyStr Str StringRef );
 use Encode qw( decode );
 use Hash::MultiValue;
 use MooseX::Params::Validate qw( pos_validated_list validated_list );
@@ -16,7 +16,7 @@ with 'Courriel::Role::Headers';
 has _headers => (
     traits   => ['Array'],
     is       => 'ro',
-    isa      => EvenArrayRef [NonEmptyStr],
+    isa      => EvenArrayRef [Str],
     default  => sub { [] },
     init_arg => 'headers',
     handles  => {
@@ -143,15 +143,16 @@ sub remove {
 }
 
 {
+    my $horiz_ws = qr/[ \t]/;
     my $line_re = qr/
                      (?:
                          ([^\s:][^:]*)  # a header name
                          :              # followed by a colon
-                         \s*
-                         (.+)           # header value
+                         $horiz_ws*
+                         (.*)           # header value - can be empty
                      )
                      |
-                     \s+(.+)            # continuation line
+                     $horiz_ws+(.+)            # continuation line
                     /x;
 
     sub parse {
@@ -175,16 +176,17 @@ sub remove {
                     'Header text contains a continuation line before a header name has been seen.'
                     unless @headers;
 
+                $headers[-1] //= q{};
                 $headers[-1] .= q{ } . $3;
             }
         }
 
         my $pos = pos ${$text} // 0;
         if ( $pos != length ${$text} ) {
-            my $line = scalar( split $sep_re, substr( ${$text}, 0, $pos ) );
-            $line ||= 1;
+            my @lines = split $sep_re, substr( ${$text}, 0, $pos );
+            my $count = ( scalar @lines ) + 1;
 
-            die "Found an unparseable chunk in the header text starting at line $line.";
+            die "Found an unparseable chunk in the header text starting at line $count.";
         }
 
         for ( my $i = 1; $i < @headers; $i += 2 ) {
