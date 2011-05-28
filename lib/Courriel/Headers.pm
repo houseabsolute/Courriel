@@ -146,13 +146,13 @@ sub remove {
     my $horiz_ws = qr/[ \t]/;
     my $line_re = qr/
                      (?:
-                         ([^\s:][^:]*)  # a header name
-                         :              # followed by a colon
+                         ([^\s:][^:\n\r]*)  # a header name
+                         :                  # followed by a colon
                          $horiz_ws*
-                         (.*)           # header value - can be empty
+                         (.*)               # header value - can be empty
                      )
                      |
-                     $horiz_ws+(.+)            # continuation line
+                     $horiz_ws+(\S.*)       # continuation line
                     /x;
 
     sub parse {
@@ -163,7 +163,7 @@ sub remove {
             line_sep => { isa => NonEmptyStr, default => "\x0d\x0a" },
         );
 
-        my $sep_re = qr/$sep/;
+        my $sep_re = qr/\Q$sep/;
 
         my @headers;
 
