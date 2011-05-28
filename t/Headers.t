@@ -3,6 +3,7 @@ use warnings;
 
 use utf8;
 
+use Test::Fatal;
 use Test::More 0.88;
 
 use Courriel::Headers;
@@ -234,8 +235,64 @@ EOF
         'No, score=-6.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_HI, T_RP_MATCHES_RCVD autolearn=ham version=3.3.1',
         'X-Spam-Status header was parsed properly'
     );
+}
 
+{
+    my $bad = <<'EOF';
+Ok: 1
+: bad
+EOF
 
+    like(
+        exception {
+            Courriel::Headers->parse(
+                text     => \$bad,
+                line_sep => "\n",
+            );
+        },
+        qr/Found an unparseable .+ at line 2/,
+        'exception on bad headers'
+    );
+}
+
+{
+    my $bad = <<'EOF';
+Ok: 1
+Ok: 2
+Not ok
+Ok: 4
+EOF
+
+    like(
+        exception {
+            Courriel::Headers->parse(
+                text     => \$bad,
+                line_sep => "\n",
+            );
+        },
+        qr/Found an unparseable .+ at line 3/,
+        'exception on bad headers'
+    );
+}
+
+{
+    # Second line has spaces
+    my $bad = <<'EOF';
+Ok: 1
+  
+Ok: 2
+EOF
+
+    like(
+        exception {
+            Courriel::Headers->parse(
+                text     => \$bad,
+                line_sep => "\n",
+            );
+        },
+        qr/Found an unparseable .+ at line 2/,
+        'exception on bad headers'
+    );
 }
 
 done_testing();
