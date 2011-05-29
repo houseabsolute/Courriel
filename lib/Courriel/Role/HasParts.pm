@@ -9,11 +9,13 @@ use Courriel::Types qw( ArrayRef Part );
 use Moose::Role;
 
 has _parts => (
-    isa => ArrayRef [Part],
+    traits   => ['Array'],
+    isa      => ArrayRef [Part],
     init_arg => 'parts',
     required => 1,
     handles  => {
-        parts => 'elements',
+        parts      => 'elements',
+        part_count => 'count',
     },
 );
 

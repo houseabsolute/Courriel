@@ -34,4 +34,6 @@ sub _build_content_type {
     return Courriel::ContentType->new( mime_type => 'multipart/mixed' );
 }
 
+__PACKAGE__->meta()->make_immutable();
+
 1;

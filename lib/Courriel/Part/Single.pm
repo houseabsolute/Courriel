@@ -54,4 +54,6 @@ sub _build_content_type {
     }
 }
 
+__PACKAGE__->meta()->make_immutable();
+
 1;

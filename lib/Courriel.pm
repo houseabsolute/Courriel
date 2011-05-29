@@ -4,10 +4,13 @@ use strict;
 use warnings;
 use namespace::autoclean;
 
+use Courriel::ContentType;
 use Courriel::Headers;
-use Courriel::Part;
+use Courriel::Part::Multipart;
+use Courriel::Part::Single;
 use Courriel::Types qw( Bool Headers StringRef );
 use Email::MIME::ContentType qw( parse_content_type );
+use MooseX::Params::Validate qw( validated_list );
 
 use Moose;
 
@@ -34,17 +37,28 @@ override BUILDARGS => sub {
     return $p;
 };
 
+sub _build_content_type {
+    my $self = shift;
+
+    if ( @{$self->parts()}==1) {
+        return $self->parts()->[0]->content_type()
+    }
+    else {
+        return 'multipart/mixed';
+    }
+}
+
 # from Email::Simple
 my $LINE_SEP_RE = qr/\x0a\x0d|\x0d\x0a|\x0a|\x0d/;
 
 sub parse {
     my $class = shift;
 
-    my ( $headers, $parts ) = $class->_parse( @_, top_level => 1 );
+    my ( $headers, @parts ) = $class->_parse( @_, top_level => 1 );
 
     return $class->new(
         headers => $headers,
-        parts   => $parts,
+        parts   => \@parts,
     );
 }
 
@@ -58,32 +72,34 @@ sub _parse {
 
     my ( $line_sep, $sep_idx, $headers ) = $class->_parse_headers($text);
 
-    substr( ${$text}, 0, $sep_idx + ( length $line_sep * 2 ) ) = q{};
+    substr( ${$text}, 0, $sep_idx ) = q{};
 
-    my $parts = $class->_parse_parts( $text, $headers, $top_level );
+    my @parts = $class->_parse_parts( $text, $headers, $top_level );
 
-    return ( $headers, $parts );
+    return ( $headers, @parts );
 }
 
 sub _parse_headers {
     my $class = shift;
     my $text  = shift;
 
+    my $header_text;
     my $sep_idx;
     my $line_sep;
 
-    if ( ${$text} =~ /.+($LINE_SEP_RE)\1/sm ) {
-        $sep_idx  = pos ${$text};
-        $line_sep = $1;
+    if ( ${$text} =~ /(.+?)($LINE_SEP_RE)\2/s ) {
+        $header_text = $1 . $2;
+        $sep_idx     = ( length $header_text ) + ( length $2 );
+        $line_sep    = $2;
     }
     else {
         die
             'The text you passed to parse() does not appear to be a valid email.';
     }
 
-    my $header_text = substr( ${$text}, 0, $sep_idx );
-
-    my $headers = Courriel::Headers->parse(
+    # Need to quote class name or else this perl sees this as
+    # Courriel::Headers() because of the Headers type constraint.
+    my $headers = 'Courriel::Headers'->parse(
         text     => \$header_text,
         line_sep => $line_sep,
     );
@@ -104,7 +120,7 @@ sub _parse_parts {
 
     my $parsed_ct = parse_content_type( $ct[0] // 'text/plain' );
 
-    my $ct = Courriel::ContentType->new(
+    my $ct = 'Courriel::ContentType'->new(
         mime_type => "$parsed_ct->{discrete}/$parsed_ct->{composite}",
         (
             $parsed_ct->{attributes}{charset}
@@ -116,7 +132,7 @@ sub _parse_parts {
 
     # The headers for the message as a whole should not be considered the
     # headers for the top-level part.
-    $headers = Courriel::Headers->new() if $top_level;
+    $headers = 'Courriel::Headers'->new() if $top_level;
 
     if ( $ct->mime_type() !~ /^multipart/ ) {
         return Courriel::Part::Single->new(
@@ -141,19 +157,12 @@ sub _parse_parts {
                 (?<epilogue>.*?)
                 /sx;
 
-    my @parts = map {
+    return map {
         my ( undef, $part ) = $class->_parse( \$_ );
         $part;
     } @{ $-{part} };
-
-    return Courriel::Part::Multipart->new(
-        content_type => $ct,
-        headers      => $headers,
-        ( length $-{preamble} ? ( preamble => $-{preamble} ) : () ),
-        ( length $-{epilogue} ? ( epilogue => $-{epilogue} ) : () ),
-        boundary => $boundary,
-        parts    => \@parts,
-    );
 }
 
-                1;
+__PACKAGE__->meta()->make_immutable();
+
+1;
