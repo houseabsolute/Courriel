@@ -40,8 +40,8 @@ override BUILDARGS => sub {
 sub _build_content_type {
     my $self = shift;
 
-    if ( @{$self->parts()}==1) {
-        return $self->parts()->[0]->content_type()
+    if ( @{ $self->parts() } == 1 ) {
+        return $self->parts()->[0]->content_type();
     }
     else {
         return 'multipart/mixed';
@@ -54,7 +54,12 @@ my $LINE_SEP_RE = qr/\x0a\x0d|\x0d\x0a|\x0a|\x0d/;
 sub parse {
     my $class = shift;
 
-    my ( $headers, @parts ) = $class->_parse( @_, top_level => 1 );
+    my ( $headers, $part ) = $class->_parse(@_);
+
+    my @parts
+        = $part->is_multipart()
+        ? $part->parts()
+        : $part;
 
     return $class->new(
         headers => $headers,
@@ -64,19 +69,18 @@ sub parse {
 
 sub _parse {
     my $class = shift;
-    my ( $text, $top_level ) = validated_list(
+    my ($text) = validated_list(
         \@_,
-        text      => { isa => StringRef, coerce  => 1 },
-        top_level => { isa => Bool,      default => 0 },
+        text => { isa => StringRef, coerce => 1 },
     );
 
     my ( $line_sep, $sep_idx, $headers ) = $class->_parse_headers($text);
 
     substr( ${$text}, 0, $sep_idx ) = q{};
 
-    my @parts = $class->_parse_parts( $text, $headers, $top_level );
+    my $part = $class->_parse_parts( $text, $headers );
 
-    return ( $headers, @parts );
+    return ( $headers, $part );
 }
 
 sub _parse_headers {
@@ -111,7 +115,6 @@ sub _parse_parts {
     my $class     = shift;
     my $text      = shift;
     my $headers   = shift;
-    my $top_level = shift;
 
     my @ct = $headers->get('Content-Type');
     if ( @ct > 1 ) {
@@ -129,10 +132,6 @@ sub _parse_parts {
         ),
         attributes => $parsed_ct->{attributes},
     );
-
-    # The headers for the message as a whole should not be considered the
-    # headers for the top-level part.
-    $headers = 'Courriel::Headers'->new() if $top_level;
 
     if ( $ct->mime_type() !~ /^multipart/ ) {
         return Courriel::Part::Single->new(
@@ -157,10 +156,19 @@ sub _parse_parts {
                 (?<epilogue>.*?)
                 /sx;
 
-    return map {
+    my @parts = map {
         my ( undef, $part ) = $class->_parse( \$_ );
         $part;
     } @{ $-{part} };
+
+    return Courriel::Part::Multipart->new(
+        content_type => $ct,
+        headers      => $headers,
+        ( length $-{preamble} ? ( preamble => $-{preamble} ) : () ),
+        ( length $-{epilogue} ? ( epilogue => $-{epilogue} ) : () ),
+        boundary => $boundary,
+        parts    => \@parts,
+    );
 }
 
 __PACKAGE__->meta()->make_immutable();
