@@ -91,6 +91,9 @@ sub _parse_headers {
     my $sep_idx;
     my $line_sep;
 
+    # We want to ignore mbox message separators
+    ${$text} =~ s/^From .+ \d\d:\d\d:\d\d \d\d\d\d$LINE_SEP_RE//;
+
     if ( ${$text} =~ /(.+?)($LINE_SEP_RE)\2/s ) {
         $header_text = $1 . $2;
         $sep_idx     = ( length $header_text ) + ( length $2 );
@@ -146,26 +149,37 @@ sub _parse_parts {
         . $ct->mime_type()
         . q{) but it does not specify a boundary.};
 
-    ${$text} =~ /
-                (?<preamble>.*?)
-                (?:
-                    ^--\Q$boundary\E\s*
-                    (?<part>.+)?
-                )+
+    my ( $preamble, $all_parts, $epilogue ) = ${$text} =~ /
+                (.*?)                   # preamble
+                ^--\Q$boundary\E\s*
+                (.+)                    # all parts
                 ^--\Q$boundary\E--\s*
-                (?<epilogue>.*?)
-                /sx;
+                (.*)                    # epilogue
+                /smx;
+
+    my @part_text = split /^--\Q$boundary\E\s*/m, $all_parts;
+
+    die 'Could not parse any parts from a supposedly multipart message.'
+        unless @part_text;
 
     my @parts = map {
-        my ( undef, $part ) = $class->_parse( \$_ );
+        my ( undef, $part ) = $class->_parse( text => \$_ );
         $part;
-    } @{ $-{part} };
+    } @part_text;
 
     return Courriel::Part::Multipart->new(
         content_type => $ct,
         headers      => $headers,
-        ( length $-{preamble} ? ( preamble => $-{preamble} ) : () ),
-        ( length $-{epilogue} ? ( epilogue => $-{epilogue} ) : () ),
+        (
+                   defined $preamble
+                && length $preamble
+                && $preamble =~ /\S/ ? ( preamble => $preamble ) : ()
+        ),
+        (
+                   defined $epilogue
+                && length $epilogue
+                && $epilogue =~ /\S/ ? ( epilogue => $epilogue ) : ()
+        ),
         boundary => $boundary,
         parts    => \@parts,
     );
