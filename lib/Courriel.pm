@@ -9,6 +9,8 @@ use Courriel::Headers;
 use Courriel::Part::Multipart;
 use Courriel::Part::Single;
 use Courriel::Types qw( Bool Headers Part StringRef );
+use DateTime;
+use DateTime::Format::Mail;
 use Email::MIME::ContentType qw( parse_content_type );
 use MooseX::Params::Validate qw( validated_list );
 
@@ -28,6 +30,14 @@ has _part => (
     ]
 );
 
+has datetime => (
+    is       => 'ro',
+    isa      => 'DateTime',
+    init_arg => undef,
+    lazy     => 1,
+    builder  => '_build_datetime',
+);
+
 sub part_count {
     my $self = shift;
 
@@ -42,6 +52,44 @@ sub parts {
     return $self->is_multipart()
         ? $self->_part()->parts()
         : $self->_part();
+}
+
+{
+    my $parser = DateTime::Format::Mail->new( loose => 1 );
+
+    sub _build_datetime {
+        my $self = shift;
+
+        # Stolen from Email::Date
+        my $raw_date 
+            = $self->headers()->get('Date')
+            || $self->_find_date_received( $self->headers()->get('Received') )
+            || $self->headers()->get('Resent-Date');
+
+        if ( defined $raw_date && length $raw_date ) {
+            my $dt = eval { $parser->parse_datetime($raw_date) };
+
+            if ($dt) {
+                $dt->set_time_zone('UTC');
+                return $dt;
+            }
+        }
+
+        return DateTime->now( time_zone => 'UTC' );
+    }
+}
+
+# Stolen from Email::Date
+sub _find_date_received {
+    shift;
+
+    return unless defined $_[0] and length $_[0];
+
+    my $most_recent = pop;
+
+    $most_recent =~ s/.+;//;
+
+    return $most_recent;
 }
 
 # from Email::Simple
