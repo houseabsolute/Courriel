@@ -149,6 +149,12 @@ EOF
         ),
         'email datetime is parsed from Date header correctly'
     );
+
+    is_deeply(
+        [ sort map { $_->address() } $email->recipients() ],
+        ['autarch@urth.org'],
+        'recipients includes all expected addresses',
+    );
 }
 
 {
@@ -217,6 +223,47 @@ EOF
             time_zone => '-0500',
         ),
         'email datetime is parsed from Resent-Date header correctly'
+    );
+}
+
+{
+    my $text = <<'EOF';
+From autarch@gmail.com Sun May 29 11:22:29 2011
+MIME-Version: 1.0
+Date: Sun, 29 May 2011 11:22:23 -0500
+Message-ID: <BANLkTimjF2BDbOKO_2jFJsp6t+0KvqxCwQ@mail.gmail.com>
+Subject: Testing
+From: Dave Rolsky <autarch@gmail.com>
+To: Dave Rolsky <autarch@urth.org>, John Smith <foo@example.com>
+CC: "Whatever goes here" <what@example.com>, Jill Smith <jill@example.com>
+Content-Type: text/plain
+
+Whatever
+EOF
+
+    my $email = Courriel->parse( text => \$text );
+
+    is_deeply(
+        [ sort map { $_->address() } $email->recipients() ],
+        [
+            'autarch@urth.org',
+            'foo@example.com',
+            'jill@example.com',
+            'what@example.com'
+        ],
+        'recipients includes all expected addresses',
+    );
+
+    is_deeply(
+        [ sort map { $_->address() } $email->participants() ],
+        [
+            'autarch@gmail.com',
+            'autarch@urth.org',
+            'foo@example.com',
+            'jill@example.com',
+            'what@example.com'
+        ],
+        'participants includes all expected addresses',
     );
 }
 

@@ -8,10 +8,12 @@ use Courriel::ContentType;
 use Courriel::Headers;
 use Courriel::Part::Multipart;
 use Courriel::Part::Single;
-use Courriel::Types qw( Bool Headers Part StringRef );
+use Courriel::Types qw( ArrayRef Bool Headers Part StringRef );
 use DateTime;
 use DateTime::Format::Mail;
+use Email::Address;
 use Email::MIME::ContentType qw( parse_content_type );
+use List::AllUtils qw( uniq );
 use MooseX::Params::Validate qw( validated_list );
 
 use Moose;
@@ -36,6 +38,28 @@ has datetime => (
     init_arg => undef,
     lazy     => 1,
     builder  => '_build_datetime',
+);
+
+has _participants => (
+    traits   => ['Array'],
+    isa      => ArrayRef ['Email::Address'],
+    init_arg => undef,
+    lazy     => 1,
+    builder  => '_build_participants',
+    handles  => {
+        participants => 'elements',
+    },
+);
+
+has _recipients => (
+    traits   => ['Array'],
+    isa      => ArrayRef ['Email::Address'],
+    init_arg => undef,
+    lazy     => 1,
+    builder  => '_build_recipients',
+    handles  => {
+        recipients => 'elements',
+    },
 );
 
 sub part_count {
@@ -90,6 +114,26 @@ sub _find_date_received {
     $most_recent =~ s/.+;//;
 
     return $most_recent;
+}
+
+sub _build_recipients {
+    my $self = shift;
+
+    my @addresses = map { Email::Address->parse($_) }
+        map { $self->headers()->get($_) } qw( To CC );
+
+    my %seen;
+    return [ grep { !$seen{ $_->original() }++ } @addresses ];
+}
+
+sub _build_participants {
+    my $self = shift;
+
+    my @addresses = map { Email::Address->parse($_) }
+        map { $self->headers()->get($_) } qw( From To CC );
+
+    my %seen;
+    return [ grep { !$seen{ $_->original() }++ } @addresses ];
 }
 
 # from Email::Simple
