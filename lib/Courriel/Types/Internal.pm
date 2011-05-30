@@ -7,9 +7,6 @@ use namespace::autoclean;
 use MooseX::Types -declare => [
     qw(
         Body
-        Charset
-        ContentType
-        Encoding
         EvenArrayRef
         Headers
         Part
@@ -26,15 +23,6 @@ subtype Body,
 
 subtype Headers,
     as role_type('Courriel::Role::Headers');
-
-subtype Charset,
-    as NonEmptyStr;
-
-subtype ContentType,
-    as class_type('Courriel::ContentType');
-
-subtype Encoding,
-    as NonEmptyStr;
 
 subtype EvenArrayRef,
     as ArrayRef,

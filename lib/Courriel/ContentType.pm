@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use namespace::autoclean;
 
-use Courriel::Types qw( Charset HashRef NonEmptyStr );
+use Courriel::Types qw( HashRef NonEmptyStr );
 
 use Moose;
 
@@ -16,8 +16,9 @@ has mime_type => (
 
 has charset => (
     is      => 'ro',
-    isa     => Charset,
-    default => 'us-ascii',
+    isa     => NonEmptyStr,
+    lazy    => 1,
+    builder => '_build_charset',
 );
 
 has attributes => (
@@ -25,6 +26,12 @@ has attributes => (
     isa     => HashRef [NonEmptyStr],
     default => sub { {} },
 );
+
+sub _build_charset {
+    my $self = shift;
+
+    return $self->attributes()->{charset} // 'us-ascii';
+}
 
 __PACKAGE__->meta()->make_immutable();
 

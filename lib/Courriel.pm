@@ -6,13 +6,13 @@ use namespace::autoclean;
 
 use Courriel::ContentType;
 use Courriel::Headers;
+use Courriel::Helpers qw( parse_header_with_attributes );
 use Courriel::Part::Multipart;
 use Courriel::Part::Single;
-use Courriel::Types qw( ArrayRef Bool Headers Part StringRef );
+use Courriel::Types qw( ArrayRef Bool Headers Maybe Part StringRef );
 use DateTime;
 use DateTime::Format::Mail;
 use Email::Address;
-use Email::MIME::ContentType qw( parse_content_type );
 use List::AllUtils qw( uniq );
 use MooseX::Params::Validate qw( validated_list );
 
@@ -60,6 +60,22 @@ has _recipients => (
     handles  => {
         recipients => 'elements',
     },
+);
+
+has plain_body_part => (
+    is       => 'ro',
+    isa      => Maybe['Courriel::Part::Single'],
+    init_arg => undef,
+    lazy     => 1,
+    builder  => '_build_plain_body_part',
+);
+
+has html_body_part => (
+    is       => 'ro',
+    isa      => Maybe['Courriel::Part::Single'],
+    init_arg => undef,
+    lazy     => 1,
+    builder  => '_build_html_body_part',
 );
 
 sub part_count {
@@ -136,6 +152,41 @@ sub _build_participants {
     return [ grep { !$seen{ $_->original() }++ } @addresses ];
 }
 
+sub _build_plain_body_part {
+    my $self = shift;
+
+    return $self->first_part_matching(
+        sub {
+            $_[0]->mime_type() eq 'text/plain'
+                && $_[0]->is_inline();
+        }
+    );
+}
+
+sub _build_html_body_part {
+    my $self = shift;
+
+    return $self->first_part_matching(
+        sub {
+            $_[0]->mime_type() eq 'text/html'
+                && $_[0]->is_inline();
+        }
+    );
+}
+
+sub first_part_matching {
+    my $self = shift;
+    my $match = shift;
+
+    my @parts = $self->_part();
+
+    for ( my $part = shift @parts; $part; $part = shift @parts ) {
+        return $part if $match->($part);
+
+        push @parts, $part->parts() if $part->is_multipart();
+    }
+}
+
 # from Email::Simple
 my $LINE_SEP_RE = qr/\x0a\x0d|\x0d\x0a|\x0a|\x0d/;
 
@@ -196,26 +247,11 @@ sub _parse_headers {
 }
 
 sub _parse_parts {
-    my $class     = shift;
-    my $text      = shift;
-    my $headers   = shift;
+    my $class   = shift;
+    my $text    = shift;
+    my $headers = shift;
 
-    my @ct = $headers->get('Content-Type');
-    if ( @ct > 1 ) {
-        die 'This email defines more than one content-type header.';
-    }
-
-    my $parsed_ct = parse_content_type( $ct[0] // 'text/plain' );
-
-    my $ct = 'Courriel::ContentType'->new(
-        mime_type => "$parsed_ct->{discrete}/$parsed_ct->{composite}",
-        (
-            $parsed_ct->{attributes}{charset}
-            ? ( charset => $parsed_ct->{attributes}{charset} )
-            : ()
-        ),
-        attributes => $parsed_ct->{attributes},
-    );
+    my $ct = $class->_content_type_from_headers($headers);
 
     if ( $ct->mime_type() !~ /^multipart/ ) {
         return Courriel::Part::Single->new(
@@ -224,8 +260,7 @@ sub _parse_parts {
             raw_content  => $text,
         );
     }
-
-    my $boundary = $ct->{attributes}{boundary}
+    my $boundary = $ct->attributes()->{boundary}
         // die q{The message's mime type claims this is a multipart message (}
         . $ct->mime_type()
         . q{) but it does not specify a boundary.};
@@ -258,6 +293,26 @@ sub _parse_parts {
         ),
         boundary => $boundary,
         parts    => [ map { $class->_parse( \$_ ) } @part_text ],
+    );
+}
+
+sub _content_type_from_headers {
+    my $class   = shift;
+    my $headers = shift;
+
+    my @ct = $headers->get('Content-Type');
+    if ( @ct > 1 ) {
+        die 'This email defines more than one Content-Type header.';
+    }
+
+    my ( $mime_type, $attributes )
+        = defined $ct[0]
+        ? parse_header_with_attributes( $ct[0] )
+        : ( 'text/plain', {} );
+
+    return Courriel::ContentType->new(
+        mime_type  => $mime_type,
+        attributes => $attributes,
     );
 }
 

@@ -137,6 +137,18 @@ EOF
     );
 
     is(
+        $email->plain_body_part(),
+        $parts[0],
+        'found plain body part'
+    );
+
+    is(
+        $email->html_body_part(),
+        $parts[1],
+        'found html body part'
+    );
+
+    is(
         $email->datetime(),
         DateTime->new(
             year      => 2011,
@@ -264,6 +276,94 @@ EOF
             'what@example.com'
         ],
         'participants includes all expected addresses',
+    );
+}
+
+{
+    my $text = <<'EOF';
+From autarch@gmail.com Sun May 29 11:22:29 2011
+MIME-Version: 1.0
+Date: Sun, 29 May 2011 11:22:22 -0500
+Message-ID: <BANLkTimjF2BDbOKO_2jFJsp6t+0KvqxCwQ@mail.gmail.com>
+Subject: Testing
+From: Dave Rolsky <autarch@gmail.com>
+To: Dave Rolsky <autarch@urth.org>
+Content-Type: multipart/alternative; boundary=20cf3071cfd06272ae04a46c9306
+
+
+--20cf3071cfd06272ae04a46c9306
+Content-Type: text/plain; charset=ISO-8859-1
+
+This is a test email.
+
+It has some *bold* text.
+
+--20cf3071cfd06272ae04a46c9306
+Content-Type: text/html; charset=ISO-8859-1
+Content-Disposition: attachment;
+  filename="html-attachment.html";
+  creation-date="Sun, 29 May 2011 11:01:02 -0500";
+  modification-date="Sun, 29 May 2011 11:01:03 -0500";
+  read-date="Sun, 29 May 2011 11:01:04 -0500"
+
+This is a test email.<br><br>It has some <b>bold</b> text.<br><br>
+
+--20cf3071cfd06272ae04a46c9306--
+EOF
+
+    my $email = Courriel->parse( text => \$text );
+
+    my $attachment
+        = $email->first_part_matching( sub { $_[0]->is_attachment() } );
+
+    ok( $attachment, 'found attachment' );
+
+    is(
+        $attachment->filename(),
+        'html-attachment.html',
+        'got filename from content disposition'
+    );
+
+    is(
+        $attachment->disposition()->creation_datetime(),
+        DateTime->new(
+            year      => 2011,
+            month     => 5,
+            day       => 29,
+            hour      => 11,
+            minute    => 01,
+            second    => 02,
+            time_zone => '-0500',
+        ),
+        'got creation_datetime from content disposition'
+    );
+
+    is(
+        $attachment->disposition()->modification_datetime(),
+        DateTime->new(
+            year      => 2011,
+            month     => 5,
+            day       => 29,
+            hour      => 11,
+            minute    => 01,
+            second    => 03,
+            time_zone => '-0500',
+        ),
+        'got modification_datetime from content disposition'
+    );
+
+    is(
+        $attachment->disposition()->read_datetime(),
+        DateTime->new(
+            year      => 2011,
+            month     => 5,
+            day       => 29,
+            hour      => 11,
+            minute    => 01,
+            second    => 04,
+            time_zone => '-0500',
+        ),
+        'got read_datetime from content disposition'
     );
 }
 
