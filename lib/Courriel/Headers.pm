@@ -62,14 +62,18 @@ sub _build_key_indices {
     return \%indices;
 }
 
-sub get {
-    my $self = shift;
-    my ($key) = pos_validated_list(
-        \@_,
-        { isa => NonEmptyStr },
-    );
+{
+    my @spec = ( { isa => NonEmptyStr } );
 
-    return @{ $self->_headers() }[ $self->_key_indices_for($key) ];
+    sub get {
+        my $self = shift;
+        my ($key) = pos_validated_list(
+            \@_,
+            @spec,
+        );
+
+        return @{ $self->_headers() }[ $self->_key_indices_for($key) ];
+    }
 }
 
 sub _key_indices_for {
@@ -155,12 +159,16 @@ sub remove {
                      $horiz_ws+(\S.*)       # continuation line
                     /x;
 
+    my @spec = (
+        text     => { isa => StringRef,   coerce  => 1 },
+        line_sep => { isa => NonEmptyStr, default => "\x0d\x0a" },
+    );
+
     sub parse {
         my $class = shift;
         my ( $text, $sep ) = validated_list(
             \@_,
-            text     => { isa => StringRef, coerce => 1 },
-            line_sep => { isa => NonEmptyStr, default => "\x0d\x0a" },
+            @spec,
         );
 
         my $sep_re = qr/\Q$sep/;

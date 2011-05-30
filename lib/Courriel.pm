@@ -8,79 +8,68 @@ use Courriel::ContentType;
 use Courriel::Headers;
 use Courriel::Part::Multipart;
 use Courriel::Part::Single;
-use Courriel::Types qw( Bool Headers StringRef );
+use Courriel::Types qw( Bool Headers Part StringRef );
 use Email::MIME::ContentType qw( parse_content_type );
 use MooseX::Params::Validate qw( validated_list );
 
 use Moose;
 
-with 'Courriel::Role::HasParts', 'Courriel::Role::HasContentType';
-
-has headers => (
+has _part => (
     is       => 'ro',
-    isa      => Headers,
+    isa      => Part,
+    init_arg => 'part',
     required => 1,
+    handles  => [
+        qw(
+            content_type
+            headers
+            is_multipart
+            )
+    ]
 );
 
-override BUILDARGS => sub {
-    my $class = shift;
-
-    my $p = super();
-
-    if ( exists $p->{part} ) {
-        my $part = delete $p->{part};
-
-        $p->{parts} = [$part]
-            unless exists $p->{parts};
-    }
-
-    return $p;
-};
-
-sub _build_content_type {
+sub part_count {
     my $self = shift;
 
-    if ( @{ $self->parts() } == 1 ) {
-        return $self->parts()->[0]->content_type();
-    }
-    else {
-        return 'multipart/mixed';
-    }
+    return $self->is_multipart()
+        ? $self->_part()->part_count()
+        : 1;
+}
+
+sub parts {
+    my $self = shift;
+
+    return $self->is_multipart()
+        ? $self->_part()->parts()
+        : $self->_part();
 }
 
 # from Email::Simple
 my $LINE_SEP_RE = qr/\x0a\x0d|\x0d\x0a|\x0a|\x0d/;
 
-sub parse {
-    my $class = shift;
+{
+    my @spec = ( text => { isa => StringRef, coerce => 1 } );
 
-    my ( $headers, $part ) = $class->_parse(@_);
+    sub parse {
+        my $class = shift;
+        my ($text) = validated_list(
+            \@_,
+            @spec,
+        );
 
-    my @parts
-        = $part->is_multipart()
-        ? $part->parts()
-        : $part;
-
-    return $class->new(
-        headers => $headers,
-        parts   => \@parts,
-    );
+        return $class->new( part => $class->_parse($text) );
+    }
 }
 
 sub _parse {
     my $class = shift;
-    my ($text) = validated_list(
-        \@_,
-        text => { isa => StringRef, coerce => 1 },
-    );
+    my $text  = shift;
 
     my ( $line_sep, $sep_idx, $headers ) = $class->_parse_headers($text);
 
     substr( ${$text}, 0, $sep_idx ) = q{};
 
-    my $part = $class->_parse_parts( $text, $headers );
-
-    return ( $headers, $part );
+    return $class->_parse_parts( $text, $headers );
 }
 
 sub _parse_headers {
@@ -162,11 +151,6 @@ sub _parse_parts {
     die 'Could not parse any parts from a supposedly multipart message.'
         unless @part_text;
 
-    my @parts = map {
-        my ( undef, $part ) = $class->_parse( text => \$_ );
-        $part;
-    } @part_text;
-
     return Courriel::Part::Multipart->new(
         content_type => $ct,
         headers      => $headers,
@@ -181,7 +165,7 @@ sub _parse_parts {
                 && $epilogue =~ /\S/ ? ( epilogue => $epilogue ) : ()
         ),
         boundary => $boundary,
-        parts    => \@parts,
+        parts    => [ map { $class->_parse( \$_ ) } @part_text ],
     );
 }
 
