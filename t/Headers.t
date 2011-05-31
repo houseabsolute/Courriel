@@ -250,6 +250,22 @@ EOF
 
 {
     my $headers = <<'EOF';
+Subject: =?iso-8859-1?Q?=A1Hola,_se=F1or!?=   not encoded
+EOF
+
+    my $h = Courriel::Headers->parse( text => \$headers, line_sep => "\n" );
+
+    is_deeply(
+        [ $h->headers() ],
+        [
+            Subject => $hola . '   not encoded'
+        ],
+        'parsed headers with MIME encoded word followed by three spaces then unencoded text'
+    );
+}
+
+{
+    my $headers = <<'EOF';
 Subject: not encoded =?iso-8859-1?Q?=A1Hola,_se=F1or!?=
 EOF
 
@@ -261,6 +277,22 @@ EOF
             Subject => 'not encoded ' . $hola
         ],
         'parsed headers with unencoded text followed by MIME encoded word'
+    );
+}
+
+{
+    my $headers = <<'EOF';
+Subject: not encoded   =?iso-8859-1?Q?=A1Hola,_se=F1or!?=
+EOF
+
+    my $h = Courriel::Headers->parse( text => \$headers, line_sep => "\n" );
+
+    is_deeply(
+        [ $h->headers() ],
+        [
+            Subject => 'not encoded   ' . $hola
+        ],
+        'parsed headers with unencoded text followed by three spaces then MIME encoded word'
     );
 }
 
