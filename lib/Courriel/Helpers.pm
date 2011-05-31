@@ -5,7 +5,29 @@ use warnings;
 
 use Exporter qw( import );
 
-our @EXPORT_OK = 'parse_header_with_attributes';
+our @EXPORT_OK = qw( fold_header parse_header_with_attributes );
+
+our $CRLF = "\x0d\x0a";
+
+sub fold_header {
+    my $line = shift;
+
+    my $folded = q{};
+
+    # Algorithm stolen from Email::Simple::Header
+    while ($line) {
+        if ($line =~ s/^(.{0,76})(\s|\z)//) {
+            $folded .= $1 . $CRLF;
+            $folded .= q{  } if $line;
+        } else {
+            # Basically nothing we can do. :(
+            $folded .= $line . $CRLF;
+            last;
+        }
+    }
+
+    return $folded;
+}
 
 sub parse_header_with_attributes {
     my $text = shift;
@@ -19,7 +41,6 @@ sub parse_header_with_attributes {
 }
 
 # The rest of the code was taken mostly wholesale from Email::MIME::ContentType.
-
 my $tspecials = quotemeta '()<>@,;:\\"/[]?=';
 my $extract_quoted
     = qr/(?:\"(?:[^\\\"]*(?:\\.[^\\\"]*)*)\"|\'(?:[^\\\']*(?:\\.[^\\\']*)*)\')/;
