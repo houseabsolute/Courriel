@@ -175,9 +175,9 @@ sub remove {
             @spec,
         );
 
-        my $sep_re = qr/\Q$sep/;
-
         my @headers;
+
+        my $sep_re = qr/\Q$sep/;
 
         while ( ${$text} =~ /\G${line_re}${sep_re}/gc ) {
             if ( defined $1 ) {
@@ -362,3 +362,94 @@ sub _mime_encode {
 __PACKAGE__->meta()->make_immutable();
 
 1;
+
+# ABSTRACT: The headers for an email part
+
+__END__
+
+=head1 SYNOPSIS
+
+    my $email = Courriel->parse( text => ... );
+    my $headers = $email->headers;
+
+    print "$_\n" for $headers->get('Received');
+
+=head1 DESCRIPTION
+
+This class represents the headers of an email.
+
+Any sub part of an email can have its own headers, so every part has an
+associated object representing its headers. This class makes no distinction
+between top-level headers and headers for a sub part.
+
+=head1 API
+
+This class supports the following methods:
+
+=head2 Courriel::Headers->parse( ... )
+
+This method creates a new object by parsing a string. It accepts the following
+parameters:
+
+=over 4
+
+=item * text
+
+The text to parse. This can either be a plain scalar or a reference to a
+scalar. If you pass a reference, the underlying scalar may be modified.
+
+=item * line_sep
+
+The line separator. This default to a "\r\n", but you can change it if
+necessary. Note that this only affects parsing, header objects are always
+output with RFC-compliant line endings.
+
+=back
+
+Header parsing unfolds folded headers, and decodes any MIME-encoded values (as
+described in RFC 2047).
+
+=head2 Courriel::Headers->new( headers => [ ... ] )
+
+This method creates a new object. It accepts one parameter, C<headers>, which
+should be an array reference of header names and values.
+
+A given header key can appear multiple times.
+
+This object does not (yet, perhaps) enforce RFC restrictions on repetition of
+certain headers.
+
+Header order is preserved, per RFC 5322.
+
+=head2 $headers->get($name)
+
+Given a header name, this returns a list of the values found for the
+header. Each occurrence of the header is returned as a separate value.
+
+=head2 $headers->add( $name => $value, ... )
+
+Given a list of header names and values, this adds the headers to the
+object. If any of the headers already have values in the object, then new
+values are added after the existing values, rather than at the end of headers.
+
+=head2 $headers->unshift( $name => $value, ... )
+
+This is like C<add()>, but this pushes the headers onto the front of the
+internal headers array. This is useful if you are adding "Received" headers,
+which per RFC 5322, should always be added at the I<top> of the headers.
+
+=head2 $headers->remove($name)
+
+Given a header name, this removes all instances of that header from the object.
+
+=head2 $headers->as_string( charset => ... )
+
+This returns a string representing the headers in the object. The values will
+be folded and/or MIME-encoded as needed.
+
+The C<charset> parameter specifies what character set to use for MIME-encoding
+non-ASCII values. This defaults to "utf8". The charset name must be one
+recognized by the L<Encode> module.
+
+MIME encoding is always done using the "B" (Base64) encoding, never the "Q"
+encoding.
