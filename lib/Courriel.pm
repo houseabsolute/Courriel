@@ -1,5 +1,7 @@
 package Courriel;
 
+use v5.10.0;
+
 use strict;
 use warnings;
 use namespace::autoclean;
@@ -258,7 +260,8 @@ sub _parse_parts {
             raw_content  => $text,
         );
     }
-    my $boundary = $ct->attributes()->{boundary}
+
+    my $boundary = $ct->attribute('boundary')
         // die q{The message's mime type claims this is a multipart message (}
         . $ct->mime_type()
         . q{) but it does not specify a boundary.};
@@ -317,3 +320,14 @@ sub _content_type_from_headers {
 __PACKAGE__->meta()->make_immutable();
 
 1;
+
+# ABSTRACT: High level email parsing and manipulation
+
+__END__
+
+=head1 SYNOPSIS
+
+=head1 DESCRIPTION
+
+B<This software is still very alpha, and the API may change without warning in
+future versions.>
