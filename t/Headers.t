@@ -265,6 +265,37 @@ EOF
 }
 
 {
+    my $chinese = "\x{4E00}" x 100;
+
+    my $h = Courriel::Headers->new( headers => [ Subject => $chinese ]);
+
+    my $string = <<'EOF';
+Subject:
+  =?UTF-8?B?5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA?=
+  =?UTF-8?B?5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA?=
+  =?UTF-8?B?5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA?=
+  =?UTF-8?B?5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA?=
+  =?UTF-8?B?5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA?=
+  =?UTF-8?B?5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA?=
+  =?UTF-8?B?5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA5LiA?=
+EOF
+
+    $string =~ s/\n/$crlf/g;
+
+    is(
+        $h->as_string(),
+        $string,
+        'Chinese subject is encoded properly'
+    );
+
+    is_deeply(
+        [ Courriel::Headers->parse( text => $h->as_string() )->headers() ],
+        [ Subject => $chinese ],
+        'Chinese subject header round trips properly'
+    );
+}
+
+{
     my $real = <<'EOF';
 Return-Path: <rtcpan@cpan.rt.develooper.com>
 X-Spam-Checker-Version: SpamAssassin 3.3.1 (2010-03-16) on urth.org

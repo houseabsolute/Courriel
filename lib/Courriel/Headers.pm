@@ -194,7 +194,8 @@ sub remove {
                 # but looking at emails in real use suggests that all the
                 # leading whitespace should be compressed down to a single
                 # space, so that's what we do.
-                $headers[-1] .= q{ } . $3;
+                $headers[-1] .= q{ } if length $headers[-1];
+                $headers[-1] .= $3;
             }
         }
 
