@@ -50,14 +50,14 @@ __END__
 
 =head1 SYNOPSIS
 
-  my $ct = $part->content_type();
-  print $ct->mime_type();
-  print $ct->charset();
+    my $ct = $part->content_type();
+    print $ct->mime_type();
+    print $ct->charset();
 
-  my %attr = $ct->attributes();
-  while ( my ( $k, $v ) = each %attr ) {
-      print "$k => $v\n";
-  }
+    my %attr = $ct->attributes();
+    while ( my ( $k, $v ) = each %attr ) {
+        print "$k => $v\n";
+    }
 
 =head1 DESCRIPTION
 

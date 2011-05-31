@@ -85,15 +85,15 @@ __END__
 
 =head1 SYNOPSIS
 
-  my $disp = $part->content_disposition();
-  print $disp->is_inline();
-  print $disp->is_attachment();
-  print $disp->filename();
+    my $disp = $part->content_disposition();
+    print $disp->is_inline();
+    print $disp->is_attachment();
+    print $disp->filename();
 
-  my %attr = $disp->attributes();
-  while ( my ( $k, $v ) = each %attr ) {
-      print "$k => $v\n";
-  }
+    my %attr = $disp->attributes();
+    while ( my ( $k, $v ) = each %attr ) {
+        print "$k => $v\n";
+    }
 
 =head1 DESCRIPTION
 
