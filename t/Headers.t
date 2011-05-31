@@ -6,8 +6,9 @@ use Test::Fatal;
 use Test::More 0.88;
 
 use Courriel::Headers;
+use Courriel::Helpers;
 
-my $crlf = "\x0d\x0a";
+my $crlf = $Courriel::Helpers::CRLF;
 
 my $hola = "\x{00A1}Hola, se\x{00F1}or!";
 

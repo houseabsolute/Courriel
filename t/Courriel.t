@@ -1,10 +1,14 @@
 use strict;
 use warnings;
 
+use Test::Differences;
 use Test::Fatal;
 use Test::More 0.88;
 
 use Courriel;
+use Courriel::Helpers;
+
+my $crlf = $Courriel::Helpers::CRLF;
 
 {
     my $text = <<'EOF';
@@ -78,6 +82,8 @@ This is a test email.<br><br>It has some <b>bold</b> text.<br><br>
 --20cf3071cfd06272ae04a46c9306--
 EOF
 
+    my $original = $text;
+
     my $email = Courriel->parse( text => \$text );
 
     is( $email->part_count(), 2, 'email has two parts' );
@@ -113,9 +119,9 @@ It has some *bold* text.
 
 EOF
 
-    is_deeply(
-        $parts[0]->content(),
-        \$plain,
+    _compare_text(
+        ${ $parts[0]->content() },
+        $plain,
         'plain content is as expected',
     );
 
@@ -130,9 +136,9 @@ This is a test email.<br><br>It has some <b>bold</b> text.<br><br>
 
 EOF
 
-    is_deeply(
-        $parts[1]->content(),
-        \$html,
+    _compare_text(
+        ${ $parts[1]->content() },
+        $html,
         'html content is as expected',
     );
 
@@ -166,6 +172,15 @@ EOF
         [ sort map { $_->address() } $email->recipients() ],
         ['autarch@urth.org'],
         'recipients includes all expected addresses',
+    );
+
+    ( my $string = $original ) =~ s/\n/$crlf/g;
+    $string =~ s/^.+?\n//;    # remove mbox marker line
+
+    _compare_text(
+        $email->as_string(),
+        $string,
+        'as_string output matches original email'
     );
 }
 
@@ -368,3 +383,18 @@ EOF
 }
 
 done_testing();
+
+sub _compare_text {
+    my $got    = shift;
+    my $expect = shift;
+    my $desc   = shift;
+
+    for ( $got, $expect ) {
+        s/$Courriel::Helpers::LINE_SEP_RE/$crlf/g;
+        s/$crlf$crlf$crlf+/$crlf$crlf/g ;
+    }
+
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
+    eq_or_diff( $got, $expect, $desc );
+}

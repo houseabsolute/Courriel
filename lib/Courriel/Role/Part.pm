@@ -12,7 +12,7 @@ use Courriel::Types qw( NonEmptyStr );
 
 use Moose::Role;
 
-requires '_build_content_type';
+requires qw( _build_content_type _content_as_string );
 
 has headers => (
     is       => 'ro',
@@ -67,6 +67,15 @@ sub _build_disposition {
         disposition => $disposition,
         attributes  => $attributes,
     );
+}
+
+sub as_string {
+    my $self = shift;
+
+    return
+          $self->headers()->as_string()
+        . $Courriel::Helpers::CRLF
+        . $self->_content_as_string();
 }
 
 1;

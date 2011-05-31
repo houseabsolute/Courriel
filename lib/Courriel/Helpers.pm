@@ -9,6 +9,9 @@ our @EXPORT_OK = qw( fold_header parse_header_with_attributes );
 
 our $CRLF = "\x0d\x0a";
 
+# from Email::Simple
+our $LINE_SEP_RE = qr/\x0a\x0d|\x0d\x0a|\x0a|\x0d/;
+
 sub fold_header {
     my $line = shift;
 

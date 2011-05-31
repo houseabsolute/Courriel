@@ -25,6 +25,7 @@ has _part => (
     required => 1,
     handles  => [
         qw(
+            as_string
             content_type
             headers
             is_multipart
@@ -187,9 +188,6 @@ sub first_part_matching {
     }
 }
 
-# from Email::Simple
-my $LINE_SEP_RE = qr/\x0a\x0d|\x0d\x0a|\x0a|\x0d/;
-
 {
     my @spec = ( text => { isa => StringRef, coerce => 1 } );
 
@@ -224,9 +222,9 @@ sub _parse_headers {
     my $line_sep;
 
     # We want to ignore mbox message separators
-    ${$text} =~ s/^From .+ \d\d:\d\d:\d\d \d\d\d\d$LINE_SEP_RE//;
+    ${$text} =~ s/^From .+ \d\d:\d\d:\d\d \d\d\d\d$Courriel::Helpers::LINE_SEP_RE//;
 
-    if ( ${$text} =~ /(.+?)($LINE_SEP_RE)\2/s ) {
+    if ( ${$text} =~ /(.+?)($Courriel::Helpers::LINE_SEP_RE)\2/s ) {
         $header_text = $1 . $2;
         $sep_idx     = ( length $header_text ) + ( length $2 );
         $line_sep    = $2;

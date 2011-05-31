@@ -29,6 +29,15 @@ has raw_content => (
     init_arg => 'raw_content',
 );
 
+sub BUILD {
+    my $self = shift;
+
+    ${ $self->raw_content() }
+        =~ s/$Courriel::Helpers::LINE_SEP_RE/$Courriel::Helpers::CRLF/g;
+
+    return;
+}
+
 sub is_multipart {0}
 
 sub _build_content_type {
@@ -52,6 +61,12 @@ sub _build_content_type {
             )
         );
     }
+}
+
+sub _content_as_string {
+    my $self = shift;
+
+    return ${ $self->raw_content() };
 }
 
 __PACKAGE__->meta()->make_immutable();
