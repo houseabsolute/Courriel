@@ -26,8 +26,8 @@ EOF
             mime_type => 'text/plain',
             charset   => 'utf8',
         ),
-        encoding => '8bit',
-        raw_content  => \$body,
+        encoding    => '8bit',
+        raw_content => \$body,
     );
 
     is(
@@ -53,8 +53,8 @@ EOF
             mime_type => 'text/plain',
             charset   => 'utf8',
         ),
-        encoding => 'base64',
-        raw_content  => \$encoded,
+        encoding    => 'base64',
+        raw_content => \$encoded,
     );
 
     is(
@@ -80,8 +80,8 @@ EOF
             mime_type => 'text/plain',
             charset   => 'utf8',
         ),
-        encoding => 'quoted-printable',
-        raw_content  => \$encoded,
+        encoding    => 'quoted-printable',
+        raw_content => \$encoded,
     );
 
     is(
