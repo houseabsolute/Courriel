@@ -30,7 +30,7 @@ my $hola = "\x{00A1}Hola, se\x{00F1}or!";
 
     is_deeply(
         [ $h->get('subject') ],
-        [ 'Foo bar' ],
+        ['Foo bar'],
         'got subject header (name is case-insensitive)'
     );
 
@@ -201,7 +201,6 @@ EOF
         'parsed headers with MIME encoded value'
     );
 
-
     my $string = <<'EOF';
 Subject: =?UTF-8?B?wqFIb2xhLCBzZcOxb3Ih?=
 Bar: 2
@@ -300,7 +299,7 @@ EOF
 {
     my $chinese = "\x{4E00}" x 100;
 
-    my $h = Courriel::Headers->new( headers => [ Subject => $chinese ]);
+    my $h = Courriel::Headers->new( headers => [ Subject => $chinese ] );
 
     my $string = <<'EOF';
 Subject:
@@ -500,6 +499,7 @@ EOF
 }
 
 {
+
     # Second line has spaces
     my $bad = <<'EOF';
 Ok: 1
