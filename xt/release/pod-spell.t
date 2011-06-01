@@ -19,11 +19,18 @@ local $ENV{LC_ALL} = 'C';
 all_pod_files_spelling_ok;
 
 __DATA__
-ascii
 API
-attribute's
-filename
-inline
+CPAN
+Courriel
+DateTime
+Multipart
 PayPal
 Rolsky
+UTC
+ascii
+attribute's
+distro
+filename
+inline
+multipart
 utf
