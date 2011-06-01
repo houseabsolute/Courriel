@@ -123,6 +123,22 @@ EOF
 }
 
 {
+    my ( $val, $attrs )
+        = Courriel::Helpers::parse_header_with_attributes(
+        q{foo/bar; test1="has \"escaped \\vals"; test2="contains ' single quote"}
+        );
+
+    is( $val, 'foo/bar', 'got correct value for header with attributes' );
+    is_deeply(
+        $attrs, {
+            test1 => q{has "escaped \\vals},
+            test2 => q{contains ' single quote},
+        },
+        'parsed attributes with weird values correctly'
+    );
+}
+
+{
     my $headers = <<'EOF';
 Foo: 1
 Bar: 2
