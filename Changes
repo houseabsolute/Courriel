@@ -9,6 +9,12 @@
 
 - Added Courriel::Headers->replace as a convenience method.
 
+- If a part is created with an explicit content_type and/or disposition
+  object, the part's headers will be updated so that the Content-Type and
+  Content-Disposition match the given object.
+
+- The boundary for a Multipart part and the boundary in its ContentType's
+  attributes will always be the same.
 
 0.01     2011-05-31
 

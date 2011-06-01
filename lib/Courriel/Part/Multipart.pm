@@ -13,10 +13,11 @@ use Moose;
 with 'Courriel::Role::Part', 'Courriel::Role::HasParts';
 
 has boundary => (
-    is      => 'ro',
-    isa     => NonEmptyStr,
-    lazy    => 1,
-    builder => '_build_boundary',
+    is        => 'ro',
+    isa       => NonEmptyStr,
+    lazy      => 1,
+    builder   => '_build_boundary',
+    predicate => '_has_boundary',
 );
 
 has preamble => (
@@ -31,8 +32,18 @@ has epilogue => (
     predicate => 'has_epilogue',
 );
 
-# Needed for Courriel::Role::Part
-sub BUILD { }
+sub BUILD {
+    my $self = shift;
+
+    # XXX - this is a nasty hack but I'm not sure if it can better. We want
+    # the boundary in the ContentType object to match the one in this
+    # part. There are more such hacks to come.
+    if ( $self->_has_boundary() && $self->_has_content_type() ) {
+        $self->content_type()->_attributes()->{boundary} = $self->boundary();
+    }
+
+    return;
+}
 
 sub is_attachment {0}
 sub is_inline     {0}
@@ -67,12 +78,23 @@ sub _content_as_string {
 sub _build_boundary {
     my $self = shift;
 
-    # XXX - this is a nasty hack but I'm not sure if it can better. We want
-    # the boundary in the ContentType object to match the one in this part.
-    my $attr = $self->_content_type()->attributes();
+    my $attr = $self->content_type()->_attributes();
 
     return $attr->{boundary} //= unique_boundary();
 }
+
+around _build_content_type => sub {
+    my $orig = shift;
+    my $self = shift;
+
+    my $ct = $self->$orig(@_);
+
+    return $ct unless $self->_has_boundary();
+
+    $ct->_attributes()->{boundary} = $self->boundary();
+
+    return $ct;
+};
 
 __PACKAGE__->meta()->make_immutable();
 
