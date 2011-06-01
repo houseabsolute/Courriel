@@ -135,7 +135,7 @@ sub clone_without_attachments {
             part => Courriel::Part::Single->new(
                 content_type => $text_body->content_type(),
                 headers      => $headers,
-                raw_content  => $text_body->raw_content(),
+                encoded_content  => $text_body->encoded_content(),
             )
         );
     }
@@ -147,7 +147,7 @@ sub clone_without_attachments {
             part => Courriel::Part::Single->new(
                 content_type => $html_body->content_type(),
                 headers      => $headers,
-                raw_content  => $html_body->raw_content(),
+                encoded_content  => $html_body->encoded_content(),
             )
         );
     }
@@ -320,7 +320,7 @@ sub _parse_parts {
     if ( $mime !~ /^multipart/ ) {
         return Courriel::Part::Single->new(
             headers     => $headers,
-            raw_content => $text,
+            encoded_content => $text,
         );
     }
 

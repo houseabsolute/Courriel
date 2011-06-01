@@ -23,12 +23,13 @@ has content => (
     predicate => '_has_content',
 );
 
-has raw_content => (
+has encoded_content => (
     is        => 'ro',
     isa       => StringRef,
     coerce    => 1,
-    builder   => '_build_raw_content',
-    predicate => '_has_raw_content',
+    lazy      => 1,
+    builder   => '_build_encoded_content',
+    predicate => '_has_encoded_content',
 );
 
 has disposition => (
@@ -44,18 +45,18 @@ has disposition => (
 sub BUILD {
     my $self = shift;
 
-    unless ( $self->_has_content() || $self->_has_raw_content() ) {
+    unless ( $self->_has_content() || $self->_has_encoded_content() ) {
         die
-            'You must provide a content or raw_content parameter when constructing a Courriel::Part::Single object.';
+            'You must provide a content or encoded_content parameter when constructing a Courriel::Part::Single object.';
     }
 
     ${ $self->content() }
         =~ s/$Courriel::Helpers::LINE_SEP_RE/$Courriel::Helpers::CRLF/g
         if $self->_has_content();
 
-    ${ $self->raw_content() }
+    ${ $self->encoded_content() }
         =~ s/$Courriel::Helpers::LINE_SEP_RE/$Courriel::Helpers::CRLF/g
-        if $self->_has_raw_content();
+        if $self->_has_encoded_content();
 
     if ( $self->_has_disposition ) {
         $self->headers()
@@ -65,7 +66,7 @@ sub BUILD {
     }
 
     return;
-};
+}
 
 sub _build_disposition {
     my $self = shift;
@@ -100,17 +101,17 @@ sub _default_mime_type {
 
         my $encoding = $self->encoding();
 
-        return $self->raw_content() if $unencoded{ lc $encoding };
+        return $self->encoded_content() if $unencoded{ lc $encoding };
 
         return \(
             Email::MIME::Encodings::decode(
                 $encoding,
-                ${ $self->raw_content() }
+                ${ $self->encoded_content() }
             )
         );
     }
 
-    sub _build_raw_content {
+    sub _build_encoded_content {
         my $self = shift;
 
         my $encoding = $self->encoding();
@@ -129,7 +130,7 @@ sub _default_mime_type {
 sub _content_as_string {
     my $self = shift;
 
-    return ${ $self->raw_content() };
+    return ${ $self->encoded_content() };
 }
 
 __PACKAGE__->meta()->make_immutable();
@@ -168,7 +169,7 @@ This method creates a new part object. It accepts the following parameters:
 This can either be a string or a reference to a scalar. Any reference passed
 may be modified.
 
-=item * raw_content
+=item * encoded_content
 
 This can either be a string or a reference to a scalar. Any reference passed
 may be modified.
@@ -193,20 +194,20 @@ A L<Courriel::Headers> object containing headers for this part.
 
 =back
 
-You must pass a C<content> or C<raw_content> value when creating a new part,
+You must pass a C<content> or C<encoded_content> value when creating a new part,
 but there's really no point in passing both.
 
 =head2 $part->content()
 
 This returns returns a reference to a scalar containing the decoded content
 for the part. If no decoding was necessary, this will contain the same
-reference as C<raw_content()>.
+reference as C<encoded_content()>.
 
-=head2 $part->raw_content()
+=head2 $part->encoded_content()
 
 This returns returns a reference to a scalar containing the raw content for
 the part, without any decoding. If no encoding was necessary, this will
-contain the same reference as C<raw_content()>.
+contain the same reference as C<encoded_content()>.
 
 =head2 $part->mime_type()
 
