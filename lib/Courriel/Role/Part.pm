@@ -74,9 +74,8 @@ after BUILD => sub {
     my $self = shift;
 
     if ( $self->_has_content_type() ) {
-        $self->headers()->remove('Content-Type');
         $self->headers()
-            ->add(
+            ->replace(
             'Content-Type' => $self->content_type()->as_header_value() );
     }
 

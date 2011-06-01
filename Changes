@@ -4,6 +4,11 @@
   quoted string, like value="foo \" bar". Courriel wasn't unescaping these
   values.
 
+- The add() and unshift() methods in Courriel::Headers now just accept one
+  value.
+
+- Added Courriel::Headers->replace as a convenience method.
+
 
 0.01     2011-05-31
 

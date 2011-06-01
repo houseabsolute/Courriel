@@ -47,9 +47,8 @@ sub BUILD {
         =~ s/$Courriel::Helpers::LINE_SEP_RE/$Courriel::Helpers::CRLF/g;
 
     if ( $self->_has_disposition ) {
-        $self->headers()->remove('Content-Disposition');
         $self->headers()
-            ->add(
+            ->replace(
             'Content-Disposition' => $self->disposition()->as_header_value()
             );
     }

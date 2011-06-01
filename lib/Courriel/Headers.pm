@@ -85,67 +85,102 @@ sub _key_indices_for {
     return @{ $self->__key_indices_for( lc $key ) || [] };
 }
 
-sub add {
-    my $self = shift;
-    my ( $key, @vals ) = pos_validated_list(
-        \@_,
+{
+    my @spec = (
         { isa => NonEmptyStr },
-        ( { isa => Defined } ) x ( @_ - 1 ),
-        MX_PARAMS_VALIDATE_NO_CACHE => 1,
+        { isa => Defined },
     );
 
-    my $headers = $self->_headers();
+    sub add {
+        my $self = shift;
+        my ( $key, $val ) = pos_validated_list(
+            \@_,
+            @spec,
+        );
 
-    my $last_index = ( $self->_key_indices_for($key) )[-1];
+        my $headers = $self->_headers();
 
-    my @keyed_vals = map { $key => $_ } @vals;
+        my $last_index = ( $self->_key_indices_for($key) )[-1];
 
-    if ( $last_index ) {
-        splice @{$headers}, $last_index + 1, 0, @keyed_vals;
+        if ($last_index) {
+            splice @{$headers}, $last_index + 1, 0, ( $key => $val );
+        }
+        else {
+            push @{$headers}, ( $key => $val );
+        }
+
+        $self->_clear_key_indices();
+
+        return;
     }
-    else {
-        push @{$headers}, @keyed_vals;
-    }
-
-    $self->_clear_key_indices();
-
-    return;
 }
 
-# Used to add things like Resent or Received headers
-sub unshift {
-    my $self = shift;
-
-    my ( $key, @vals ) = pos_validated_list(
-        \@_,
+{
+    my @spec = (
         { isa => NonEmptyStr },
-        ( { isa => Defined } ) x ( @_ - 1 ),
-        MX_PARAMS_VALIDATE_NO_CACHE => 1,
+        { isa => Defined },
     );
 
-    my $headers = $self->_headers();
+    # Used to add things like Resent or Received headers
+    sub unshift {
+        my $self = shift;
+        my ( $key, $val ) = pos_validated_list(
+            \@_,
+            { isa => NonEmptyStr },
+            ( { isa => Defined } ) x ( @_ - 1 ),
+            MX_PARAMS_VALIDATE_NO_CACHE => 1,
+        );
 
-    unshift @{$headers}, map { $key => $_ } @vals;
+        my $headers = $self->_headers();
 
-    return;
+        unshift @{$headers}, ( $key => $val );
+
+        return;
+    }
 }
 
-sub remove {
-    my $self = shift;
-    my ($key) = pos_validated_list(
-        \@_,
+{
+    my @spec = (
         { isa => NonEmptyStr },
     );
 
-    my $headers = $self->_headers();
+    sub remove {
+        my $self = shift;
+        my ($key) = pos_validated_list(
+            \@_,
+            @spec,
+        );
 
-    for my $idx ( reverse $self->_key_indices_for($key) ) {
-        splice @{$headers}, $idx - 1, 2;
+        my $headers = $self->_headers();
+
+        for my $idx ( reverse $self->_key_indices_for($key) ) {
+            splice @{$headers}, $idx - 1, 2;
+        }
+
+        $self->_clear_key_indices();
+
+        return;
     }
+}
 
-    $self->_clear_key_indices();
+{
+    my @spec = (
+        { isa => NonEmptyStr },
+        { isa => Defined },
+    );
 
-    return;
+    sub replace {
+        my $self = shift;
+        my ( $key, $val ) = pos_validated_list(
+            \@_,
+            @spec,
+        );
+
+        $self->remove($key);
+        $self->add( $key => $val );
+
+        return;
+    }
 }
 
 {
@@ -425,13 +460,13 @@ Header order is preserved, per RFC 5322.
 Given a header name, this returns a list of the values found for the
 header. Each occurrence of the header is returned as a separate value.
 
-=head2 $headers->add( $name => $value, ... )
+=head2 $headers->add( $name => $value )
 
-Given a list of header names and values, this adds the headers to the
-object. If any of the headers already have values in the object, then new
-values are added after the existing values, rather than at the end of headers.
+Given a header name and value, this adds the headers to the object. If any of
+the headers already have values in the object, then new values are added after
+the existing values, rather than at the end of headers.
 
-=head2 $headers->unshift( $name => $value, ... )
+=head2 $headers->unshift( $name => $value )
 
 This is like C<add()>, but this pushes the headers onto the front of the
 internal headers array. This is useful if you are adding "Received" headers,
@@ -440,6 +475,10 @@ which per RFC 5322, should always be added at the I<top> of the headers.
 =head2 $headers->remove($name)
 
 Given a header name, this removes all instances of that header from the object.
+
+=head2 $headers->replace( $name => $value )
+
+A shortcut for calling C<remove()> and C<add()>.
 
 =head2 $headers->as_string( charset => ... )
 

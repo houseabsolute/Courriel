@@ -109,23 +109,50 @@ sub clone_without_attachments {
     my $self = shift;
 
     my $text_body = $self->text_body();
-    my $html_body = $self->text_body();
+    my $html_body = $self->html_body();
 
     my $headers = $self->headers();
 
     if ( $text_body && $html_body ) {
-        my $boundary = unique_boundary();
-        my $ct       = Courriel::ContentType->new(
+        my $ct = Courriel::ContentType->new(
             mime_type  => 'multipart/alternative',
-            attributes => { boundary => $boundary },
+            attributes => { boundary => unique_boundary() },
         );
 
-        my $new_top = Courriel::Part::Multipart->new(
-            boundary     => $boundary,
-            content_type => $ct,
-            parts        => [ $text_body, $html_body ],
+        return Courriel->new(
+            part => Courriel::Part::Multipart->new(
+                content_type => $ct,
+                headers      => $headers,
+                parts        => [ $text_body, $html_body ],
+            )
         );
     }
+    elsif ($text_body) {
+        $headers->replace(
+            'Content-Transfer-Encoding' => $text_body->encoding() );
+
+        Courriel->new(
+            part => Courriel::Part::Single->new(
+                content_type => $text_body->content_type(),
+                headers      => $headers,
+                raw_content  => $text_body->raw_content(),
+            )
+        );
+    }
+    elsif ($html_body) {
+        $headers->replace(
+            'Content-Transfer-Encoding' => $html_body->encoding() );
+
+        Courriel->new(
+            part => Courriel::Part::Single->new(
+                content_type => $html_body->content_type(),
+                headers      => $headers,
+                raw_content  => $html_body->raw_content(),
+            )
+        );
+    }
+
+    die "Cannot find a text or html body in this email!";
 }
 
 sub _build_subject {
