@@ -10,8 +10,10 @@ use Test::Requires {
     'Pod::Coverage::Moose' => '0.02',
 };
 
-my @modules = grep { ! /^Courriel::(?:Role|Types)/ } all_modules();
-plan tests => scalar @modules;
+my %skip = map { $_ => 1 } qw( Courriel::Helpers );
+
+my @modules
+    = grep { !( $skip{$_} || /^Courriel::(?:Role|Types)/ ) } all_modules();
 
 my %trustme;
 
@@ -36,3 +38,5 @@ for my $module ( sort @modules ) {
         "Pod coverage for $module"
     );
 }
+
+done_testing();
