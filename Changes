@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+- A headers with attributes (like Content-Type) can escape values inside a
+  quoted string, like value="foo \" bar". Courriel wasn't unescaping these
+  values.
+
+
 0.01     2011-05-31
 
 - First release upon an unsuspecting world.
