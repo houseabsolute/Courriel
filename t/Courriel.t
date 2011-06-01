@@ -19,6 +19,8 @@ EOF
 
     my $email = Courriel->parse( text => \$text );
 
+    is( $email->subject(), 'Foo', 'got the right subject' );
+
     is( $email->part_count(), 1, 'email has one part' );
 
     is_deeply(

@@ -6,7 +6,6 @@ use namespace::autoclean;
 
 use Courriel::ContentType;
 use Courriel::Disposition;
-use Courriel::Helpers qw( parse_header_with_attributes );
 
 use Courriel::Types qw( NonEmptyStr );
 
@@ -35,39 +34,11 @@ has content_type => (
     handles => [qw( mime_type charset )],
 );
 
-has disposition => (
-    is       => 'ro',
-    isa      => 'Courriel::Disposition',
-    lazy     => 1,
-    init_arg => undef,
-    builder  => '_build_disposition',
-    handles  => [qw( is_attachment is_inline filename )],
-);
-
 has encoding => (
     is      => 'ro',
     isa     => NonEmptyStr,
     default => '8bit',
 );
-
-sub _build_disposition {
-    my $self = shift;
-
-    my @disp = $self->headers()->get('Content-Disposition');
-    if ( @disp > 1 ) {
-        die 'This email defines more than one Content-Disposition header.';
-    }
-
-    my ( $disposition, $attributes )
-        = defined $disp[0]
-        ? parse_header_with_attributes( $disp[0] )
-        : ( 'inline', {} );
-
-    return Courriel::Disposition->new(
-        disposition => $disposition,
-        attributes  => $attributes,
-    );
-}
 
 sub as_string {
     my $self = shift;
