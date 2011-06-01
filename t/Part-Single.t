@@ -91,5 +91,32 @@ EOF
     );
 }
 
+{
+    my $body = <<'EOF';
+Some plain text
+in a body.
+EOF
+
+    $body =~ s/\n/$crlf/g;
+
+    my $encoded = Email::MIME::Encodings::encode( 'base64', $body );
+
+    my $part = Courriel::Part::Single->new(
+        headers      => Courriel::Headers->new(),
+        content_type => Courriel::ContentType->new(
+            mime_type => 'text/plain',
+            charset   => 'utf8',
+        ),
+        encoding => 'base64',
+        content  => \$body,
+    );
+
+    is(
+        ${ $part->raw_content() },
+        $encoded,
+        'raw_content matches encoded version of content'
+    );
+}
+
 done_testing();
 

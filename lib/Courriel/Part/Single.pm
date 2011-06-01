@@ -15,19 +15,20 @@ use Moose;
 with 'Courriel::Role::Part';
 
 has content => (
-    is       => 'ro',
-    isa      => StringRef,
-    init_arg => undef,
-    lazy     => 1,
-    builder  => '_build_content',
+    is        => 'ro',
+    isa       => StringRef,
+    coerce    => 1,
+    lazy      => 1,
+    builder   => '_build_content',
+    predicate => '_has_content',
 );
 
 has raw_content => (
-    is       => 'ro',
-    isa      => StringRef,
-    coerce   => 1,
-    required => 1,
-    init_arg => 'raw_content',
+    is        => 'ro',
+    isa       => StringRef,
+    coerce    => 1,
+    builder   => '_build_raw_content',
+    predicate => '_has_raw_content',
 );
 
 has disposition => (
@@ -43,8 +44,18 @@ has disposition => (
 sub BUILD {
     my $self = shift;
 
+    unless ( $self->_has_content() || $self->_has_raw_content() ) {
+        die
+            'You must provide a content or raw_content parameter when constructing a Courriel::Part::Single object.';
+    }
+
+    ${ $self->content() }
+        =~ s/$Courriel::Helpers::LINE_SEP_RE/$Courriel::Helpers::CRLF/g
+        if $self->_has_content();
+
     ${ $self->raw_content() }
-        =~ s/$Courriel::Helpers::LINE_SEP_RE/$Courriel::Helpers::CRLF/g;
+        =~ s/$Courriel::Helpers::LINE_SEP_RE/$Courriel::Helpers::CRLF/g
+        if $self->_has_raw_content();
 
     if ( $self->_has_disposition ) {
         $self->headers()
@@ -98,6 +109,21 @@ sub _default_mime_type {
             )
         );
     }
+
+    sub _build_raw_content {
+        my $self = shift;
+
+        my $encoding = $self->encoding();
+
+        return $self->content() if $unencoded{ lc $encoding };
+
+        return \(
+            Email::MIME::Encodings::encode(
+                $encoding,
+                ${ $self->content() }
+            )
+        );
+    }
 }
 
 sub _content_as_string {
@@ -137,6 +163,11 @@ This method creates a new part object. It accepts the following parameters:
 
 =over 4
 
+=item * content
+
+This can either be a string or a reference to a scalar. Any reference passed
+may be modified.
+
 =item * raw_content
 
 This can either be a string or a reference to a scalar. Any reference passed
@@ -162,6 +193,9 @@ A L<Courriel::Headers> object containing headers for this part.
 
 =back
 
+You must pass a C<content> or C<raw_content> value when creating a new part,
+but there's really no point in passing both.
+
 =head2 $part->content()
 
 This returns returns a reference to a scalar containing the decoded content
@@ -171,7 +205,8 @@ reference as C<raw_content()>.
 =head2 $part->raw_content()
 
 This returns returns a reference to a scalar containing the raw content for
-the part, without any decoding.
+the part, without any decoding. If no encoding was necessary, this will
+contain the same reference as C<raw_content()>.
 
 =head2 $part->mime_type()
 
