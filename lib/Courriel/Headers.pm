@@ -7,7 +7,6 @@ use namespace::autoclean;
 use Courriel::Helpers qw( fold_header );
 use Courriel::Types qw( ArrayRef Defined EvenArrayRef HashRef NonEmptyStr Str StringRef );
 use Encode qw( decode encode find_encoding );
-use Hash::MultiValue;
 use MIME::Base64 qw( decode_base64 encode_base64 );
 use MIME::QuotedPrint qw( decode_qp );
 use MooseX::Params::Validate qw( pos_validated_list validated_list );
