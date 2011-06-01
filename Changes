@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+- The Courriel::Part::Single attribute raw_content has been renamed as
+  encoded_content.
+
 - A headers with attributes (like Content-Type) can escape values inside a
   quoted string, like value="foo \" bar". Courriel wasn't unescaping these
   values.
