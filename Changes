@@ -16,6 +16,9 @@
 - The boundary for a Multipart part and the boundary in its ContentType's
   attributes will always be the same.
 
+- Fixed some small doc errors.
+
+
 0.01     2011-05-31
 
 - First release upon an unsuspecting world.
