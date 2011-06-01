@@ -66,7 +66,7 @@ sub _parse_attributes {
         }
         my $attribute = lc $1;
         my $value     = _extract_ct_attribute_value();
-        $value =~ s/\\([\\"])/$1/g;
+        $value =~ s/\G(.*?)\\(.)/$1$2/g;
         $attribs->{$attribute} = $value;
     }
     return $attribs;
