@@ -503,3 +503,8 @@ There's a lot of other email modules on CPAN, but none of them really seem any
 better than the ones mentioned above.
 
 =back
+
+=head1 CREDITS
+
+This module rips some chunks of code from a few other places, notably several
+of the Email suite modules.
