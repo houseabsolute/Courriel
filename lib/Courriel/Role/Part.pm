@@ -28,11 +28,12 @@ has container => (
 );
 
 has content_type => (
-    is      => 'ro',
-    isa     => 'Courriel::ContentType',
-    lazy    => 1,
-    builder => '_build_content_type',
-    handles => [qw( mime_type charset )],
+    is        => 'ro',
+    isa       => 'Courriel::ContentType',
+    lazy      => 1,
+    builder   => '_build_content_type',
+    predicate => '_has_content_type',
+    handles   => [qw( mime_type charset )],
 );
 
 has encoding => (
@@ -69,16 +70,17 @@ sub _build_content_type {
     );
 }
 
-around _build_content_type => sub {
-    my $orig = shift;
+after BUILD => sub {
     my $self = shift;
 
-    my $ct = $self->$orig(@_);
+    if ( $self->_has_content_type() ) {
+        $self->headers()->remove('Content-Type');
+        $self->headers()
+            ->add(
+            'Content-Type' => $self->content_type()->as_header_value() );
+    }
 
-    $self->headers()->remove('Content-Type');
-    $self->headers()->add( 'Content-Type' => $ct->as_header_value() );
-
-    return $ct;
+    return;
 };
 
 1;

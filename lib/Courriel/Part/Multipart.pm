@@ -31,6 +31,9 @@ has epilogue => (
     predicate => 'has_epilogue',
 );
 
+# Needed for Courriel::Role::Part
+sub BUILD { }
+
 sub is_attachment {0}
 sub is_inline     {0}
 sub is_multipart  {1}

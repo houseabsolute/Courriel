@@ -31,12 +31,13 @@ has raw_content => (
 );
 
 has disposition => (
-    is       => 'ro',
-    isa      => 'Courriel::Disposition',
-    lazy     => 1,
-    init_arg => undef,
-    builder  => '_build_disposition',
-    handles  => [qw( is_attachment is_inline filename )],
+    is        => 'ro',
+    isa       => 'Courriel::Disposition',
+    lazy      => 1,
+    init_arg  => undef,
+    builder   => '_build_disposition',
+    predicate => '_has_disposition',
+    handles   => [qw( is_attachment is_inline filename )],
 );
 
 sub BUILD {
@@ -45,8 +46,16 @@ sub BUILD {
     ${ $self->raw_content() }
         =~ s/$Courriel::Helpers::LINE_SEP_RE/$Courriel::Helpers::CRLF/g;
 
+    if ( $self->_has_disposition ) {
+        $self->headers()->remove('Content-Disposition');
+        $self->headers()
+            ->add(
+            'Content-Disposition' => $self->disposition()->as_header_value()
+            );
+    }
+
     return;
-}
+};
 
 sub _build_disposition {
     my $self = shift;
@@ -66,19 +75,6 @@ sub _build_disposition {
         attributes  => $attributes,
     );
 }
-
-around _build_disposition => sub {
-    my $orig = shift;
-    my $self = shift;
-
-    my $disp = $self->$orig(@_);
-
-    $self->headers()->remove('Content-Disposition');
-    $self->headers()
-        ->add( 'Content-Disposition' => $disp->as_header_value() );
-
-    return $disp;
-};
 
 sub is_multipart {0}
 
