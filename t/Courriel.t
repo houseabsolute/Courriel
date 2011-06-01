@@ -71,6 +71,7 @@ Content-Type: multipart/alternative; boundary=20cf3071cfd06272ae04a46c9306
 
 --20cf3071cfd06272ae04a46c9306
 Content-Type: text/plain; charset=ISO-8859-1
+Content-Disposition: inline
 
 This is a test email.
 
@@ -78,6 +79,7 @@ It has some *bold* text.
 
 --20cf3071cfd06272ae04a46c9306
 Content-Type: text/html; charset=ISO-8859-1
+Content-Disposition: inline
 
 This is a test email.<br><br>It has some <b>bold</b> text.<br><br>
 
