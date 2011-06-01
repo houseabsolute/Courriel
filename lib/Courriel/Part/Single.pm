@@ -123,7 +123,7 @@ content.
 
 This class provides the following methods:
 
-=head1 Courriel::Part::Single->new( ... )
+=head2 Courriel::Part::Single->new( ... )
 
 This method creates a new part object. It accepts the following parameters:
 

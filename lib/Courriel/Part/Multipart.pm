@@ -87,7 +87,7 @@ This class represents a multipart email part which contains other parts.
 
 This class provides the following methods:
 
-=head1 Courriel::Part::Multipart->new( ... )
+=head2 Courriel::Part::Multipart->new( ... )
 
 This method creates a new part object. It accepts the following parameters:
 

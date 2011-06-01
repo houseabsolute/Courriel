@@ -118,7 +118,7 @@ Here are some typical headers:
 
 This class supports the following methods:
 
-=head2 Courriel::ContentDisposition->new( ... )
+=head2 Courriel::Disposition->new( ... )
 
 This method creates a new object. It accepts the following parameters:
 
