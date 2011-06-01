@@ -105,7 +105,7 @@ A L<Courriel::ContentType> object. This defaults to one with a mime type of
 
 =item * boundary
 
-The part bounday. If none is provided, a unique value will be generated.
+The part boundary. If none is provided, a unique value will be generated.
 
 =item * preamble
 
@@ -116,6 +116,10 @@ email clients that don't understand multipart messages.
 
 Content that appears after the final part boundary. The spec allows for this,
 but it's probably not very useful.
+
+=item * headers
+
+A L<Courriel::Headers> object containing headers for this part.
 
 =back
 
@@ -129,7 +133,7 @@ Returns the number of parts this part contains.
 
 =head2 $part->boundary()
 
-Returns the part bounday.
+Returns the part boundary.
 
 =head2 $part->mime_type()
 

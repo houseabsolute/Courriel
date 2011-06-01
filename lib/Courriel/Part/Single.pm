@@ -150,7 +150,7 @@ The Content-Transfer-Encoding for this part. This defaults to "8bit".
 
 =item * headers
 
-A L<Courriel::Headers> object contaning headers for this part.
+A L<Courriel::Headers> object containing headers for this part.
 
 =back
 

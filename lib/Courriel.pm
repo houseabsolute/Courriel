@@ -118,7 +118,7 @@ sub _build_subject {
         my $self = shift;
 
         # Stolen from Email::Date
-        my $raw_date 
+        my $raw_date
             = $self->headers()->get('Date')
             || $self->_find_date_received( $self->headers()->get('Received') )
             || $self->headers()->get('Resent-Date');
@@ -454,7 +454,7 @@ Some more methods for walking/collecting multiple parts would be useful.
 =head2 Attachment Stripping
 
 I plan to add an C<< $email->strip_attachments() >> method that actually works
-properly, unlike L<Email::MIME::Attachment::Stripper>. Thsi method will leave
+properly, unlike L<Email::MIME::Attachment::Stripper>. This method will leave
 behind I<all> inline parts, including their containers (if they're in a
 "multipart/alternative" part, for example).
 
