@@ -67,10 +67,23 @@ sub _build_disposition {
     );
 }
 
+around _build_disposition => sub {
+    my $orig = shift;
+    my $self = shift;
+
+    my $disp = $self->$orig(@_);
+
+    $self->headers()->remove('Content-Disposition');
+    $self->headers()
+        ->add( 'Content-Disposition' => $disp->as_header_value() );
+
+    return $disp;
+};
+
 sub is_multipart {0}
 
-sub _build_content_type {
-    return Courriel::ContentType->new( mime_type => 'text/plain' );
+sub _default_mime_type {
+    return 'text/plain';
 }
 
 {

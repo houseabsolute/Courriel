@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use namespace::autoclean;
 
+use Courriel::Helpers qw( quote_and_escape_attribute_value );
 use Courriel::Types qw( Bool HashRef Maybe NonEmptyStr );
 use DateTime;
 use DateTime::Format::Mail;
@@ -73,6 +74,21 @@ has filename => (
             default  => $default,
         );
     }
+}
+
+sub as_header_value {
+    my $self = shift;
+
+    my $string = $self->disposition();
+
+    my $attr = $self->_attributes();
+
+    for my $k ( sort keys %{$attr} ) {
+        my $val = quote_and_escape_attribute_value( $attr->{$k} );
+        $string .= qq[ ;$k=$val];
+    }
+
+    return $string;
 }
 
 __PACKAGE__->meta()->make_immutable();

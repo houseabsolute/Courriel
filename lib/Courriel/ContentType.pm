@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use namespace::autoclean;
 
+use Courriel::Helpers qw( quote_and_escape_attribute_value );
 use Courriel::Types qw( HashRef NonEmptyStr );
 
 use Moose;
@@ -38,6 +39,21 @@ sub _build_charset {
     my $self = shift;
 
     return $self->_attributes()->{charset} // 'us-ascii';
+}
+
+sub as_header_value {
+    my $self = shift;
+
+    my $string = $self->mime_type();
+
+    my $attr = $self->_attributes();
+
+    for my $k ( sort keys %{$attr} ) {
+        my $val = quote_and_escape_attribute_value( $attr->{$k} );
+        $string .= qq[; $k=$val];
+    }
+
+    return $string;
 }
 
 __PACKAGE__->meta()->make_immutable();

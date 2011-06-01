@@ -5,7 +5,12 @@ use warnings;
 
 use Exporter qw( import );
 
-our @EXPORT_OK = qw( fold_header parse_header_with_attributes );
+our @EXPORT_OK = qw(
+    fold_header
+    parse_header_with_attributes
+    quote_and_escape_attribute_value
+    unique_boundary
+);
 
 our $CRLF = "\x0d\x0a";
 
@@ -30,6 +35,16 @@ sub fold_header {
     }
 
     return $folded;
+}
+
+sub quote_and_escape_attribute_value {
+    my $val = shift;
+
+    return $val unless $val =~ /[^a-zA-Z0-9\-]/;
+
+    $val =~ s/(\\|")/\\$1/g;
+
+    return qq{"$val"};
 }
 
 sub parse_header_with_attributes {
@@ -89,6 +104,10 @@ sub _extract_ct_attribute_value {    # EXPECTS AND MODIFIES $_
             }
     }
     return $value;
+}
+
+sub unique_boundary {
+    return Email::MessageID->new()->user();
 }
 
 1;

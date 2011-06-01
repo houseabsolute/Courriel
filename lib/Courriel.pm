@@ -105,6 +105,29 @@ sub parts {
         : $self->_part();
 }
 
+sub clone_without_attachments {
+    my $self = shift;
+
+    my $text_body = $self->text_body();
+    my $html_body = $self->text_body();
+
+    my $headers = $self->headers();
+
+    if ( $text_body && $html_body ) {
+        my $boundary = unique_boundary();
+        my $ct       = Courriel::ContentType->new(
+            mime_type  => 'multipart/alternative',
+            attributes => { boundary => $boundary },
+        );
+
+        my $new_top = Courriel::Part::Multipart->new(
+            boundary     => $boundary,
+            content_type => $ct,
+            parts        => [ $text_body, $html_body ],
+        );
+    }
+}
+
 sub _build_subject {
     my $self = shift;
 
@@ -265,19 +288,18 @@ sub _parse_parts {
     my $text    = shift;
     my $headers = shift;
 
-    my $ct = $class->_content_type_from_headers($headers);
+    my ( $mime, $ct_attr ) = $class->_content_type_from_headers($headers);
 
-    if ( $ct->mime_type() !~ /^multipart/ ) {
+    if ( $mime !~ /^multipart/ ) {
         return Courriel::Part::Single->new(
-            content_type => $ct,
-            headers      => $headers,
-            raw_content  => $text,
+            headers     => $headers,
+            raw_content => $text,
         );
     }
 
-    my $boundary = $ct->attribute('boundary')
+    my $boundary = $ct_attr->{boundary}
         // die q{The message's mime type claims this is a multipart message (}
-        . $ct->mime_type()
+        . $mime
         . q{) but it does not specify a boundary.};
 
     my ( $preamble, $all_parts, $epilogue ) = ${$text} =~ /
@@ -294,8 +316,7 @@ sub _parse_parts {
         unless @part_text;
 
     return Courriel::Part::Multipart->new(
-        content_type => $ct,
-        headers      => $headers,
+        headers => $headers,
         (
                    defined $preamble
                 && length $preamble
@@ -320,15 +341,9 @@ sub _content_type_from_headers {
         die 'This email defines more than one Content-Type header.';
     }
 
-    my ( $mime_type, $attributes )
-        = defined $ct[0]
+    return defined $ct[0]
         ? parse_header_with_attributes( $ct[0] )
         : ( 'text/plain', {} );
-
-    return Courriel::ContentType->new(
-        mime_type  => $mime_type,
-        attributes => $attributes,
-    );
 }
 
 __PACKAGE__->meta()->make_immutable();

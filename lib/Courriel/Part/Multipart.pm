@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use namespace::autoclean;
 
+use Courriel::Helpers qw( unique_boundary );
 use Courriel::Types qw( NonEmptyStr );
 use Email::MessageID;
 
@@ -34,8 +35,8 @@ sub is_attachment {0}
 sub is_inline     {0}
 sub is_multipart  {1}
 
-sub _build_content_type {
-    return Courriel::ContentType->new( mime_type => 'multipart/mixed' );
+sub _default_mime_type {
+    return 'multipart/mixed';
 }
 
 sub _content_as_string {
@@ -61,7 +62,13 @@ sub _content_as_string {
 }
 
 sub _build_boundary {
-    return Email::MessageID->new()->user();
+    my $self = shift;
+
+    # XXX - this is a nasty hack but I'm not sure if it can better. We want
+    # the boundary in the ContentType object to match the one in this part.
+    my $attr = $self->_content_type()->attributes();
+
+    return $attr->{boundary} //= unique_boundary();
 }
 
 __PACKAGE__->meta()->make_immutable();
