@@ -58,13 +58,6 @@ sub BUILD {
         =~ s/$Courriel::Helpers::LINE_SEP_RE/$Courriel::Helpers::CRLF/g
         if $self->_has_encoded_content();
 
-    if ( $self->_has_disposition ) {
-        $self->headers()
-            ->replace(
-            'Content-Disposition' => $self->disposition()->as_header_value()
-            );
-    }
-
     return;
 }
 

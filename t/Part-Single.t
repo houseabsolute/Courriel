@@ -118,5 +118,26 @@ EOF
     );
 }
 
+{
+    my $part = Courriel::Part::Single->new(
+        headers => Courriel::Headers->new(),
+        content_type =>
+            Courriel::ContentType->new( mime_type => 'image/jpeg' ),
+        encoded_content => 'foo',
+    );
+
+    my $new_h = Courriel::Headers->new();
+
+    $part->_set_headers($new_h);
+
+    is_deeply(
+        [ $new_h->headers() ],
+        [
+            'Content-Type' => 'image/jpeg',
+        ],
+        'content type is updated when headers are set'
+    );
+}
+
 done_testing();
 

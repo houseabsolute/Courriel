@@ -15,7 +15,8 @@ use Moose::Role;
 requires qw( _default_mime_type _content_as_string );
 
 has headers => (
-    is       => 'ro',
+    is       => 'rw',
+    writer   => '_set_headers',
     does     => 'Courriel::Headers',
     required => 1,
 );
@@ -73,13 +74,27 @@ sub _build_content_type {
 after BUILD => sub {
     my $self = shift;
 
-    if ( $self->_has_content_type() ) {
-        $self->headers()
-            ->replace(
-            'Content-Type' => $self->content_type()->as_header_value() );
-    }
+    $self->_maybe_set_content_type_in_headers();
 
     return;
 };
+
+after _set_headers => sub {
+    my $self = shift;
+
+    $self->_maybe_set_content_type_in_headers();
+
+    return;
+};
+
+sub _maybe_set_content_type_in_headers {
+    my $self = shift;
+
+    return unless $self->_has_content_type();
+
+    $self->headers()
+        ->replace(
+        'Content-Type' => $self->content_type()->as_header_value() );
+}
 
 1;
