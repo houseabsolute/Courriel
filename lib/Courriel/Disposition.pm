@@ -85,7 +85,7 @@ sub as_header_value {
 
     for my $k ( sort keys %{$attr} ) {
         my $val = quote_and_escape_attribute_value( $attr->{$k} );
-        $string .= qq[ ;$k=$val];
+        $string .= qq[; $k=$val];
     }
 
     return $string;

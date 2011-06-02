@@ -36,7 +36,6 @@ has disposition => (
     is        => 'ro',
     isa       => 'Courriel::Disposition',
     lazy      => 1,
-    init_arg  => undef,
     builder   => '_build_disposition',
     predicate => '_has_disposition',
     handles   => [qw( is_attachment is_inline filename )],
@@ -58,7 +57,25 @@ sub BUILD {
         =~ s/$Courriel::Helpers::LINE_SEP_RE/$Courriel::Helpers::CRLF/g
         if $self->_has_encoded_content();
 
+    $self->_maybe_set_disposition_in_headers();
+
     return;
+}
+
+after _set_headers => sub {
+    my $self = shift;
+
+    $self->_maybe_set_disposition_in_headers();
+};
+
+sub _maybe_set_disposition_in_headers {
+    my $self = shift;
+
+    return unless $self->_has_disposition();
+
+    $self->headers()
+        ->replace(
+        'Content-Disposition' => $self->disposition()->as_header_value() );
 }
 
 sub _build_disposition {

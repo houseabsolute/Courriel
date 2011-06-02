@@ -123,6 +123,10 @@ EOF
         headers => Courriel::Headers->new(),
         content_type =>
             Courriel::ContentType->new( mime_type => 'image/jpeg' ),
+        disposition => Courriel::Disposition->new(
+            disposition => 'attachment',
+            attributes  => { filename => 'foo.jpg' },
+        ),
         encoded_content => 'foo',
     );
 
@@ -133,7 +137,8 @@ EOF
     is_deeply(
         [ $new_h->headers() ],
         [
-            'Content-Type' => 'image/jpeg',
+            'Content-Type'        => 'image/jpeg',
+            'Content-Disposition' => q{attachment; filename="foo.jpg"},
         ],
         'content type is updated when headers are set'
     );
