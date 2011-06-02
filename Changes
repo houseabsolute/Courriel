@@ -12,12 +12,17 @@
 
 - Added Courriel::Headers->replace as a convenience method.
 
+- It is now possible to pass a Courriel::Disposition object explicitly when
+  constructing a Courriel::Part::Single object.
+
 - If a part is created with an explicit content_type and/or disposition
   object, the part's headers will be updated so that the Content-Type and
   Content-Disposition match the given object.
 
 - The boundary for a Multipart part and the boundary in its ContentType's
   attributes will always be the same.
+
+- All classes now use MooseX::StrictConstructor.
 
 - Fixed some small doc errors.
 
