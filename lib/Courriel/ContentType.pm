@@ -8,6 +8,7 @@ use Courriel::Helpers qw( quote_and_escape_attribute_value );
 use Courriel::Types qw( HashRef NonEmptyStr );
 
 use Moose;
+use MooseX::StrictConstructor;
 
 has mime_type => (
     is       => 'ro',

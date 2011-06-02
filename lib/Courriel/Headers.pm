@@ -12,6 +12,7 @@ use MIME::QuotedPrint qw( decode_qp );
 use MooseX::Params::Validate qw( pos_validated_list validated_list );
 
 use Moose;
+use MooseX::StrictConstructor;
 
 with 'Courriel::Role::Headers';
 

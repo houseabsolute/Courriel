@@ -19,6 +19,7 @@ use List::AllUtils qw( uniq );
 use MooseX::Params::Validate qw( validated_list );
 
 use Moose;
+use MooseX::StrictConstructor;
 
 has _part => (
     is       => 'ro',

@@ -11,6 +11,7 @@ use MIME::Base64 ();
 use MIME::QuotedPrint ();
 
 use Moose;
+use MooseX::StrictConstructor;
 
 with 'Courriel::Role::Part';
 

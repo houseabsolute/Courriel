@@ -10,6 +10,7 @@ use DateTime;
 use DateTime::Format::Mail;
 
 use Moose;
+use MooseX::StrictConstructor;
 
 has disposition => (
     is       => 'ro',

@@ -24,7 +24,6 @@ EOF
         headers      => Courriel::Headers->new(),
         content_type => Courriel::ContentType->new(
             mime_type => 'text/plain',
-            charset   => 'utf8',
         ),
         encoding        => '8bit',
         encoded_content => \$body,
@@ -51,7 +50,6 @@ EOF
         headers      => Courriel::Headers->new(),
         content_type => Courriel::ContentType->new(
             mime_type => 'text/plain',
-            charset   => 'utf8',
         ),
         encoding        => 'base64',
         encoded_content => \$encoded,
@@ -78,7 +76,6 @@ EOF
         headers      => Courriel::Headers->new(),
         content_type => Courriel::ContentType->new(
             mime_type => 'text/plain',
-            charset   => 'utf8',
         ),
         encoding        => 'quoted-printable',
         encoded_content => \$encoded,
@@ -105,7 +102,6 @@ EOF
         headers      => Courriel::Headers->new(),
         content_type => Courriel::ContentType->new(
             mime_type => 'text/plain',
-            charset   => 'utf8',
         ),
         encoding => 'base64',
         content  => \$body,

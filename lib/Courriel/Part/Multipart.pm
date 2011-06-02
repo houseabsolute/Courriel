@@ -9,6 +9,7 @@ use Courriel::Types qw( NonEmptyStr );
 use Email::MessageID;
 
 use Moose;
+use MooseX::StrictConstructor;
 
 with 'Courriel::Role::Part', 'Courriel::Role::HasParts';
 
