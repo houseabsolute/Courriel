@@ -25,6 +25,9 @@
 
 - All classes now use MooseX::StrictConstructor.
 
+- Some hacks to make it possible for Courriel to play nice with
+  Email::Abstract.
+
 - Fixed some small doc errors.
 
 
