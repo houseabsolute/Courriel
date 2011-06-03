@@ -108,4 +108,12 @@ use Courriel::Builder;
     );
 }
 
+{
+    like(
+        exception { build_email( ['wtf'] ); },
+        qr/A weird value was passed to build_email:/,
+        'got error when passing invalid value to build_email'
+    );
+}
+
 done_testing();
