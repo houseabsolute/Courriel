@@ -29,7 +29,7 @@ BEGIN {
         cc
         bcc
         header
-        text_body
+        plain_body
         html_body
         attach
     );
@@ -42,7 +42,7 @@ use Sub::Exporter -setup => {
 
 sub build_email {
     my @headers;
-    my $text_body;
+    my $plain_body;
     my $html_body;
     my @attachments;
 
@@ -53,8 +53,8 @@ sub build_email {
         if ( $p->{header} ) {
             push @headers, @{ $p->{header} };
         }
-        elsif ( $p->{text_body} ) {
-            $text_body = $p->{text_body};
+        elsif ( $p->{plain_body} ) {
+            $plain_body = $p->{plain_body};
         }
         elsif ( $p->{html_body} ) {
             $html_body = $p->{html_body};
@@ -68,7 +68,7 @@ sub build_email {
     }
 
     my $body_part;
-    if ( $text_body && $html_body ) {
+    if ( $plain_body && $html_body ) {
         my $ct = Courriel::ContentType->new(
             mime_type => 'multipart/alternative',
         );
@@ -76,11 +76,11 @@ sub build_email {
         $body_part = Courriel::Part::Multipart->new(
             headers      => Courriel::Headers->new(),
             content_type => $ct,
-            parts        => [ $text_body, $html_body ],
+            parts        => [ $plain_body, $html_body ],
         );
     }
     else {
-        $body_part = first {defined} $text_body, $html_body;
+        $body_part = first {defined} $plain_body, $html_body;
 
         die "Cannot call build_email without a text or html body"
             unless $body_part;
@@ -178,14 +178,14 @@ sub header {
     return { header => [ $name => $value ] };
 }
 
-sub text_body {
+sub plain_body {
     my %p
         = @_ == 1
         ? ( content => shift )
         : @_;
 
     return {
-        text_body => _body_part(
+        plain_body => _body_part(
             %p,
             mime_type => 'text/plain',
         )

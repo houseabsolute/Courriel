@@ -109,12 +109,12 @@ sub parts {
 sub clone_without_attachments {
     my $self = shift;
 
-    my $text_body = $self->text_body();
-    my $html_body = $self->html_body();
+    my $plain_body = $self->plain_body_part();
+    my $html_body = $self->html_body_part();
 
     my $headers = $self->headers();
 
-    if ( $text_body && $html_body ) {
+    if ( $plain_body && $html_body ) {
         my $ct = Courriel::ContentType->new(
             mime_type  => 'multipart/alternative',
             attributes => { boundary => unique_boundary() },
@@ -124,19 +124,19 @@ sub clone_without_attachments {
             part => Courriel::Part::Multipart->new(
                 content_type => $ct,
                 headers      => $headers,
-                parts        => [ $text_body, $html_body ],
+                parts        => [ $plain_body, $html_body ],
             )
         );
     }
-    elsif ($text_body) {
+    elsif ($plain_body) {
         $headers->replace(
-            'Content-Transfer-Encoding' => $text_body->encoding() );
+            'Content-Transfer-Encoding' => $plain_body->encoding() );
 
         Courriel->new(
             part => Courriel::Part::Single->new(
-                content_type => $text_body->content_type(),
+                content_type => $plain_body->content_type(),
                 headers      => $headers,
-                encoded_content  => $text_body->encoded_content(),
+                encoded_content  => $plain_body->encoded_content(),
             )
         );
     }
@@ -392,7 +392,7 @@ __END__
 
     print $email->datetime()->year();
 
-    if ( my $part = $email->text_body_part() ) {
+    if ( my $part = $email->plain_body_part() ) {
         print ${ $part->content() };
     }
 
@@ -511,7 +511,7 @@ layer like:
         subject('Foo'),
         to( 'foo@example.com', 'bar@example.com' ),
         from('joe@example.com'),
-        text_body(...),
+        plain_body(...),
         html_body(...),
         attach('path/to/image.jpg'),
         attach('path/to/spreadsheet.xls'),

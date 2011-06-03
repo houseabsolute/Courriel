@@ -15,7 +15,7 @@ use Courriel::Builder;
         bcc( 'alice@example.com', Email::Address->parse('adam@example.com') ),
         header( 'X-Foo' => 42 ),
         header( 'X-Bar' => 84 ),
-        text_body('The body of the message')
+        plain_body('The body of the message')
     );
 
     isa_ok( $email, 'Courriel' );
@@ -59,7 +59,7 @@ use Courriel::Builder;
 {
     my $email = build_email(
         subject('Test Subject'),
-        text_body(
+        plain_body(
             content => 'Foo',
             charset => 'ISO-8859-1'
         ),
@@ -80,7 +80,7 @@ use Courriel::Builder;
     my $email = build_email(
         subject('Test Subject'),
         header( Date => DateTime::Format::Mail->format_datetime($dt) ),
-        text_body( content => 'Foo' ),
+        plain_body( content => 'Foo' ),
     );
 
     my @date = $email->headers()->get('Date');
@@ -89,6 +89,22 @@ use Courriel::Builder;
         $date[0],
         'Tue, 01 Jan 1980 00:00:00 -0000',
         'explicit Date header is not overwritten'
+    );
+}
+
+{
+    my $email = build_email(
+        subject('Test Subject'),
+        plain_body(
+            content => "Foo \x{00F1}",
+            encoding => 'quoted-printable'
+        ),
+    );
+
+    like(
+        ${ $email->plain_body_part()->encoded_content() },
+        qr/=F1/,
+        'body is encoded using quoted-printable'
     );
 }
 
