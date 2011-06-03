@@ -271,8 +271,8 @@ sub first_part_matching {
         );
 
         my $part = Courriel::Part::Single->new(
-            headers => Courriel::Headers->new(),
-            content => $text,
+            headers         => $self->headers(),
+            encoded_content => $text,
         );
 
         $self->_replace_top_level_part($part);
