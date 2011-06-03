@@ -21,8 +21,9 @@ use MooseX::Params::Validate qw( validated_list );
 use Moose;
 use MooseX::StrictConstructor;
 
-has _part => (
-    is       => 'ro',
+has top_level_part => (
+    is       => 'rw',
+    writer   => '_replace_top_level_part',
     isa      => Part,
     init_arg => 'part',
     required => 1,
@@ -94,7 +95,7 @@ sub part_count {
     my $self = shift;
 
     return $self->is_multipart()
-        ? $self->_part()->part_count()
+        ? $self->top_level_part()->part_count()
         : 1;
 }
 
@@ -102,8 +103,8 @@ sub parts {
     my $self = shift;
 
     return $self->is_multipart()
-        ? $self->_part()->parts()
-        : $self->_part();
+        ? $self->top_level_part()->parts()
+        : $self->top_level_part();
 }
 
 sub clone_without_attachments {
@@ -246,12 +247,37 @@ sub first_part_matching {
     my $self = shift;
     my $match = shift;
 
-    my @parts = $self->_part();
+    my @parts = $self->top_level_part();
 
     for ( my $part = shift @parts; $part; $part = shift @parts ) {
         return $part if $match->($part);
 
         push @parts, $part->parts() if $part->is_multipart();
+    }
+}
+
+{
+    my @spec = ( text => { isa => StringRef, coerce => 1 } );
+
+    # This is needed for Email::Abstract compatibility but it's a godawful
+    # idea, and even Email::Abstract says not to do this.
+    #
+    # It's much safer to just make a new Courriel object from scratch.
+    sub replace_body {
+        my $self = shift;
+        my ($text) = validated_list(
+            \@_,
+            @spec,
+        );
+
+        my $part = Courriel::Part::Single->new(
+            headers => Courriel::Headers->new(),
+            content => $text,
+        );
+
+        $self->_replace_top_level_part($part);
+
+        return;
     }
 }
 
@@ -430,6 +456,12 @@ Returns the number of parts this email contains.
 =head2 $email->is_multipart()
 
 Returns true if the top-level part is a multipart part, false otherwise.
+
+=head2 $email->top_level_part()
+
+Returns the actual top level part for the object. You're probably better off
+just calling C<< $email->parts() >> most of the time, since when the email is
+multipart, the top level part is just a container.
 
 =head2 $email->subject()
 
