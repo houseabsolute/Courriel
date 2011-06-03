@@ -290,7 +290,7 @@ EOF
 {
     like(
         exception { build_email( ['wtf'] ); },
-        qr/A weird value was passed to build_email:/,
+        qr/checking type constraint for HashRef/,
         'got error when passing invalid value to build_email'
     );
 }
@@ -308,6 +308,14 @@ EOF
         exception { build_email( subject('foo') ); },
         qr/Cannot call build_email without a plain or html body/,
         'got error when passing invalid value to build_email'
+    );
+}
+
+{
+    like(
+        exception { build_email(); },
+        qr/0 parameters were passed to Courriel::Builder::build_email but 1 was expected/,
+        'got error when passing no arguments to build_email'
     );
 }
 

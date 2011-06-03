@@ -7,6 +7,7 @@ use namespace::autoclean;
 use MooseX::Types -declare => [
     qw(
         Body
+        EmailAddressStr
         EvenArrayRef
         Headers
         Part
@@ -23,6 +24,13 @@ subtype Body,
 
 subtype Headers,
     as role_type('Courriel::Role::Headers');
+
+subtype EmailAddressStr,
+    as NonEmptyStr;
+
+coerce EmailAddressStr,
+    from class_type('Email::Address'),
+    via { $_->format() };
 
 subtype EvenArrayRef,
     as ArrayRef,
@@ -43,5 +51,4 @@ coerce StringRef,
     from Str,
     via { my $str = $_; \$str };
 #>>>
-
 1;

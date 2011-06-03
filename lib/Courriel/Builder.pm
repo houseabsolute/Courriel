@@ -11,6 +11,7 @@ use Courriel::Headers;
 use Courriel::Helpers qw( parse_header_with_attributes );
 use Courriel::Part::Multipart;
 use Courriel::Part::Single;
+use Courriel::Types qw( EmailAddressStr HashRef NonEmptyStr Str StringRef );
 use DateTime;
 use DateTime::Format::Mail;
 use Devel::PartialDump;
@@ -18,6 +19,7 @@ use File::Basename qw( basename );
 use File::LibMagic;
 use File::Slurp qw( read_file );
 use List::AllUtils qw( first );
+use MooseX::Params::Validate qw( pos_validated_list validated_list );
 use Scalar::Util qw( blessed reftype );
 
 our @CARP_NOT = __PACKAGE__;
@@ -44,74 +46,83 @@ use Sub::Exporter -setup => {
     groups  => { default => \@exports },
 };
 
-sub build_email {
-    my @headers;
-    my $plain_body;
-    my $html_body;
-    my @attachments;
+{
+    my $spec = { isa => HashRef };
 
-    for my $p (@_) {
-        _bad_value($p)
-            unless reftype($p) eq 'HASH';
+    sub build_email {
+        my $count = @_ ? @_ : 1;
+        pos_validated_list(
+            \@_,
+            ($spec) x $count,
+            MX_PARAMS_VALIDATE_NO_CACHE => 1,
+        );
 
-        if ( $p->{header} ) {
-            push @headers, @{ $p->{header} };
+        my @headers;
+        my $plain_body;
+        my $html_body;
+        my @attachments;
+
+        for my $p (@_) {
+            if ( $p->{header} ) {
+                push @headers, @{ $p->{header} };
+            }
+            elsif ( $p->{plain_body} ) {
+                $plain_body = $p->{plain_body};
+            }
+            elsif ( $p->{html_body} ) {
+                $html_body = $p->{html_body};
+            }
+            elsif ( $p->{attachment} ) {
+                push @attachments, $p->{attachment};
+            }
+            else {
+                _bad_value($p);
+            }
         }
-        elsif ( $p->{plain_body} ) {
-            $plain_body = $p->{plain_body};
-        }
-        elsif ( $p->{html_body} ) {
-            $html_body = $p->{html_body};
-        }
-        elsif ( $p->{attachment} ) {
-            push @attachments, $p->{attachment};
+
+        my $body_part;
+        if ( $plain_body && $html_body ) {
+            my $ct = Courriel::ContentType->new(
+                mime_type => 'multipart/alternative',
+            );
+
+            $body_part = Courriel::Part::Multipart->new(
+                headers      => Courriel::Headers->new(),
+                content_type => $ct,
+                parts        => [ $plain_body, $html_body ],
+            );
         }
         else {
-            _bad_value($p);
+            $body_part = first {defined} $plain_body, $html_body;
+
+            croak "Cannot call build_email without a plain or html body"
+                unless $body_part;
         }
+
+        if (@attachments) {
+            my $ct = Courriel::ContentType->new(
+                mime_type => 'multipart/mixed' );
+
+            $body_part = Courriel::Part::Multipart->new(
+                headers      => Courriel::Headers->new(),
+                content_type => $ct,
+                parts        => [
+                    $body_part,
+                    @attachments,
+                ],
+            );
+        }
+
+        _add_needed_headers( \@headers );
+
+        # XXX - a little incestuous but I don't really want to make this method
+        # public, and delaying building the body part would make all the code more
+        # complicated than it needs to be.
+        $body_part->_set_headers(
+            Courriel::Headers->new( headers => [@headers] ) );
+
+        return Courriel->new( part => $body_part );
     }
-
-    my $body_part;
-    if ( $plain_body && $html_body ) {
-        my $ct = Courriel::ContentType->new(
-            mime_type => 'multipart/alternative',
-        );
-
-        $body_part = Courriel::Part::Multipart->new(
-            headers      => Courriel::Headers->new(),
-            content_type => $ct,
-            parts        => [ $plain_body, $html_body ],
-        );
-    }
-    else {
-        $body_part = first {defined} $plain_body, $html_body;
-
-        croak "Cannot call build_email without a plain or html body"
-            unless $body_part;
-    }
-
-    if (@attachments) {
-        my $ct = Courriel::ContentType->new( mime_type => 'multipart/mixed' );
-
-        $body_part = Courriel::Part::Multipart->new(
-            headers      => Courriel::Headers->new(),
-            content_type => $ct,
-            parts        => [
-                $body_part,
-                @attachments,
-            ],
-        );
-    }
-
-    _add_needed_headers(\@headers);
-
-    # XXX - a little incestuous but I don't really want to make this method
-    # public, and delaying building the body part would make all the code more
-    # complicated than it needs to be.
-    $body_part->_set_headers(
-        Courriel::Headers->new( headers => [@headers] ) );
-
-    return Courriel->new( part => $body_part );
 }
 
 sub _bad_value {
@@ -137,49 +148,101 @@ sub _add_needed_headers {
     return;
 }
 
-sub subject {
-    return { header => [ Subject => shift ] };
-}
+{
+    my $spec = { isa => NonEmptyStr };
 
-sub from {
-    my $from = shift;
+    sub subject {
+        my ($subject) = pos_validated_list(
+            \@_,
+            $spec,
+        );
 
-    if ( blessed $from ) {
-        $from = $from->format();
+        return { header => [ Subject => $subject ] };
     }
-
-    return { header => [ From => $from ] };
 }
 
-sub to {
-    my @to = @_;
+{
+    my $spec = { isa => EmailAddressStr, coerce => 1 };
 
-    @to = map { blessed($_) ? $_->format() : $_ } @to;
+    sub from {
+        my ($from) = pos_validated_list(
+            \@_,
+            $spec,
+        );
 
-    return { header => [ To => join ', ', @to ] };
+        if ( blessed $from ) {
+            $from = $from->format();
+        }
+
+        return { header => [ From => $from ] };
+    }
 }
 
-sub cc {
-    my @cc = @_;
+{
+    my $spec = { isa => EmailAddressStr, coerce => 1 };
 
-    @cc = map { blessed($_) ? $_->format() : $_ } @cc;
+    sub to {
+        my $count = @_ ? @_ : 1;
+        my (@to) = pos_validated_list(
+            \@_,
+            ($spec) x $count,
+            MX_PARAMS_VALIDATE_NO_CACHE => 1,
+        );
 
-    return { header => [ Cc => join ', ', @cc ] };
+        @to = map { blessed($_) ? $_->format() : $_ } @to;
+
+        return { header => [ To => join ', ', @to ] };
+    }
 }
 
-sub bcc {
-    my @bcc = @_;
+{
+    my $spec = { isa => EmailAddressStr, coerce => 1 };
 
-    @bcc = map { blessed($_) ? $_->format() : $_ } @bcc;
+    sub cc {
+        my $count = @_ ? @_ : 1;
+        my (@cc) = pos_validated_list(
+            \@_,
+            ($spec) x $count,
+            MX_PARAMS_VALIDATE_NO_CACHE => 1,
+        );
 
-    return { header => [ Bcc => join ', ', @bcc ] };
+        @cc = map { blessed($_) ? $_->format() : $_ } @cc;
+
+        return { header => [ Cc => join ', ', @cc ] };
+    }
 }
 
-sub header {
-    my $name  = shift;
-    my $value = shift;
+{
+    my $spec = { isa => EmailAddressStr, coerce => 1 };
 
-    return { header => [ $name => $value ] };
+    sub bcc {
+        my $count = @_ ? @_ : 1;
+        my (@bcc) = pos_validated_list(
+            \@_,
+            ($spec) x $count,
+            MX_PARAMS_VALIDATE_NO_CACHE => 1,
+        );
+
+        @bcc = map { blessed($_) ? $_->format() : $_ } @bcc;
+
+        return { header => [ Bcc => join ', ', @bcc ] };
+    }
+}
+
+{
+    my @spec = (
+        { isa => NonEmptyStr },
+        { isa => Str },
+    );
+
+    sub header {
+        my ( $name, $value ) = pos_validated_list(
+            \@_,
+            @spec,
+        );
+
+        return { header => [ $name => $value ] };
+    }
 }
 
 sub plain_body {
@@ -234,24 +297,43 @@ sub html_body {
     return { html_body => $body };
 }
 
-sub _body_part {
-    my %p = @_;
-
-    $p{charset} //= 'UTF-8';
-
-    my $ct = Courriel::ContentType->new(
-        mime_type  => $p{mime_type},
-        attributes => { charset => $p{charset} },
+{
+    my @spec = (
+        mime_type => { isa => NonEmptyStr },
+        charset   => {
+            isa     => NonEmptyStr,
+            default => 'UTF-8',
+        },
+        encoding => {
+            isa     => NonEmptyStr,
+            default => 'base64',
+        },
+        content => {
+            isa    => StringRef,
+            coerce => 1,
+        },
     );
 
-    my $body = Courriel::Part::Single->new(
-        headers      => Courriel::Headers->new(),
-        content_type => $ct,
-        encoding     => $p{encoding} // 'base64',
-        content      => ( ref $p{content} ? $p{content} : $p{content} ),
-    );
+    sub _body_part {
+        my ( $mime_type, $charset, $encoding, $content ) = validated_list(
+            \@_,
+            @spec,
+        );
 
-    return $body;
+        my $ct = Courriel::ContentType->new(
+            mime_type  => $mime_type,
+            attributes => { charset => $charset },
+        );
+
+        my $body = Courriel::Part::Single->new(
+            headers      => Courriel::Headers->new(),
+            content_type => $ct,
+            encoding     => $encoding,
+            content      => $content,
+        );
+
+        return $body;
+    }
 }
 
 sub attach {
@@ -266,45 +348,63 @@ sub attach {
 
 my $flm = File::LibMagic->new();
 
-sub _part_for_file {
-    my %p = @_;
-
-    my $ct = _content_type( $flm->checktype_filename( $p{file} ) );
-
-    my $content = read_file( $p{file} );
-
-    return Courriel::Part::Single->new(
-        headers      => Courriel::Headers->new(),
-        content_type => $ct,
-        disposition  => Courriel::Disposition->new(
-            disposition => 'attachment',
-            attributes  => { filename => basename( $p{file} ) }
-        ),
-        encoding => 'base64',
-        content  => \$content,
+{
+    my @spec = (
+        file => { isa => NonEmptyStr },
     );
+
+    sub _part_for_file {
+        my ($file) = validated_list(
+            \@_,
+            @spec,
+        );
+
+        my $ct = _content_type( $flm->checktype_filename($file) );
+
+        my $content = read_file($file);
+
+        return Courriel::Part::Single->new(
+            headers      => Courriel::Headers->new(),
+            content_type => $ct,
+            disposition  => Courriel::Disposition->new(
+                disposition => 'attachment',
+                attributes  => { filename => basename($file) }
+            ),
+            encoding => 'base64',
+            content  => \$content,
+        );
+    }
 }
 
-sub _part_for_content {
-    my %p = @_;
-
-    my $content_ref = ref $p{content} ? $p{content} : \$p{content};
-
-    my $ct = _content_type( $flm->checktype_contents( ${$content_ref} ) );
-
-    my $disp = Courriel::Disposition->new(
-        disposition => 'attachment',
-        attributes =>
-            { $p{filename} ? ( filename => basename( $p{filename} ) ) : () }
+{
+    my @spec = (
+        content  => { isa => StringRef,   coerce   => 1 },
+        filename => { isa => NonEmptyStr, optional => 1, }
     );
 
-    return Courriel::Part::Single->new(
-        headers      => Courriel::Headers->new(),
-        content_type => $ct,
-        disposition  => $disp,
-        encoding     => 'base64',
-        content      => $content_ref,
-    );
+    sub _part_for_content {
+        my ( $content, $filename ) = validated_list(
+            \@_,
+            @spec,
+        );
+
+        my $ct = _content_type( $flm->checktype_contents( ${$content} ) );
+
+        my $disp = Courriel::Disposition->new(
+            disposition => 'attachment',
+            attributes  => {
+                defined $filename ? ( filename => basename($filename) ) : ()
+            }
+        );
+
+        return Courriel::Part::Single->new(
+            headers      => Courriel::Headers->new(),
+            content_type => $ct,
+            disposition  => $disp,
+            encoding     => 'base64',
+            content      => $content,
+        );
+    }
 }
 
 sub _content_type {
