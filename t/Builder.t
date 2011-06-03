@@ -5,6 +5,7 @@ use Test::Fatal;
 use Test::More 0.88;
 
 use Courriel::Builder;
+use List::AllUtils qw( all );
 
 {
     my $email = build_email(
@@ -109,9 +110,203 @@ use Courriel::Builder;
 }
 
 {
+    my $content = 'content ref';
+
+    my $email = build_email(
+        subject('Test Subject'),
+        plain_body( \$content ),
+    );
+
+    is(
+        ${ $email->plain_body_part()->content() },
+        $content,
+        'can pass body content as a scalar ref'
+    );
+}
+
+{
+    my $email = build_email(
+        subject('Test Subject'),
+        plain_body('foo'),
+        html_body('<p>foo</p>'),
+    );
+
+    is(
+        $email->content_type()->mime_type(),
+        'multipart/alternative',
+        'passing a plain and html body with no attachments makes a multipart/alternative email'
+    );
+}
+
+{
+    my $pl_script = <<'EOF';
+#!/usr/bin/perl
+
+print "Hello world\n";
+EOF
+
+    my $email = build_email(
+        subject('Test Subject'),
+        plain_body('foo'),
+        attach( content => $pl_script ),
+    );
+
+    is(
+        $email->content_type()->mime_type(),
+        'multipart/mixed',
+        'passing an attachment makes a multipart/mixed email'
+    );
+
+    my @parts = $email->parts();
+    is( scalar @parts, 2, 'email has two parts' );
+
+    ok(
+        ( all { !$_->is_multipart() } @parts ),
+        'email consists of two single parts'
+    );
+
+    my $attachment
+        = $email->first_part_matching( sub { $_[0]->is_attachment() } );
+    ok(
+        $attachment,
+        'one of the parts returns true for is_attachment'
+    );
+
+    is(
+        $attachment->mime_type(),
+        'text/x-perl',
+        'correct mime type detected for attachment'
+    );
+
+    is(
+        $attachment->charset(),
+       'us-ascii',
+        'correct charset detected for attachment'
+    );
+}
+
+{
+    my $pl_script = <<'EOF';
+#!/usr/bin/perl
+
+print "Hello world\n";
+EOF
+
+    my $email = build_email(
+        subject('Test Subject'),
+        plain_body('foo'),
+        html_body('<p>foo</p>'),
+        attach( content => $pl_script ),
+    );
+
+    is(
+        $email->content_type()->mime_type(),
+        'multipart/mixed',
+        'passing a plain and html body with attachments makes a multipart/alternative email'
+    );
+
+    ok(
+        $email->plain_body_part(),
+        'email has a plain body'
+    );
+
+    ok(
+        $email->html_body_part(),
+        'email has an html body'
+    );
+
+    ok(
+        $email->first_part_matching(
+            sub { $_[0]->mime_type() eq 'multipart/alternative' }
+        ),
+        'email has a multipart/alternative part'
+    );
+
+    my $attachment
+        = $email->first_part_matching( sub { $_[0]->is_attachment() } );
+    ok(
+        $attachment,
+        'email has an attachment'
+    );
+}
+
+{
+    open my $fh, '<', 't/data/office.jpg' or die $!;
+    my $image = do { local $/; <$fh> };
+    close $fh;
+
+    my $email = build_email(
+        subject('Test Subject'),
+        html_body(
+            '<p>foo</p>',
+            attach(
+                content  => $image,
+                filename => 'office.jpg',
+            ),
+        ),
+    );
+
+    is(
+        $email->content_type()->mime_type(),
+        'multipart/related',
+        'passing an html body with attached image makes a multipart/related email'
+    );
+
+    my $attachment
+        = $email->first_part_matching( sub { $_[0]->is_attachment() } );
+    ok(
+        $attachment,
+        'email has an attachment'
+    );
+
+    is(
+        $attachment->mime_type(),
+        'image/jpeg',
+        'got the right mime type for image attachment'
+    );
+}
+
+{
+    my $email = build_email(
+        subject('Test Subject'),
+        plain_body('Foo'),
+        attach('t/data/office.jpg'),
+    );
+
+    my $attachment
+        = $email->first_part_matching( sub { $_[0]->is_attachment() } );
+    ok(
+        $attachment,
+        'email has an attachment'
+    );
+
+    is(
+        $attachment->mime_type(),
+        'image/jpeg',
+        'got the right mime type for image attachment from file'
+    );
+}
+
+{
     like(
         exception { build_email( ['wtf'] ); },
         qr/A weird value was passed to build_email:/,
+        'got error when passing invalid value to build_email'
+    );
+}
+
+{
+    like(
+        exception { build_email( { bad_key => 42 } ); },
+        qr/A weird value was passed to build_email:/,
+        'got error when passing invalid value to build_email'
+    );
+}
+
+{
+    like(
+        exception { build_email( subject('foo') ); },
+        qr/Cannot call build_email without a plain or html body/,
         'got error when passing invalid value to build_email'
     );
 }

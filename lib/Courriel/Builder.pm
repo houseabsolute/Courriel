@@ -3,10 +3,12 @@ package Courriel::Builder;
 use strict;
 use warnings;
 
+use Carp qw( croak );
 use Courriel;
 use Courriel::ContentType;
 use Courriel::Disposition;
 use Courriel::Headers;
+use Courriel::Helpers qw( parse_header_with_attributes );
 use Courriel::Part::Multipart;
 use Courriel::Part::Single;
 use DateTime;
@@ -17,6 +19,8 @@ use File::LibMagic;
 use File::Slurp qw( read_file );
 use List::AllUtils qw( first );
 use Scalar::Util qw( blessed reftype );
+
+our @CARP_NOT = __PACKAGE__;
 
 my @exports;
 
@@ -82,7 +86,7 @@ sub build_email {
     else {
         $body_part = first {defined} $plain_body, $html_body;
 
-        die "Cannot call build_email without a text or html body"
+        croak "Cannot call build_email without a plain or html body"
             unless $body_part;
     }
 
@@ -111,7 +115,7 @@ sub build_email {
 }
 
 sub _bad_value {
-    die "Got a weird value passed to build_email: "
+    croak "A weird value was passed to build_email: "
         . Devel::PartialDump->new()->dump( $_[0] );
 }
 
@@ -195,15 +199,18 @@ sub plain_body {
 sub html_body {
     my @attachments;
 
-    for my $i ( $#_ .. 0 ) {
-        if ( reftype( $_[$i] ) eq 'HASH' && $_[$i]->{attachment} ) {
+    for my $i ( reverse 0 .. $#_ ) {
+        if (   ref $_[$i]
+            && reftype( $_[$i] ) eq 'HASH'
+            && $_[$i]->{attachment} ) {
+
             push @attachments, splice @_, $i, 1;
         }
     }
 
     my %p
         = @_ == 1
-        ? ( body => shift )
+        ? ( content => shift )
         : @_;
 
     my $body = _body_part(
@@ -219,7 +226,7 @@ sub html_body {
             ),
             parts => [
                 $body,
-                @attachments,
+                map { $_->{attachment} } @attachments,
             ],
         );
     }
@@ -241,7 +248,7 @@ sub _body_part {
         headers      => Courriel::Headers->new(),
         content_type => $ct,
         encoding     => $p{encoding} // 'base64',
-        content      => \$p{content},
+        content      => ( ref $p{content} ? $p{content} : $p{content} ),
     );
 
     return $body;
@@ -262,17 +269,14 @@ my $flm = File::LibMagic->new();
 sub _part_for_file {
     my %p = @_;
 
-    my $mime_type = $flm->checktype_filename( $p{file} )
-        // 'application/unknown';
-
-    my $ct = Courriel::ContentType->new( mime_type => $mime_type );
+    my $ct = _content_type( $flm->checktype_filename( $p{file} ) );
 
     my $content = read_file( $p{file} );
 
     return Courriel::Part::Single->new(
         headers      => Courriel::Headers->new(),
-        content_type => Courriel::ContentType->new( mime_type => $mime_type ),
-        disposition  => Content::Disposition->new(
+        content_type => $ct,
+        disposition  => Courriel::Disposition->new(
             disposition => 'attachment',
             attributes  => { filename => basename( $p{file} ) }
         ),
@@ -284,10 +288,11 @@ sub _part_for_file {
 sub _part_for_content {
     my %p = @_;
 
-    my $mime_type = $flm->checktype_contents( $p{content} )
-        // 'application/unknown';
+    my $content_ref = ref $p{content} ? $p{content} : \$p{content};
 
-    my $disp = Content::Disposition->new(
+    my $ct = _content_type( $flm->checktype_contents( ${$content_ref} ) );
+
+    my $disp = Courriel::Disposition->new(
         disposition => 'attachment',
         attributes =>
             { $p{filename} ? ( filename => basename( $p{filename} ) ) : () }
@@ -295,10 +300,27 @@ sub _part_for_content {
 
     return Courriel::Part::Single->new(
         headers      => Courriel::Headers->new(),
-        content_type => Courriel::ContentType->new( mime_type => $mime_type ),
+        content_type => $ct,
         disposition  => $disp,
         encoding     => 'base64',
-        content      => \$p{content},
+        content      => $content_ref,
+    );
+}
+
+sub _content_type {
+    my $type = shift;
+
+    return Courriel::ContentType->new( mime_type => 'application/unknown' )
+        unless defined $type;
+
+    my ( $mime_type, $attr ) = parse_header_with_attributes($type);
+
+    return Courriel::ContentType->new( mime_type => 'application/unknown' )
+        unless defined $mime_type && length $mime_type;
+
+    return Courriel::ContentType->new(
+        mime_type  => $mime_type,
+        attributes => $attr,
     );
 }
 
