@@ -428,6 +428,43 @@ EOF
     );
 }
 
+{
+    my $email = build_email(
+        plain_body('foo'),
+        html_body('bar'),
+        attach( content => 'some content' ),
+        attach( content => 'some more content' ),
+    );
+
+    is(
+        $email->content_type()->mime_type(),
+        'multipart/mixed',
+        'email is multipart/mixed'
+    );
+
+    my @parts = $email->all_parts_matching( sub { 1 } );
+
+    is(
+        scalar @parts, 6,
+        'email has 6 parts'
+    );
+
+    my $clone = $email->clone_without_attachments();
+
+    is(
+        $clone->content_type()->mime_type(),
+        'multipart/alternative',
+        'after clone type is multipart/alternative'
+    );
+
+    @parts = $clone->all_parts_matching( sub { 1 } );
+
+    is(
+        scalar @parts, 3,
+        'email has 3 parts after clone'
+    );
+}
+
 done_testing();
 
 sub _compare_text {

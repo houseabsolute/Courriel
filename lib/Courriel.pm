@@ -8,7 +8,7 @@ use namespace::autoclean;
 
 use Courriel::ContentType;
 use Courriel::Headers;
-use Courriel::Helpers qw( parse_header_with_attributes );
+use Courriel::Helpers qw( parse_header_with_attributes unique_boundary );
 use Courriel::Part::Multipart;
 use Courriel::Part::Single;
 use Courriel::Types qw( ArrayRef Bool Headers Maybe NonEmptyStr Part StringRef );
