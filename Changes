@@ -1,16 +1,20 @@
 {{$NEXT}}
 
+- Added all_parts_matching() method to Courriel class.
+
 - The Courriel::Part::Single attribute raw_content has been renamed as
   encoded_content.
 
-- A headers with attributes (like Content-Type) can escape values inside a
-  quoted string, like value="foo \" bar". Courriel wasn't unescaping these
-  values.
+- The text_body_part() method is now called plain_body_part().
 
-- The add() and unshift() methods in Courriel::Headers now just accept one
+- The add() and unshift() methods in Courriel::Headers now accept only one
   value.
 
 - Added Courriel::Headers->replace as a convenience method.
+
+- A header with attributes (like Content-Type) can escape values inside a
+  quoted string, like value="foo \" bar". Courriel wasn't unescaping these
+  values.
 
 - It is now possible to pass a Courriel::Disposition object explicitly when
   constructing a Courriel::Part::Single object. The docs said this was
@@ -27,8 +31,6 @@
 
 - Some hacks to make it possible for Courriel to play nice with
   Email::Abstract.
-
-- The text_body_part() method is now called plain_body_part().
 
 - Fixed some small doc errors.
 
