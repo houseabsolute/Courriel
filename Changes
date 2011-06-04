@@ -28,6 +28,8 @@
 - Some hacks to make it possible for Courriel to play nice with
   Email::Abstract.
 
+- The text_body_part() method is now called plain_body_part().
+
 - Fixed some small doc errors.
 
 
