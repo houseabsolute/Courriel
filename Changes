@@ -2,6 +2,8 @@
 
 - Added all_parts_matching() method to Courriel class.
 
+- Added clone_without_attachments() method to Courriel class.
+
 - The Courriel::Part::Single attribute raw_content has been renamed as
   encoded_content.
 
