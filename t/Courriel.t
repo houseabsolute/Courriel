@@ -26,7 +26,10 @@ EOF
 
     is_deeply(
         [ $email->headers()->headers() ],
-        [ Subject => 'Foo' ],
+        [
+            Subject                     => 'Foo',
+            'Content-Transfer-Encoding' => '8bit',
+        ],
         'headers were parsed correctly'
     );
 
@@ -179,8 +182,10 @@ EOF
         'recipients includes all expected addresses',
     );
 
-    ( my $string = $original ) =~ s/\n/$crlf/g;
+    my $string = $original;
     $string =~ s/^.+?\n//;    # remove mbox marker line
+    $string =~ s/(\n\nThis is a test email)/\nContent-Transfer-Encoding: 8bit$1/g;
+    $string =~ s/\n/$crlf/g;
 
     _compare_text(
         $email->as_string(),

@@ -58,7 +58,7 @@ sub BUILD {
         =~ s/$Courriel::Helpers::LINE_SEP_RE/$Courriel::Helpers::CRLF/g
         if $self->_has_encoded_content();
 
-    $self->_maybe_set_disposition_in_headers();
+    $self->_sync_headers_with_self();
 
     return;
 }
@@ -66,8 +66,21 @@ sub BUILD {
 after _set_headers => sub {
     my $self = shift;
 
-    $self->_maybe_set_disposition_in_headers();
+    $self->_sync_headers_with_self();
+
+    return;
 };
+
+sub _sync_headers_with_self {
+    my $self = shift;
+
+    $self->_maybe_set_disposition_in_headers();
+
+    $self->headers()
+        ->replace( 'Content-Transfer-Encoding' => $self->encoding() );
+
+    return;
+}
 
 sub _maybe_set_disposition_in_headers {
     my $self = shift;

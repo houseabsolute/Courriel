@@ -107,6 +107,12 @@ EOF
         content  => \$body,
     );
 
+    is_deeply(
+        [ $part->headers()->get('Content-Transfer-Encoding') ],
+        ['base64'],
+        'Content-Transfer-Encoding is always set in part headers'
+    );
+
     is(
         ${ $part->encoded_content() },
         $encoded,
@@ -133,8 +139,9 @@ EOF
     is_deeply(
         [ $new_h->headers() ],
         [
-            'Content-Type'        => 'image/jpeg',
-            'Content-Disposition' => q{attachment; filename="foo.jpg"},
+            'Content-Type'              => 'image/jpeg',
+            'Content-Disposition'       => q{attachment; filename="foo.jpg"},
+            'Content-Transfer-Encoding' => '8bit',
         ],
         'content type is updated when headers are set'
     );
