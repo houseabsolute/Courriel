@@ -513,6 +513,11 @@ mime type of "text/plain" and an inline disposition, if one exists.
 This returns the first L<Courriel::Part::Single> object in the email with a
 mime type of "text/html" and an inline disposition, if one exists.
 
+=head2 $email->clone_without_attachments()
+
+Returns a new Courriel object that only contains inline parts from the
+original email, effectively removing all attachments.
+
 =head2 $email->first_part_matching( sub { ... } )
 
 Given a subroutine reference, this method calls that subroutine for each part
