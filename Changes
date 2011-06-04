@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+- The clone_without_attachments() method would die when calling on an email
+  that contained both plain and html inline parts.
+
+
 0.04     2011-06-04
 
 - Add missing prereq on File::LibMagic (needed since 0.02).
