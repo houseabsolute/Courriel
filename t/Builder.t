@@ -288,6 +288,56 @@ EOF
 }
 
 {
+    my $email = build_email(
+        subject('Test Subject'),
+        plain_body('Foo'),
+        attach( file => 't/data/office.jpg', content_id => 'abc123' ),
+    );
+
+    my $attachment
+        = $email->first_part_matching( sub { $_[0]->is_attachment() } );
+    is_deeply(
+        [ $attachment->headers()->get('Content-ID') ],
+        ['abc123'],
+        'attachment has the correct Content-ID'
+    );
+}
+
+{
+    my $email = build_email(
+        subject('Test Subject'),
+        plain_body('Foo'),
+        attach( file => 't/data/office.jpg', mime_type => 'w/tf' ),
+    );
+
+    my $attachment
+        = $email->first_part_matching( sub { $_[0]->is_attachment() } );
+    is_deeply(
+        $attachment->mime_type(),
+        'w/tf',
+        'attachment has explicitly set mime type'
+    );
+}
+
+{
+    my $email = build_email(
+        subject('Test Subject'),
+        plain_body('Foo'),
+        attach(
+            file => 't/data/office.jpg', filename => 'something-else.jpg'
+        ),
+    );
+
+    my $attachment
+        = $email->first_part_matching( sub { $_[0]->is_attachment() } );
+    is_deeply(
+        $attachment->filename(),
+        'something-else.jpg',
+        'attachment has explicitly set filename'
+    );
+}
+
+{
     like(
         exception { build_email( ['wtf'] ); },
         qr/checking type constraint for HashRef/,
