@@ -111,7 +111,7 @@ sub clone_without_attachments {
     my $self = shift;
 
     my $plain_body = $self->plain_body_part();
-    my $html_body = $self->html_body_part();
+    my $html_body  = $self->html_body_part();
 
     my $headers = $self->headers();
 
@@ -133,11 +133,11 @@ sub clone_without_attachments {
         $headers->replace(
             'Content-Transfer-Encoding' => $plain_body->encoding() );
 
-        Courriel->new(
+        return Courriel->new(
             part => Courriel::Part::Single->new(
-                content_type => $plain_body->content_type(),
-                headers      => $headers,
-                encoded_content  => $plain_body->encoded_content(),
+                content_type    => $plain_body->content_type(),
+                headers         => $headers,
+                encoded_content => $plain_body->encoded_content(),
             )
         );
     }
@@ -145,11 +145,11 @@ sub clone_without_attachments {
         $headers->replace(
             'Content-Transfer-Encoding' => $html_body->encoding() );
 
-        Courriel->new(
+        return Courriel->new(
             part => Courriel::Part::Single->new(
-                content_type => $html_body->content_type(),
-                headers      => $headers,
-                encoded_content  => $html_body->encoded_content(),
+                content_type    => $html_body->content_type(),
+                headers         => $headers,
+                encoded_content => $html_body->encoded_content(),
             )
         );
     }
