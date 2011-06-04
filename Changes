@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.05     2011-06-04
+
 - The clone_without_attachments() method would die when calling on an email
   that contained both plain and html inline parts.
 
