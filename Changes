@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+- The encoding parameter is now always set in a part's headers.
+
+
 0.02     2011-06-04
 
 - Added all_parts_matching() method to Courriel class.
