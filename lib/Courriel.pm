@@ -539,8 +539,9 @@ There a lot of email modules/distros on CPAN. Why didn't I use/fix one of them?
 =item * L<Mail::Box>
 
 This one probably does everything this module does and more, but it's really,
-really big and complicated. If you need it, it's great, but I generally find
-it to be too much module for me.
+really big and complicated, forcing the end user to make a lot of choices just
+to get started. If you need it, it's great, but I generally find it to be too
+much module for me.
 
 =item * L<Email::Simple> and L<Email::MIME>
 
