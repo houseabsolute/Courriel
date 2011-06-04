@@ -183,3 +183,8 @@ Returns a hash (not a reference) of the attributes passed to the constructor.
 
 Given a key, returns the value of the named attribute. Obviously, this value
 can be C<undef> if the attribute doesn't exist.
+
+=head2 $disp->as_header_value()
+
+Returns the object as a string suitable for a header value (but not folded).
+
