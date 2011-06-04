@@ -20,9 +20,12 @@ all_pod_files_spelling_ok;
 
 __DATA__
 API
+Bcc
+cid
 CPAN
 Courriel
 DateTime
+html
 Multipart
 PayPal
 Rolsky
@@ -34,3 +37,4 @@ filename
 inline
 multipart
 utf
+UTF
