@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.03     2011-06-04
+
 - The encoding parameter is now always set in a part's headers.
 
 
