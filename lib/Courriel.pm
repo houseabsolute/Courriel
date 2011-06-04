@@ -526,29 +526,6 @@ This release is still rough, and I have some plans for additional features:
 
 Some more methods for walking/collecting multiple parts would be useful.
 
-=head2 Attachment Stripping
-
-I plan to add an C<< $email->strip_attachments() >> method that actually works
-properly, unlike L<Email::MIME::Attachment::Stripper>. This method will leave
-behind I<all> inline parts, including their containers (if they're in a
-"multipart/alternative" part, for example).
-
-=head2 Email Building
-
-As of this release, the distro does not yet include any high-level method for
-building complicated emails from code. I plan to write some sort of sugar
-layer like:
-
-    build_email(
-        subject('Foo'),
-        to( 'foo@example.com', 'bar@example.com' ),
-        from('joe@example.com'),
-        plain_body(...),
-        html_body(...),
-        attach('path/to/image.jpg'),
-        attach('path/to/spreadsheet.xls'),
-    );
-
 =head2 More?
 
 Stay tuned for details.
