@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.02     2011-06-04
+
 - Added all_parts_matching() method to Courriel class.
 
 - Added clone_without_attachments() method to Courriel class.
