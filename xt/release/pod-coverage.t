@@ -15,7 +15,7 @@ my %skip = map { $_ => 1 } qw( Courriel::Helpers );
 my @modules
     = grep { !( $skip{$_} || /^Courriel::(?:Role|Types)/ ) } all_modules();
 
-my %trustme;
+my %trustme = ( Courriel => ['replace_body'] );
 
 for my $module ( sort @modules ) {
     my $trustme = [];
