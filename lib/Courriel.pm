@@ -256,6 +256,22 @@ sub first_part_matching {
     }
 }
 
+sub all_parts_matching {
+    my $self = shift;
+    my $match = shift;
+
+    my @parts = $self->top_level_part();
+
+    my @match;
+    for ( my $part = shift @parts; $part; $part = shift @parts ) {
+        push @match, $part if $match->($part);
+
+        push @parts, $part->parts() if $part->is_multipart();
+    }
+
+    return @match;
+}
+
 {
     my @spec = ( text => { isa => StringRef, coerce => 1 } );
 
@@ -504,6 +520,16 @@ in the email, in a depth-first search.
 
 The subroutine receives the part as its only argument. If it returns true,
 this method returns that part.
+
+=head2 $email->all_parts_matching( sub { ... } )
+
+Given a subroutine reference, this method calls that subroutine for each part
+in the email, in a depth-first search.
+
+The subroutine receives the part as its only argument. If it returns true,
+this method includes that part.
+
+This method returns all of the parts that match the subroutine.
 
 =head2 $email->content_type()
 
