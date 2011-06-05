@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+- Add missing test prereq on File::Slurp.
+
+- The clone_without_attachments() method could end up setting the wrong
+  encoding when creating a new single part email.
+
+
 0.05     2011-06-04
 
 - The clone_without_attachments() method would die when calling on an email
