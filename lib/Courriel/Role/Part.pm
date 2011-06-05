@@ -37,12 +37,6 @@ has content_type => (
     handles   => [qw( mime_type charset )],
 );
 
-has encoding => (
-    is      => 'ro',
-    isa     => NonEmptyStr,
-    default => '8bit',
-);
-
 sub as_string {
     my $self = shift;
 

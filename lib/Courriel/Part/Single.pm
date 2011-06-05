@@ -5,7 +5,7 @@ use warnings;
 use namespace::autoclean;
 
 use Courriel::Helpers qw( parse_header_with_attributes );
-use Courriel::Types qw( StringRef );
+use Courriel::Types qw( NonEmptyStr StringRef );
 use Email::MIME::Encodings;
 use MIME::Base64 ();
 use MIME::QuotedPrint ();
@@ -40,6 +40,13 @@ has disposition => (
     builder   => '_build_disposition',
     predicate => '_has_disposition',
     handles   => [qw( is_attachment is_inline filename )],
+);
+
+has encoding => (
+    is      => 'ro',
+    isa     => NonEmptyStr,
+    lazy    => 1,
+    builder => '_build_encoding',
 );
 
 sub BUILD {
@@ -151,6 +158,14 @@ sub _default_mime_type {
     }
 }
 
+sub _build_encoding {
+    my $self = shift;
+
+    my @enc = $self->headers()->get('Content-Transfer-Encoding');
+
+    return $enc[0] // '8bit';
+}
+
 sub _content_as_string {
     my $self = shift;
 
@@ -210,7 +225,8 @@ disposition. This will default to "inline" with no other attributes.
 
 =item * encoding
 
-The Content-Transfer-Encoding for this part. This defaults to "8bit".
+The Content-Transfer-Encoding for this part. This defaults to the value found
+in the part's headers, or "8bit" if no header is found.
 
 =item * headers
 
