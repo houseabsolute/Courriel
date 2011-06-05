@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.06     2011-06-05
+
 - Add missing test prereq on File::Slurp.
 
 - The clone_without_attachments() method could end up setting the wrong
