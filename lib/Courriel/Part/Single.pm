@@ -46,7 +46,7 @@ has encoding => (
     is      => 'ro',
     isa     => NonEmptyStr,
     lazy    => 1,
-    builder => '_build_encoding',
+    default => '8bit',
 );
 
 sub BUILD {
@@ -156,14 +156,6 @@ sub _default_mime_type {
             )
         );
     }
-}
-
-sub _build_encoding {
-    my $self = shift;
-
-    my @enc = $self->headers()->get('Content-Transfer-Encoding');
-
-    return $enc[0] // '8bit';
 }
 
 sub _content_as_string {
