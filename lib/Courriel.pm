@@ -130,25 +130,21 @@ sub clone_without_attachments {
         );
     }
     elsif ($plain_body) {
-        $headers->replace(
-            'Content-Transfer-Encoding' => $plain_body->encoding() );
-
         return Courriel->new(
             part => Courriel::Part::Single->new(
                 content_type    => $plain_body->content_type(),
                 headers         => $headers,
+                encoding        => $plain_body->encoding(),
                 encoded_content => $plain_body->encoded_content(),
             )
         );
     }
     elsif ($html_body) {
-        $headers->replace(
-            'Content-Transfer-Encoding' => $html_body->encoding() );
-
         return Courriel->new(
             part => Courriel::Part::Single->new(
                 content_type    => $html_body->content_type(),
                 headers         => $headers,
+                encoding        => $html_body->encoding(),
                 encoded_content => $html_body->encoded_content(),
             )
         );
