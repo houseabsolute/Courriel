@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+- Make sure that any Content-ID header set via Courriel::Builder is formatted
+  properly (the id value should be wrapped in angle brackets).
+
+
 0.07     2011-06-06
 
 - Some tests were failing because File::LibMagic may return slightly different

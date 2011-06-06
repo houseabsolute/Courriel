@@ -298,8 +298,8 @@ EOF
         = $email->first_part_matching( sub { $_[0]->is_attachment() } );
     is_deeply(
         [ $attachment->headers()->get('Content-ID') ],
-        ['abc123'],
-        'attachment has the correct Content-ID'
+        ['<abc123>'],
+        'attachment has the correct Content-ID, and it is wrapped in brackets'
     );
 }
 
