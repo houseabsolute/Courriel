@@ -172,9 +172,9 @@ EOF
         'one of the parts returns true for is_attachment'
     );
 
-    is(
+    like(
         $attachment->mime_type(),
-        'text/x-perl',
+        qr{/x-perl$},
         'correct mime type detected for attachment'
     );
 
