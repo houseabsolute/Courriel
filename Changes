@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+- Some tests were failing because File::LibMagic may return slightly different
+  results on different systems (application/x-perl versus text/x-perl).
+
+
 0.06     2011-06-05
 
 - Add missing test prereq on File::Slurp.
