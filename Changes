@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.09     2011-06-06
+
 [NEW FEATURES]
 
 - This distro now ships a plugin for Email::Abstract, meaning you can use
