@@ -5,6 +5,7 @@ use Test::Fatal;
 use Test::More 0.88;
 
 use Courriel::Builder;
+use Courriel::Helpers;
 use List::AllUtils qw( all );
 
 {
@@ -98,14 +99,14 @@ use List::AllUtils qw( all );
     my $email = build_email(
         subject('Test Subject'),
         plain_body(
-            content => "Foo \x{00F1}",
+            content  => "Foo \x{00F1}",
             encoding => 'quoted-printable'
         ),
     );
 
-    like(
+    is(
         $email->plain_body_part()->encoded_content(),
-        qr/=F1/,
+        'Foo =C3=B1=' . $Courriel::Helpers::CRLF,
         'body is encoded using quoted-printable'
     );
 }
