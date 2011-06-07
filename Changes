@@ -1,5 +1,14 @@
 {{$NEXT}}
 
+[API CHANGES]
+
+- The content() and encoded_content() methods for Courriel::Part::Single now
+  return strings, rather than references. This makes the typical use
+  simpler. You can still get the reference directly by calling content_ref()
+  and encoded_content_ref().
+
+[BUG FIXES]
+
 - Make sure that any Content-ID header set via Courriel::Builder is formatted
   properly (the id value should be wrapped in angle brackets).
 

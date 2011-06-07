@@ -30,9 +30,15 @@ EOF
     );
 
     is(
-        ${ $part->content() },
+        $part->content(),
         $body,
         'content matches original body'
+    );
+
+    is(
+        ${ $part->content_ref() },
+        $body,
+        'content_ref matches original body'
     );
 }
 
@@ -56,7 +62,7 @@ EOF
     );
 
     is(
-        ${ $part->content() },
+        $part->content(),
         $body,
         'content matches original body - base64 encoding on part'
     );
@@ -82,7 +88,7 @@ EOF
     );
 
     is(
-        ${ $part->content() },
+        $part->content(),
         $body,
         'content matches original body - qp encoding on part'
     );
@@ -114,9 +120,15 @@ EOF
     );
 
     is(
-        ${ $part->encoded_content() },
+        $part->encoded_content(),
         $encoded,
         'encoded_content matches encoded version of content'
+    );
+
+    is(
+        ${ $part->encoded_content_ref() },
+        $encoded,
+        'encoded_content_ref matches encoded version of content'
     );
 }
 

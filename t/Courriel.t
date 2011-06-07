@@ -54,7 +54,7 @@ EOF
 
     is_deeply(
         $part->content(),
-        \$text,
+        $text,
         'content for part was parsed correctly'
     );
 
@@ -128,7 +128,7 @@ It has some *bold* text.
 EOF
 
     _compare_text(
-        ${ $parts[0]->content() },
+        $parts[0]->content(),
         $plain,
         'plain content is as expected',
     );
@@ -145,7 +145,7 @@ This is a test email.<br><br>It has some <b>bold</b> text.<br><br>
 EOF
 
     _compare_text(
-        ${ $parts[1]->content() },
+        $parts[1]->content(),
         $html,
         'html content is as expected',
     );

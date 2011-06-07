@@ -15,22 +15,24 @@ use MooseX::StrictConstructor;
 
 with 'Courriel::Role::Part';
 
-has content => (
+has content_ref => (
     is        => 'ro',
     isa       => StringRef,
     coerce    => 1,
+    init_arg  => 'content',
     lazy      => 1,
-    builder   => '_build_content',
-    predicate => '_has_content',
+    builder   => '_build_content_ref',
+    predicate => '_has_content_ref',
 );
 
-has encoded_content => (
+has encoded_content_ref => (
     is        => 'ro',
     isa       => StringRef,
     coerce    => 1,
+    init_arg  => 'encoded_content',
     lazy      => 1,
-    builder   => '_build_encoded_content',
-    predicate => '_has_encoded_content',
+    builder   => '_build_encoded_content_ref',
+    predicate => '_has_encoded_content_ref',
 );
 
 has disposition => (
@@ -52,18 +54,19 @@ has encoding => (
 sub BUILD {
     my $self = shift;
 
-    unless ( $self->_has_content() || $self->_has_encoded_content() ) {
+    unless ( $self->_has_content_ref() || $self->_has_encoded_content_ref() )
+    {
         die
             'You must provide a content or encoded_content parameter when constructing a Courriel::Part::Single object.';
     }
 
-    ${ $self->content() }
+    ${ $self->content_ref() }
         =~ s/$Courriel::Helpers::LINE_SEP_RE/$Courriel::Helpers::CRLF/g
-        if $self->_has_content();
+        if $self->_has_content_ref();
 
-    ${ $self->encoded_content() }
+    ${ $self->encoded_content_ref() }
         =~ s/$Courriel::Helpers::LINE_SEP_RE/$Courriel::Helpers::CRLF/g
-        if $self->_has_encoded_content();
+        if $self->_has_encoded_content_ref();
 
     $self->_sync_headers_with_self();
 
@@ -127,41 +130,49 @@ sub _default_mime_type {
 {
     my %unencoded = map { $_ => 1 } qw( 7bit 8bit binary );
 
-    sub _build_content {
+    sub _build_content_ref {
         my $self = shift;
 
         my $encoding = $self->encoding();
 
-        return $self->encoded_content() if $unencoded{ lc $encoding };
+        return $self->encoded_content_ref() if $unencoded{ lc $encoding };
 
         return \(
             Email::MIME::Encodings::decode(
                 $encoding,
-                ${ $self->encoded_content() }
+                $self->encoded_content()
             )
         );
     }
 
-    sub _build_encoded_content {
+    sub _build_encoded_content_ref {
         my $self = shift;
 
         my $encoding = $self->encoding();
 
-        return $self->content() if $unencoded{ lc $encoding };
+        return $self->content_ref() if $unencoded{ lc $encoding };
 
         return \(
             Email::MIME::Encodings::encode(
                 $encoding,
-                ${ $self->content() }
+                $self->content(),
             )
         );
     }
 }
 
+sub content {
+    return ${ $_[0]->content_ref() };
+}
+
+sub encoded_content {
+    return ${ $_[0]->encoded_content_ref() };
+}
+
 sub _content_as_string {
     my $self = shift;
 
-    return ${ $self->encoded_content() };
+    return $self->encoded_content();
 }
 
 __PACKAGE__->meta()->make_immutable();
@@ -197,13 +208,17 @@ This method creates a new part object. It accepts the following parameters:
 
 =item * content
 
-This can either be a string or a reference to a scalar. Any reference passed
-may be modified.
+This can either be a string or a reference to a scalar.
+
+If you pass a reference, then the scalar underlying the reference may be
+modified, so don't pass in something you don't want modified.
 
 =item * encoded_content
 
-This can either be a string or a reference to a scalar. Any reference passed
-may be modified.
+This can either be a string or a reference to a scalar.
+
+If you pass a reference, then the scalar underlying the reference may be
+modified, so don't pass in something you don't want modified.
 
 =item * content_type
 
@@ -231,15 +246,11 @@ but there's really no point in passing both.
 
 =head2 $part->content()
 
-This returns returns a reference to a scalar containing the decoded content
-for the part. If no decoding was necessary, this will contain the same
-reference as C<encoded_content()>.
+This returns returns the decoded content for the part.
 
 =head2 $part->encoded_content()
 
-This returns returns a reference to a scalar containing the raw content for
-the part, without any decoding. If no encoding was necessary, this will
-contain the same reference as C<encoded_content()>.
+This returns returns the encoded content for the part.
 
 =head2 $part->mime_type()
 
@@ -281,6 +292,18 @@ Returns false.
 
 Returns the L<Courriel> or L<Courriel::Part::Multipart> object to which this
 part belongs, if any. This is set when the part is added to another object.
+
+=head2 $part->content_ref()
+
+This returns returns a reference to a scalar containing the decoded content
+for the part, without any decoding. If no encoding was necessary, this will
+contain the same reference as C<encoded_content_ref()>.
+
+=head2 $part->encoded_content_ref()
+
+This returns returns a reference to a scalar containing the encoded content
+for the part, without any decoding. If no encoding was necessary, this will
+contain the same reference as C<content_ref()>.
 
 =head2 $part->as_string()
 

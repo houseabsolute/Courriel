@@ -103,7 +103,7 @@ use List::AllUtils qw( all );
     );
 
     like(
-        ${ $email->plain_body_part()->encoded_content() },
+        $email->plain_body_part()->encoded_content(),
         qr/=F1/,
         'body is encoded using quoted-printable'
     );
@@ -118,7 +118,7 @@ use List::AllUtils qw( all );
     );
 
     is(
-        ${ $email->plain_body_part()->content() },
+        $email->plain_body_part()->content(),
         $content,
         'can pass body content as a scalar ref'
     );
