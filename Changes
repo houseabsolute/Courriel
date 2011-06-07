@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.10     2011-06-07
+
 [BUG FIXES]
 
 - When parsing an email, the encoding attribute for parts was not set
