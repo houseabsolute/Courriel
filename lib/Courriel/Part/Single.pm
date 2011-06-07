@@ -7,6 +7,7 @@ use namespace::autoclean;
 use Courriel::Helpers qw( parse_header_with_attributes );
 use Courriel::Types qw( NonEmptyStr StringRef );
 use Email::MIME::Encodings;
+use Encode qw( decode encode );
 use MIME::Base64 ();
 use MIME::QuotedPrint ();
 
@@ -147,9 +148,12 @@ sub _default_mime_type {
         return $self->encoded_content_ref() if $unencoded{ lc $encoding };
 
         return \(
-            Email::MIME::Encodings::decode(
-                $encoding,
-                $self->encoded_content()
+            decode(
+                $self->content_type()->charset(),
+                Email::MIME::Encodings::decode(
+                    $encoding,
+                    $self->encoded_content()
+                )
             )
         );
     }
@@ -164,7 +168,10 @@ sub _default_mime_type {
         return \(
             Email::MIME::Encodings::encode(
                 $encoding,
-                $self->content(),
+                encode(
+                    $self->content_type()->charset(),
+                    $self->content(),
+                )
             )
         );
     }

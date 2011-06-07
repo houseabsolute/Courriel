@@ -9,6 +9,8 @@ use Courriel::ContentType;
 use Courriel::Headers;
 use Courriel::Part::Single;
 use Email::MIME::Encodings;
+use Encode qw( encode );
+use MIME::Base64 qw( encode_base64 );
 
 my $crlf = "\x0d\x0a";
 
@@ -156,6 +158,49 @@ EOF
             'Content-Transfer-Encoding' => '8bit',
         ],
         'content type is updated when headers are set'
+    );
+}
+
+{
+    my $orig_content = "foo \x{4E00} bar";
+    my $encoded = encode_base64( encode( 'UTF-8', $orig_content ) );
+
+    my $part = Courriel::Part::Single->new(
+        headers      => Courriel::Headers->new(),
+        content_type => Courriel::ContentType->new(
+            mime_type  => 'text/plain',
+            attributes => { charset => 'UTF-8' },
+        ),
+        encoding        => 'base64',
+        encoded_content => $encoded,
+    );
+
+    is(
+        $part->content(),
+        $orig_content,
+        'decoded content matches original content',
+    );
+}
+
+{
+    my $orig_content = "foo \x{4E00} bar";
+
+    my $part = Courriel::Part::Single->new(
+        headers      => Courriel::Headers->new(),
+        content_type => Courriel::ContentType->new(
+            mime_type  => 'text/plain',
+            attributes => { charset => 'UTF-8' },
+        ),
+        encoding => 'base64',
+        content  => $orig_content,
+    );
+
+    is(
+        $part->encoded_content(),
+        encode_base64(
+            encode( 'UTF-8', $orig_content ), $Courriel::Helpers::CRLF
+        ),
+        'encoded content matches expected when original contains UTF-8',
     );
 }
 
