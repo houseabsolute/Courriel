@@ -224,7 +224,8 @@ This method creates a new part object. It accepts the following parameters:
 
 =item * content
 
-This can either be a string or a reference to a scalar.
+This can either be a string or a reference to a scalar. It should be in Perl's
+native utf-8 encoding and I<not> a byte string.
 
 If you pass a reference, then the scalar underlying the reference may be
 modified, so don't pass in something you don't want modified.
@@ -262,7 +263,8 @@ but there's really no point in passing both.
 
 =head2 $part->content()
 
-This returns returns the decoded content for the part.
+This returns returns the decoded content for the part. It will be in Perl's
+native utf-8 encoding, decoded from whatever character set the content is in.
 
 =head2 $part->encoded_content()
 
@@ -312,14 +314,12 @@ part belongs, if any. This is set when the part is added to another object.
 =head2 $part->content_ref()
 
 This returns returns a reference to a scalar containing the decoded content
-for the part, without any decoding. If no encoding was necessary, this will
-contain the same reference as C<encoded_content_ref()>.
+for the part.
 
 =head2 $part->encoded_content_ref()
 
 This returns returns a reference to a scalar containing the encoded content
-for the part, without any decoding. If no encoding was necessary, this will
-contain the same reference as C<content_ref()>.
+for the part, without any decoding.
 
 =head2 $part->as_string()
 
