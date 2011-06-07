@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+[BUG FIXES]
+
+- When parsing an email, the encoding attribute for parts was not set
+  correctly, and ended up defaulting to 8bit for all parts. Now the encoding
+  is set based on the part's Content-Transfer-Encoding header.
+
+
 0.09     2011-06-06
 
 [NEW FEATURES]
