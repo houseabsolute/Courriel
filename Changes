@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.12     2011-06-07
+
 [BUG FIXES]
 
 - The value returned by Courriel::Part::Single->content() was not decoded to
