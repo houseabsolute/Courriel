@@ -3,7 +3,7 @@ package Email::Abstract::Courriel;
 use strict;
 use warnings;
 
-use Courriel 0.08;
+use Courriel;
 
 use parent 'Email::Abstract::Plugin';
 
