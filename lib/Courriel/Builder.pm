@@ -145,6 +145,10 @@ sub _add_needed_headers {
             ( 'Message-Id' => Email::MessageID->new()->in_brackets() );
     }
 
+    unless ( $keys{'mime-version'} ) {
+        push @{$headers}, ( 'MIME-Version' => '1.0' );
+    }
+
     return;
 }
 

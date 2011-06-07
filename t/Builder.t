@@ -30,6 +30,7 @@ use List::AllUtils qw( all );
         'X-Foo'        => '42',
         'X-Bar'        => 84,
         'Content-Type' => 'text/plain; charset=UTF-8',
+        'MIME-Version' => '1.0',
     );
 
     for my $key ( sort keys %expect ) {

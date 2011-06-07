@@ -1,5 +1,13 @@
 {{$NEXT}}
 
+[BUG FIXES]
+
+- Courriel::Builder now adds a "MIME-Version: 1.0" header to all emails it
+  creates unless you explicitly set this header, which you probably shouldn't,
+  since the only valid value is "1.0". This is a required header for MIME
+  emails per RFC2045.
+
+
 0.10     2011-06-07
 
 [BUG FIXES]
