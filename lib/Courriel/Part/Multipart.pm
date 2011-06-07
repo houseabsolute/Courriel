@@ -62,13 +62,16 @@ sub _content_as_string {
         if $self->has_preamble();
 
     $content
-        .= '--'
+        .= $Courriel::Helpers::CRLF . '--'
         . $self->boundary()
         . $Courriel::Helpers::CRLF
         . $_->as_string()
         for $self->parts();
 
-    $content .= '--' . $self->boundary() . '--' . $Courriel::Helpers::CRLF;
+    $content
+        .= $Courriel::Helpers::CRLF . '--'
+        . $self->boundary() . '--'
+        . $Courriel::Helpers::CRLF;
 
     $content .= $self->epilogue() . $Courriel::Helpers::CRLF
         if $self->has_epilogue();
