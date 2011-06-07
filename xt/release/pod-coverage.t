@@ -10,7 +10,7 @@ use Test::Requires {
     'Pod::Coverage::Moose' => '0.02',
 };
 
-my %skip = map { $_ => 1 } qw( Courriel::Helpers );
+my %skip = map { $_ => 1 } qw( Courriel::Helpers Email::Abstract::Courriel );
 
 my @modules
     = grep { !( $skip{$_} || /^Courriel::(?:Role|Types)/ ) } all_modules();
