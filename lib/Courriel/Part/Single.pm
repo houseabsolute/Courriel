@@ -45,10 +45,12 @@ has disposition => (
 );
 
 has encoding => (
-    is      => 'ro',
-    isa     => NonEmptyStr,
-    lazy    => 1,
-    default => '8bit',
+    is        => 'rw',
+    writer    => '_set_encoding',
+    isa       => NonEmptyStr,
+    lazy      => 1,
+    default   => '8bit',
+    predicate => '_has_encoding',
 );
 
 sub BUILD {
@@ -67,6 +69,13 @@ sub BUILD {
     ${ $self->encoded_content_ref() }
         =~ s/$Courriel::Helpers::LINE_SEP_RE/$Courriel::Helpers::CRLF/g
         if $self->_has_encoded_content_ref();
+
+    if ( !$self->_has_encoding() ) {
+        my @enc = $self->headers()->get('Content-Transfer-Encoding');
+
+        $self->_set_encoding( $enc[0] )
+            if @enc && $enc[0];
+    }
 
     $self->_sync_headers_with_self();
 
