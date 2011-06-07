@@ -426,6 +426,17 @@ EOF
         scalar @parts, 1,
         'email has 1 part after clone'
     );
+
+    is(
+        $parts[0]->encoding(), 'base64',
+        'part is base64 encoded'
+    );
+
+    is_deeply(
+        [ $parts[0]->headers()->get('Content-Transfer-Encoding') ],
+        ['base64'],
+        'Content-Transfer encoding is base64'
+    );
 }
 
 {
@@ -462,6 +473,30 @@ EOF
     is(
         scalar @parts, 3,
         'email has 3 parts after clone'
+    );
+
+    my $plain = $clone->plain_body_part();
+    is(
+        $plain->encoding(), 'base64',
+        'plain part is base64 encoded'
+    );
+
+    is_deeply(
+        [ $plain->headers()->get('Content-Transfer-Encoding') ],
+        ['base64'],
+        'plain part Content-Transfer encoding is base64'
+    );
+
+    my $html = $clone->html_body_part();
+    is(
+        $html->encoding(), 'base64',
+        'html part is base64 encoded'
+    );
+
+    is_deeply(
+        [ $html->headers()->get('Content-Transfer-Encoding') ],
+        ['base64'],
+        'html part Content-Transfer encoding is base64'
     );
 }
 
