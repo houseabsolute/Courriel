@@ -145,15 +145,18 @@ sub _default_mime_type {
 
         my $encoding = $self->encoding();
 
-        return $self->encoded_content_ref() if $unencoded{ lc $encoding };
+        my $bytes
+            = $unencoded{ lc $encoding }
+            ? $self->encoded_content()
+            : Email::MIME::Encodings::decode(
+            $encoding,
+            $self->encoded_content(),
+            );
 
         return \(
             decode(
                 $self->content_type()->charset(),
-                Email::MIME::Encodings::decode(
-                    $encoding,
-                    $self->encoded_content()
-                )
+                $bytes,
             )
         );
     }
@@ -163,15 +166,17 @@ sub _default_mime_type {
 
         my $encoding = $self->encoding();
 
-        return $self->content_ref() if $unencoded{ lc $encoding };
+        my $bytes = encode(
+            $self->content_type()->charset(),
+            $self->content(),
+        );
+
+        return \$bytes if $unencoded{ lc $encoding };
 
         return \(
             Email::MIME::Encodings::encode(
                 $encoding,
-                encode(
-                    $self->content_type()->charset(),
-                    $self->content(),
-                )
+                $bytes,
             )
         );
     }

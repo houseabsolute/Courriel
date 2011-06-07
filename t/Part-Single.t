@@ -204,5 +204,46 @@ EOF
     );
 }
 
+{
+    my $orig_content = "foo \x{4E00} bar";
+    my $encoded = encode( 'UTF-8', $orig_content );
+
+    my $part = Courriel::Part::Single->new(
+        headers      => Courriel::Headers->new(),
+        content_type => Courriel::ContentType->new(
+            mime_type  => 'text/plain',
+            attributes => { charset => 'UTF-8' },
+        ),
+        encoding        => '8bit',
+        encoded_content => $encoded,
+    );
+
+    is(
+        $part->content(),
+        $orig_content,
+        'decoded content matches original content (8bit transfer encoding)',
+    );
+}
+
+{
+    my $orig_content = "foo \x{4E00} bar";
+
+    my $part = Courriel::Part::Single->new(
+        headers      => Courriel::Headers->new(),
+        content_type => Courriel::ContentType->new(
+            mime_type  => 'text/plain',
+            attributes => { charset => 'UTF-8' },
+        ),
+        encoding => '8bit',
+        content  => $orig_content,
+    );
+
+    is(
+        $part->encoded_content(),
+        encode( 'UTF-8', $orig_content ),
+        'encoded content should contain raw bytes',
+    );
+}
+
 done_testing();
 
