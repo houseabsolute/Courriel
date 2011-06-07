@@ -3,7 +3,7 @@
 [BUG FIXES]
 
 - The value returned by Courriel::Part::Single->content() was not decoded to
-  Perl's native UTF-8 character set. Similarly, when encoding content for
+  Perl's native utf-8 character set. Similarly, when encoding content for
   transfer, it was not first transformed to raw bytes.
 
 
