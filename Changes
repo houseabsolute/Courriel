@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+[NEW FEATURES]
+
+- This distro now ships a plugin for Email::Abstract, meaning you can use
+  Courriel with Email::Sender.
+
+
 0.08     2011-06-06
 
 [API CHANGES]
