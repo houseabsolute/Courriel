@@ -52,9 +52,6 @@ __END__
 This module wraps the Courriel mail handling library with an abstract
 interface, to be used with L<Email::Abstract>.
 
-Note that Courriel doesn't really offer any simple way to set the email's
-body, so the C<set_body()> method will die if it is called.
-
 =head1 SEE ALSO
 
 L<Email::Abstract>, L<Courriel>.
