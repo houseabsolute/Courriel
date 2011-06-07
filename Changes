@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.08     2011-06-06
+
 [API CHANGES]
 
 - The content() and encoded_content() methods for Courriel::Part::Single now
