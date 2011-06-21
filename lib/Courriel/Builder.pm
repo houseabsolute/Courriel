@@ -559,6 +559,9 @@ The charset for the body. This defaults to UTF-8.
 The encoding for the body. This defaults to base64. Other valid values are
 quoted-printable, 7bit, and 8bit.
 
+It is strongly recommended that you let Courriel handle the transfer encoding
+for you.
+
 =back
 
 =head2 html_body( ... )
