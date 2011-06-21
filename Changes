@@ -4,6 +4,15 @@
   Content-Type header, missing the required boundary attribute. Reported by
   ico. RT #68694.
 
+- If you explicitly passed unencoded content when creating a part (which
+  happens when using Courriel::Builder), that content would be modified so it
+  had CRLF line endings. Now, such content is left untouched. Reported by
+  ico. RT #68695.
+
+  Note that if you're passing raw content _and_ setting the transfer
+  encoding to 7bit, 8bit, or binary, then you'll end up with a noncomformant
+  email. However, by default all raw content is base64 encoded.
+
 
 0.12     2011-06-07
 
