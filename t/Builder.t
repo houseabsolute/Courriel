@@ -197,6 +197,16 @@ EOF
         qr{Content-Type:\s+multipart/mixed;\s+boundary=.+},
         'Content-Type header for multipart email includes boundary'
     );
+
+    my $parsed = Courriel->parse( text => $email->as_string() );
+    my $parsed_attachment
+        = $parsed->first_part_matching( sub { $_[0]->is_attachment() } );
+
+    is(
+        $parsed_attachment->content(),
+        $pl_script,
+        'attachment content survives round trip from string to object'
+    );
 }
 
 {
