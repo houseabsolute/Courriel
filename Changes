@@ -9,9 +9,15 @@
   had CRLF line endings. Now, such content is left untouched. Reported by
   ico. RT #68695.
 
-  Note that if you're passing raw content _and_ setting the transfer
-  encoding to 7bit, 8bit, or binary, then you'll end up with a noncomformant
-  email. However, by default all raw content is base64 encoded.
+- When passing encoded content to the Courriel::Part::Single constructor, the
+  constructor used to modify the content so it had CRLF line endings. Now it
+  is left alone.
+
+- Note that if you're passing raw content to the Single constructor _and_
+  setting the transfer encoding to 7bit, 8bit, or binary, then you'll end up
+  with a noncomformant email. However, by default all raw content is base64
+  encoded. It is strongly recommended that you pass raw content and let
+  Courriel take care of the transfer encoding.
 
 
 0.12     2011-06-07
