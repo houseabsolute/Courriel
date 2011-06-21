@@ -185,6 +185,12 @@ EOF
        'us-ascii',
         'correct charset detected for attachment'
     );
+
+    like(
+        $email->as_string(),
+        qr{Content-Type:\s+multipart/mixed;\s+boundary=.+},
+        'Content-Type header for multipart email includes boundary'
+    );
 }
 
 {

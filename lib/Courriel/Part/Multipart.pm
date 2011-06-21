@@ -37,10 +37,13 @@ sub BUILD {
     my $self = shift;
 
     # XXX - this is a nasty hack but I'm not sure if it can better. We want
-    # the boundary in the ContentType object to match the one in this
-    # part. There are more such hacks to come.
-    if ( $self->_has_boundary() && $self->_has_content_type() ) {
+    # the boundary in the ContentType object to match the one in this part.
+    if ( $self->_has_boundary() ) {
         $self->content_type()->_attributes()->{boundary} = $self->boundary();
+    }
+    else {
+        # This is being called to force the builder to run.
+        $self->boundary();
     }
 
     return;
