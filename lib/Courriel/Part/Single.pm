@@ -258,6 +258,9 @@ A L<Courriel::Headers> object containing headers for this part.
 You must pass a C<content> or C<encoded_content> value when creating a new part,
 but there's really no point in passing both.
 
+It is strongly recommended that you pass a C<content> parameter and letting
+this module do the encoding for you internally.
+
 =head2 $part->content()
 
 This returns returns the decoded content for the part. It will be in Perl's
