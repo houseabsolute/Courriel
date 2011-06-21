@@ -63,10 +63,6 @@ sub BUILD {
             'You must provide a content or encoded_content parameter when constructing a Courriel::Part::Single object.';
     }
 
-    ${ $self->content_ref() }
-        =~ s/$Courriel::Helpers::LINE_SEP_RE/$Courriel::Helpers::CRLF/g
-        if $self->_has_content_ref();
-
     ${ $self->encoded_content_ref() }
         =~ s/$Courriel::Helpers::LINE_SEP_RE/$Courriel::Helpers::CRLF/g
         if $self->_has_encoded_content_ref();
