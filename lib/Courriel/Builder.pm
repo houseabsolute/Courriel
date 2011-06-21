@@ -113,7 +113,7 @@ use Sub::Exporter -setup => {
             );
         }
 
-        _add_needed_headers( \@headers );
+        _add_required_headers( \@headers );
 
         # XXX - a little incestuous but I don't really want to make this method
         # public, and delaying building the body part would make all the code more
@@ -130,7 +130,7 @@ sub _bad_value {
         . Devel::PartialDump->new()->dump( $_[0] );
 }
 
-sub _add_needed_headers {
+sub _add_required_headers {
     my $headers = shift;
 
     my %keys = map { lc } @{$headers};
