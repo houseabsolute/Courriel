@@ -186,6 +186,12 @@ EOF
         'correct charset detected for attachment'
     );
 
+    is(
+        $attachment->content(),
+        $pl_script,
+        'attachment content matches the original code'
+    );
+
     like(
         $email->as_string(),
         qr{Content-Type:\s+multipart/mixed;\s+boundary=.+},
