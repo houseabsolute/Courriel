@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+- A multipart email build with Courriel::Builder would have a broken
+  Content-Type header, missing the required boundary attribute. Reported by
+  ico. RT #68694.
+
+
 0.12     2011-06-07
 
 [BUG FIXES]
