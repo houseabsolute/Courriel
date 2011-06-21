@@ -293,7 +293,10 @@ EOF
     my $email = build_email(
         subject('Test Subject'),
         plain_body('Foo'),
-        attach( file => 't/data/office.jpg', content_id => 'abc123' ),
+        attach(
+            file       => 't/data/office.jpg',
+            content_id => 'abc123',
+        ),
     );
 
     my $attachment
@@ -309,7 +312,10 @@ EOF
     my $email = build_email(
         subject('Test Subject'),
         plain_body('Foo'),
-        attach( file => 't/data/office.jpg', mime_type => 'w/tf' ),
+        attach(
+            file      => 't/data/office.jpg',
+            mime_type => 'w/tf',
+        ),
     );
 
     my $attachment
@@ -326,7 +332,8 @@ EOF
         subject('Test Subject'),
         plain_body('Foo'),
         attach(
-            file => 't/data/office.jpg', filename => 'something-else.jpg'
+            file     => 't/data/office.jpg',
+            filename => 'something-else.jpg',
         ),
     );
 
