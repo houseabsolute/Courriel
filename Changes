@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.14     2011-06-25
+
 - An email part with non-text content would still be treated as character data
   rather than binary data, and its Content-Type header would end up with a
   charset of us-ascii. This has been fixed, and now you must explicitly ask
