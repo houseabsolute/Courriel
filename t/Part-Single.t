@@ -245,5 +245,33 @@ EOF
     );
 }
 
+{
+    my $part = Courriel::Part::Single->new(
+        headers => Courriel::Headers->new(),
+        content_type =>
+            Courriel::ContentType->new( mime_type => 'image/jpeg' ),
+        encoded_content => 'foo',
+    );
+
+    ok(
+        !Encode::is_utf8( $part->content() ),
+        'part is not decoded as utf8 when content-type has no charset'
+    );
+}
+
+{
+    my $part = Courriel::Part::Single->new(
+        headers => Courriel::Headers->new(),
+        content_type =>
+            Courriel::ContentType->new( mime_type => 'image/jpeg' ),
+        content => 'foo',
+    );
+
+    ok(
+        defined $part->encoded_content(),
+        'can build encoded content for binary content'
+    );
+}
+
 done_testing();
 

@@ -145,6 +145,8 @@ sub _default_mime_type {
             $self->encoded_content(),
             );
 
+        return $bytes if $self->content_type()->is_binary();
+
         return \(
             decode(
                 $self->content_type()->charset(),
@@ -158,10 +160,11 @@ sub _default_mime_type {
 
         my $encoding = $self->encoding();
 
-        my $bytes = encode(
+        my $bytes
+            = $self->content_type()->is_binary() ? $self->content() : encode(
             $self->content_type()->charset(),
             $self->content(),
-        );
+            );
 
         return \$bytes if $unencoded{ lc $encoding };
 
@@ -273,6 +276,11 @@ This returns returns the encoded content for the part.
 =head2 $part->mime_type()
 
 Returns the mime type for this part.
+
+=head2 $part->has_charset()
+
+Return true if the part has a charset defined. Binary attachments will usually
+not have this defined.
 
 =head2 $part->charset()
 

@@ -5,7 +5,7 @@ use warnings;
 use namespace::autoclean;
 
 use Courriel::Helpers qw( quote_and_escape_attribute_value );
-use Courriel::Types qw( HashRef NonEmptyStr );
+use Courriel::Types qw( HashRef Maybe NonEmptyStr );
 
 use Moose;
 use MooseX::StrictConstructor;
@@ -17,11 +17,11 @@ has mime_type => (
 );
 
 has charset => (
-    is       => 'ro',
-    isa      => NonEmptyStr,
-    init_arg => undef,
-    lazy     => 1,
-    builder  => '_build_charset',
+    is        => 'rw',
+    writer    => '_set_charset',
+    isa       => Maybe [NonEmptyStr],
+    init_arg  => undef,
+    predicate => 'has_charset',
 );
 
 has _attributes => (
@@ -36,10 +36,13 @@ has _attributes => (
     },
 );
 
-sub _build_charset {
+sub BUILD {
     my $self = shift;
 
-    return $self->_attributes()->{charset} // 'us-ascii';
+    $self->_set_charset( $self->_attributes()->{charset} )
+        if exists $self->_attributes()->{charset};
+
+    return;
 }
 
 sub as_header_value {
@@ -55,6 +58,12 @@ sub as_header_value {
     }
 
     return $string;
+}
+
+sub is_binary {
+    my $self = shift;
+
+    return $self->has_charset() && $self->charset() ne 'binary' ? 0 : 1;
 }
 
 __PACKAGE__->meta()->make_immutable();
@@ -117,14 +126,17 @@ Returns the mime type value passed to the constructor.
 
 =head2 $ct->charset()
 
-Returns the charset for the content type.
-
-This defaults to the value found in the C<attributes> or "us-ascii" as a
-fallback.
+Returns the charset for the content type, which will be the value found in the
+C<attributes>, if one exists.
 
 =head2 $ct->attributes()
 
 Returns a hash (not a reference) of the attributes passed to the constructor.
+
+=head2 $ct->is_binary()
+
+Returns true unless the attachment looks like text data. Currently, this means
+that is has a charset defined and the charset is not "binary".
 
 =head2 $ct->get_attribute($key)
 

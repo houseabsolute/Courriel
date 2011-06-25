@@ -40,10 +40,9 @@ EOF
         'email with no content type defaults to text/plain'
     );
 
-    is(
-        $part->content_type()->charset(),
-        'us-ascii',
-        'email with no charset defaults to us-ascii'
+    ok(
+        !$part->content_type()->has_charset(),
+        'email with no charset does not get a default charset'
     );
 
     is(

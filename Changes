@@ -1,5 +1,17 @@
 {{$NEXT}}
 
+- An email part with non-text content would still be treated as character data
+  rather than binary data, and its Content-Type header would end up with a
+  charset of us-ascii. This has been fixed, and now you must explicitly ask
+  for a charset in the Content-Type header when creating a
+  Courriel::ContentType object. Note that plain and html body parts created
+  via Courriel::Builder are unaffected, since these always default to UTF-8 as
+  the charset. Reported by ico. RT #69085.
+
+- Added Courriel::ContentType->has_charset() and
+  Courriel::ContentType->is_binary() methods.
+
+
 0.13     2011-06-20
 
 - A multipart email build with Courriel::Builder would have a broken
