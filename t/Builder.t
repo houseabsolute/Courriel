@@ -180,11 +180,16 @@ EOF
         'correct mime type detected for attachment'
     );
 
-    is(
-        $attachment->charset(),
-       'us-ascii',
-        'correct charset detected for attachment'
-    );
+ SKIP:
+    {
+        skip 'This test relies on my local magic definitions', 1
+            unless $ENV{RELEASE_TESTING};
+        is(
+            $attachment->charset(),
+            'us-ascii',
+            'correct charset detected for attachment'
+        );
+    }
 
     is(
         $attachment->content(),
