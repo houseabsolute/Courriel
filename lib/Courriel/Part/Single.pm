@@ -145,7 +145,7 @@ sub _default_mime_type {
             $self->encoded_content(),
             );
 
-        return $bytes if $self->content_type()->is_binary();
+        return \$bytes if $self->content_type()->is_binary();
 
         return \(
             decode(
