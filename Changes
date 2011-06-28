@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+- Skip a test which may fail on other people's machines, as File::LibMagic
+  does not return consistent results on all machines.
+
+
 0.14     2011-06-25
 
 - An email part with non-text content would still be treated as character data
