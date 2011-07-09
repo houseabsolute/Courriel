@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+- Add Courriel->from(), ->to(), and ->cc() methods.
+
+
 0.15     2011-06-28
 
 - Skip a test which may fail on other people's machines, as File::LibMagic

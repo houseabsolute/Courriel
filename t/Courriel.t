@@ -310,6 +310,30 @@ EOF
 
     my $email = Courriel->parse( text => \$text );
 
+    is(
+        $email->from()->address(),
+        'autarch@gmail.com',
+        'from() returns the right address'
+    );
+
+    is_deeply(
+        [ sort map { $_->address() } $email->to() ],
+        [
+            'autarch@urth.org',
+            'foo@example.com',
+        ],
+        'to includes all expected addresses',
+    );
+
+    is_deeply(
+        [ sort map { $_->address() } $email->cc() ],
+        [
+            'jill@example.com',
+            'what@example.com'
+        ],
+        'cc includes all expected addresses',
+    );
+
     is_deeply(
         [ sort map { $_->address() } $email->recipients() ],
         [
@@ -331,6 +355,51 @@ EOF
             'what@example.com'
         ],
         'participants includes all expected addresses',
+    );
+}
+
+{
+    my $text = <<'EOF';
+From autarch@gmail.com Sun May 29 11:22:29 2011
+MIME-Version: 1.0
+Date: Sun, 29 May 2011 11:22:23 -0500
+Message-ID: <BANLkTimjF2BDbOKO_2jFJsp6t+0KvqxCwQ@mail.gmail.com>
+Subject: Testing
+Content-Type: text/plain
+
+Whatever
+EOF
+
+    my $email = Courriel->parse( text => \$text );
+
+    is(
+        $email->from(),
+        undef,
+        'from() returns undef'
+    );
+
+    is_deeply(
+        [ map { $_->address() } $email->to() ],
+        [],
+        'to return an empty array ref',
+    );
+
+    is_deeply(
+        [ map { $_->address() } $email->cc() ],
+        [],
+        'cc return an empty array ref',
+    );
+
+    is_deeply(
+        [ map { $_->address() } $email->participants() ],
+        [],
+        'participants return an empty array ref',
+    );
+
+    is_deeply(
+        [ map { $_->address() } $email->recipients() ],
+        [],
+        'recipients return an empty array ref',
     );
 }
 

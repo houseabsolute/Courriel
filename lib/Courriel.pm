@@ -54,6 +54,36 @@ has datetime => (
     builder  => '_build_datetime',
 );
 
+has _to => (
+    traits   => ['Array'],
+    isa      => ArrayRef ['Email::Address'],
+    init_arg => undef,
+    lazy     => 1,
+    builder  => '_build_to',
+    handles  => {
+        to => 'elements',
+    },
+);
+
+has _cc => (
+    traits   => ['Array'],
+    isa      => ArrayRef ['Email::Address'],
+    init_arg => undef,
+    lazy     => 1,
+    builder  => '_build_cc',
+    handles  => {
+        cc => 'elements',
+    },
+);
+
+has from => (
+    is       => 'ro',
+    isa      => Maybe['Email::Address'],
+    init_arg => undef,
+    lazy     => 1,
+    builder  => '_build_from',
+);
+
 has _participants => (
     traits   => ['Array'],
     isa      => ArrayRef ['Email::Address'],
@@ -198,24 +228,55 @@ sub _find_date_received {
     return $most_recent;
 }
 
+sub _build_to {
+    my $self = shift;
+
+    my @addresses
+        = map { Email::Address->parse($_) } $self->headers()->get('To');
+
+    return $self->_unique_addresses(\@addresses);
+}
+
+sub _build_cc {
+    my $self = shift;
+
+    my @addresses
+        = map { Email::Address->parse($_) } $self->headers()->get('CC');
+
+    return $self->_unique_addresses(\@addresses);
+}
+
+sub _build_from {
+    my $self = shift;
+
+    my @addresses = Email::Address->parse( $self->headers()->get('From') );
+
+    return $addresses[0];
+}
+
 sub _build_recipients {
     my $self = shift;
 
-    my @addresses = map { Email::Address->parse($_) }
-        map { $self->headers()->get($_) } qw( To CC );
+    my @addresses = ( $self->to(), $self->cc() );
 
-    my %seen;
-    return [ grep { !$seen{ $_->original() }++ } @addresses ];
+    return $self->_unique_addresses(\@addresses);
 }
 
 sub _build_participants {
     my $self = shift;
 
-    my @addresses = map { Email::Address->parse($_) }
-        map { $self->headers()->get($_) } qw( From To CC );
+    my @addresses
+        = grep {defined} ( $self->from(), $self->to(), $self->cc() );
+
+    return $self->_unique_addresses(\@addresses);
+}
+
+sub _unique_addresses {
+    my $self      = shift;
+    my $addresses = shift;
 
     my %seen;
-    return [ grep { !$seen{ $_->original() }++ } @addresses ];
+    return [ grep { !$seen{ $_->original() }++ } @{$addresses} ];
 }
 
 sub _build_plain_body_part {
@@ -491,6 +552,11 @@ This uses the Date header by default one. Otherwise it looks at the date in
 the first Received header, and then it looks for a Resent-Date header. If none
 of these exists, it just returns C<< DateTime->now() >>.
 
+=head2 $email->from()
+
+This returns a single L<Email::Address> object based on the From header of the
+email. If the email has no From header, it returns C<undef>.
+
 =head2 $email->participants()
 
 This returns a list of L<Email::Address> objects, one for each unique
@@ -501,6 +567,16 @@ headers.
 
 This returns a list of L<Email::Address> objects, one for each unique
 recipient in the email. This includes any address in the To or CC headers.
+
+=head2 $email->to()
+
+This returns a list of L<Email::Address> objects, one for each unique
+address in the To header.
+
+=head2 $email->cc()
+
+This returns a list of L<Email::Address> objects, one for each unique
+address in the CC header.
 
 =head2 $email->plain_body_part()
 
