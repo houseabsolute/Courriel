@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.16     2011-07-21
+
 - Add Courriel->from(), ->to(), and ->cc() methods.
 
 - Skip another test which may fail on other people's machines, as
