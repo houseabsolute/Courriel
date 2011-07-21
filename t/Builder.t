@@ -174,16 +174,17 @@ EOF
         'one of the parts returns true for is_attachment'
     );
 
-    like(
-        $attachment->mime_type(),
-        qr{/x-perl$},
-        'correct mime type detected for attachment'
-    );
-
  SKIP:
     {
-        skip 'This test relies on my local magic definitions', 1
+        skip 'These tests rely on my local magic definitions', 2
             unless $ENV{RELEASE_TESTING};
+
+        like(
+            $attachment->mime_type(),
+            qr{/x-perl$},
+            'correct mime type detected for attachment'
+        );
+
         is(
             $attachment->charset(),
             'us-ascii',
