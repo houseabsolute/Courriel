@@ -2,6 +2,9 @@
 
 - Add Courriel->from(), ->to(), and ->cc() methods.
 
+- Skip another test which may fail on other people's machines, as
+  File::LibMagic does not return consistent results on all machines.
+
 
 0.15     2011-06-28
 
