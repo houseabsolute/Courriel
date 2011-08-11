@@ -78,7 +78,7 @@ has _cc => (
 
 has from => (
     is       => 'ro',
-    isa      => Maybe['Email::Address'],
+    isa      => Maybe ['Email::Address'],
     init_arg => undef,
     lazy     => 1,
     builder  => '_build_from',
@@ -234,7 +234,7 @@ sub _build_to {
     my @addresses
         = map { Email::Address->parse($_) } $self->headers()->get('To');
 
-    return $self->_unique_addresses(\@addresses);
+    return $self->_unique_addresses( \@addresses );
 }
 
 sub _build_cc {
@@ -243,7 +243,7 @@ sub _build_cc {
     my @addresses
         = map { Email::Address->parse($_) } $self->headers()->get('CC');
 
-    return $self->_unique_addresses(\@addresses);
+    return $self->_unique_addresses( \@addresses );
 }
 
 sub _build_from {
@@ -259,7 +259,7 @@ sub _build_recipients {
 
     my @addresses = ( $self->to(), $self->cc() );
 
-    return $self->_unique_addresses(\@addresses);
+    return $self->_unique_addresses( \@addresses );
 }
 
 sub _build_participants {
@@ -268,7 +268,7 @@ sub _build_participants {
     my @addresses
         = grep {defined} ( $self->from(), $self->to(), $self->cc() );
 
-    return $self->_unique_addresses(\@addresses);
+    return $self->_unique_addresses( \@addresses );
 }
 
 sub _unique_addresses {

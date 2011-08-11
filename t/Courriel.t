@@ -183,7 +183,8 @@ EOF
 
     my $string = $original;
     $string =~ s/^.+?\n//;    # remove mbox marker line
-    $string =~ s/(\n\nThis is a test email)/\nContent-Transfer-Encoding: 8bit$1/g;
+    $string
+        =~ s/(\n\nThis is a test email)/\nContent-Transfer-Encoding: 8bit$1/g;
     $string =~ s/\n/$crlf/g;
 
     _compare_text(
@@ -504,7 +505,7 @@ EOF
         'email is multipart/mixed'
     );
 
-    my @parts = $email->all_parts_matching( sub { 1 } );
+    my @parts = $email->all_parts_matching( sub {1} );
 
     is(
         scalar @parts, 4,
@@ -519,7 +520,7 @@ EOF
         'after clone type is text/plain'
     );
 
-    @parts = $clone->all_parts_matching( sub { 1 } );
+    @parts = $clone->all_parts_matching( sub {1} );
 
     is(
         scalar @parts, 1,
@@ -552,7 +553,7 @@ EOF
         'email is multipart/mixed'
     );
 
-    my @parts = $email->all_parts_matching( sub { 1 } );
+    my @parts = $email->all_parts_matching( sub {1} );
 
     is(
         scalar @parts, 6,
@@ -567,7 +568,7 @@ EOF
         'after clone type is multipart/alternative'
     );
 
-    @parts = $clone->all_parts_matching( sub { 1 } );
+    @parts = $clone->all_parts_matching( sub {1} );
 
     is(
         scalar @parts, 3,
@@ -608,7 +609,7 @@ sub _compare_text {
 
     for ( $got, $expect ) {
         s/$Courriel::Helpers::LINE_SEP_RE/$crlf/g;
-        s/$crlf$crlf$crlf+/$crlf$crlf/g ;
+        s/$crlf$crlf$crlf+/$crlf$crlf/g;
     }
 
     local $Test::Builder::Level = $Test::Builder::Level + 1;

@@ -8,7 +8,7 @@ use Courriel::Helpers qw( parse_header_with_attributes );
 use Courriel::Types qw( NonEmptyStr StringRef );
 use Email::MIME::Encodings;
 use Encode qw( decode encode );
-use MIME::Base64 ();
+use MIME::Base64      ();
 use MIME::QuotedPrint ();
 
 use Moose;

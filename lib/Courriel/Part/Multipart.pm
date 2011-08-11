@@ -42,6 +42,7 @@ sub BUILD {
         $self->content_type()->_attributes()->{boundary} = $self->boundary();
     }
     else {
+
         # This is being called to force the builder to run.
         $self->boundary();
     }
@@ -61,7 +62,7 @@ sub _content_as_string {
     my $self = shift;
 
     my $content;
-    $content .=  $self->preamble() . $Courriel::Helpers::CRLF
+    $content .= $self->preamble() . $Courriel::Helpers::CRLF
         if $self->has_preamble();
 
     $content

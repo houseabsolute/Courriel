@@ -24,10 +24,12 @@ sub fold_header {
 
     # Algorithm stolen from Email::Simple::Header
     while ($line) {
-        if ($line =~ s/^(.{0,76})(\s|\z)//) {
+        if ( $line =~ s/^(.{0,76})(\s|\z)// ) {
             $folded .= $1 . $CRLF;
             $folded .= q{  } if $line;
-        } else {
+        }
+        else {
+
             # Basically nothing we can do. :(
             $folded .= $line . $CRLF;
             last;

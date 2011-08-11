@@ -55,7 +55,7 @@ use List::AllUtils qw( all );
     like(
         $id[0],
         qr/<[^>]+>/,
-         'Message-Id is in brackets'
+        'Message-Id is in brackets'
     );
 }
 
@@ -174,7 +174,7 @@ EOF
         'one of the parts returns true for is_attachment'
     );
 
- SKIP:
+SKIP:
     {
         skip 'These tests rely on my local magic definitions', 2
             unless $ENV{RELEASE_TESTING};

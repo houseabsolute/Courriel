@@ -133,11 +133,13 @@ sub _bad_value {
 sub _add_required_headers {
     my $headers = shift;
 
-    my %keys = map { lc } @{$headers};
+    my %keys = map {lc} @{$headers};
 
     unless ( $keys{date} ) {
         push @{$headers},
-            ( Date => DateTime::Format::Mail->format_datetime( DateTime->now() ) );
+            (
+            Date => DateTime::Format::Mail->format_datetime( DateTime->now() )
+            );
     }
 
     unless ( $keys{'message-id'} ) {

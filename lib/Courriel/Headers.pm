@@ -5,7 +5,8 @@ use warnings;
 use namespace::autoclean;
 
 use Courriel::Helpers qw( fold_header );
-use Courriel::Types qw( ArrayRef Defined EvenArrayRef HashRef NonEmptyStr Str StringRef );
+use Courriel::Types
+    qw( ArrayRef Defined EvenArrayRef HashRef NonEmptyStr Str StringRef );
 use Encode qw( decode encode find_encoding );
 use MIME::Base64 qw( decode_base64 encode_base64 );
 use MIME::QuotedPrint qw( decode_qp );
@@ -186,16 +187,16 @@ sub _key_indices_for {
 
 {
     my $horiz_ws = qr/[ \t]/;
-    my $line_re = qr/
-                     (?:
-                         ([^\s:][^:\n\r]*)  # a header name
-                         :                  # followed by a colon
-                         $horiz_ws*
-                         (.*)               # header value - can be empty
-                     )
-                     |
-                     $horiz_ws+(\S.*)       # continuation line
-                    /x;
+    my $line_re  = qr/
+                      (?:
+                          ([^\s:][^:\n\r]*)  # a header name
+                          :                  # followed by a colon
+                          $horiz_ws*
+                          (.*)               # header value - can be empty
+                      )
+                      |
+                      $horiz_ws+(\S.*)       # continuation line
+                     /x;
 
     my @spec = (
         text => { isa => StringRef, coerce => 1 },
@@ -224,6 +225,7 @@ sub _key_indices_for {
                     unless @headers;
 
                 $headers[-1] //= q{};
+
                 # Looking at RFC 5322 it really seems like the whitespace on
                 # the continuation line should be part of the header value,
                 # but looking at emails in real use suggests that all the
@@ -239,7 +241,8 @@ sub _key_indices_for {
             my @lines = split $sep_re, substr( ${$text}, 0, $pos );
             my $count = ( scalar @lines ) + 1;
 
-            die "Found an unparseable chunk in the header text starting at line $count.";
+            die
+                "Found an unparseable chunk in the header text starting at line $count.";
         }
 
         for ( my $i = 1; $i < @headers; $i += 2 ) {

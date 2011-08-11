@@ -56,7 +56,8 @@ has filename => (
 
 {
     my $parser = DateTime::Format::Mail->new( loose => 1 );
-    for my $attr (qw( creation_datetime modification_datetime read_datetime )) {
+    for my $attr (qw( creation_datetime modification_datetime read_datetime ))
+    {
         ( my $name_in_header = $attr ) =~ s/_/-/g;
         $name_in_header =~ s/datetime/date/;
 
