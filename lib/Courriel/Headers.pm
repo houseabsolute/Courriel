@@ -15,8 +15,6 @@ use MooseX::Params::Validate qw( pos_validated_list validated_list );
 use Moose;
 use MooseX::StrictConstructor;
 
-with 'Courriel::Role::Headers';
-
 has _headers => (
     traits   => ['Array'],
     is       => 'ro',

@@ -23,7 +23,7 @@ subtype Body,
     as role_type('Courriel::Role::Body');
 
 subtype Headers,
-    as role_type('Courriel::Role::Headers');
+    as class_type('Courriel::Headers');
 
 subtype EmailAddressStr,
     as NonEmptyStr;
