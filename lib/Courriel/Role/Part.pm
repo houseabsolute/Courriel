@@ -24,7 +24,7 @@ has headers => (
 has container => (
     is       => 'rw',
     writer   => '_set_container',
-    does     => 'Courriel::Role::HasParts',
+    isa      => 'Courriel::Part::Multipart',
     weak_ref => 1,
 );
 

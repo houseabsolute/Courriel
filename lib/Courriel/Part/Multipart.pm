@@ -5,13 +5,13 @@ use warnings;
 use namespace::autoclean;
 
 use Courriel::Helpers qw( unique_boundary );
-use Courriel::Types qw( NonEmptyStr );
+use Courriel::Types qw( ArrayRef NonEmptyStr Part );
 use Email::MessageID;
 
 use Moose;
 use MooseX::StrictConstructor;
 
-with 'Courriel::Role::Part', 'Courriel::Role::HasParts';
+with 'Courriel::Role::Part';
 
 has boundary => (
     is        => 'ro',
@@ -33,6 +33,17 @@ has epilogue => (
     predicate => 'has_epilogue',
 );
 
+has _parts => (
+    traits   => ['Array'],
+    isa      => ArrayRef [Part],
+    init_arg => 'parts',
+    required => 1,
+    handles  => {
+        parts      => 'elements',
+        part_count => 'count',
+    },
+);
+
 sub BUILD {
     my $self = shift;
 
@@ -46,6 +57,8 @@ sub BUILD {
         # This is being called to force the builder to run.
         $self->boundary();
     }
+
+    $_->_set_container($self) for $self->parts();
 
     return;
 }
@@ -216,5 +229,4 @@ with "\r\n".
 
 =head1 ROLES
 
-This class does the C<Courriel::Role::Part> and C<Courriel::Role::HasParts>
-roles.
+This class does the C<Courriel::Role::Part> role.
