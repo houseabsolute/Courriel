@@ -392,6 +392,8 @@ sub _parse_headers {
     # but we may find broken lines. The key is that it starts with From
     # followed by space, not a colon.
     ${$text} =~ s/^From\s+.+$Courriel::Helpers::LINE_SEP_RE//;
+    # Some broken emails may split the From line in an arbitrary spot
+    ${$text} =~ s/^[^:]+$Courriel::Helpers::LINE_SEP_RE//g;
 
     if ( ${$text} =~ /(.+?)($Courriel::Helpers::LINE_SEP_RE)\2/s ) {
         $header_text = $1 . $2;
