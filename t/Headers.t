@@ -503,19 +503,16 @@ Ok: 4
 EOF
 
     like(
-        exception {
-            Courriel::Headers->parse(
-                text     => \$bad,
-                line_sep => "\n",
-            );
-        },
-        qr/Found an unparseable .+ at line 3/,
-        'exception on bad headers'
+        Courriel::Headers->parse(
+            text     => \$bad,
+            line_sep => "\n",
+            )->as_string(),
+        qr/Ok: 2Not ok/,
+        'handle arbitrary newline without an exception'
     );
 }
 
 {
-
     # Second line has spaces
     my $bad = <<'EOF';
 Ok: 1
@@ -524,14 +521,12 @@ Ok: 2
 EOF
 
     like(
-        exception {
-            Courriel::Headers->parse(
-                text     => \$bad,
-                line_sep => "\n",
-            );
-        },
-        qr/Found an unparseable .+ at line 2/,
-        'exception on bad headers'
+        Courriel::Headers->parse(
+            text     => \$bad,
+            line_sep => "\n",
+            )->as_string(),
+        qr/Ok: 1/,
+        'handle empty continuation line without an exception'
     );
 }
 

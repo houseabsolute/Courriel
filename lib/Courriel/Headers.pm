@@ -213,6 +213,8 @@ sub _key_indices_for {
 
         my $sep_re = qr/\Q$sep/;
 
+        $class->_maybe_fix_broken_headers( $text, $sep_re );
+
         while ( ${$text} =~ /\G${line_re}${sep_re}/gc ) {
             if ( defined $1 ) {
                 push @headers, $1, $2;
@@ -249,6 +251,19 @@ sub _key_indices_for {
 
         return $class->new( headers => \@headers );
     }
+}
+
+sub _maybe_fix_broken_headers {
+    my $class  = shift;
+    my $text   = shift;
+    my $sep_re = shift;
+
+    # Some broken email messages have a newline int he headers that isn't
+    # acting as a continuation, it's just an arbitrary line break. See
+    # t/data/stress-test/mbox_mime_applemail_1xb.txt
+    ${$text} =~ s/$sep_re([^\s:][^:]+$sep_re)/$1/g;
+
+    return;
 }
 
 {
