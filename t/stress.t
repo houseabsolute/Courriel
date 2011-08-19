@@ -22,20 +22,11 @@ while ( my $file = $dir->next() ) {
 
     my $mail = read_file( $file->stringify() );
 
-    my $email;
     is(
-        exception { $email = Courriel->parse( text => $mail ) },
+        exception { Courriel->parse( text => $mail ) },
         undef,
         'no exception from parsing ' . $file->basename()
     )
-        or _email_mime($mail);
 }
 
-sub _email_mime {
-    my $mail = shift;
-
-    my $mime = Email::MIME->new($mail);
-
-    warn $mime->as_string;
-    exit;
-}
+done_testing();
