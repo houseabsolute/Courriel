@@ -388,9 +388,10 @@ sub _parse_headers {
     my $sep_idx;
     my $line_sep;
 
-    # We want to ignore mbox message separators
-    ${$text}
-        =~ s/^From .+ \d\d:\d\d:\d\d \d\d\d\d$Courriel::Helpers::LINE_SEP_RE//;
+    # We want to ignore mbox message separators - this is a pretty lax parser,
+    # but we may find broken lines. The key is that it starts with From
+    # followed by space, not a colon.
+    ${$text} =~ s/^From\s+.+$Courriel::Helpers::LINE_SEP_RE//;
 
     if ( ${$text} =~ /(.+?)($Courriel::Helpers::LINE_SEP_RE)\2/s ) {
         $header_text = $1 . $2;
