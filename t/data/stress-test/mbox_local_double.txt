@@ -1,0 +1,117 @@
+From jeff.waugh@canonical.com Tue Sep 28 03:15:55 2004
+Received: from smtp-2.syd.swiftdsl.com.au ([218.214.224.98])
+        by rince.africaninspace.com with smtp (Exim 4.34) id 1CCD9O-0006H6-Jd
+        for ubuntu-users@lists.ubuntu.com; Tue, 28 Sep 2004 03:15:55 -0500
+Received: (qmail 8573 invoked from network); 28 Sep 2004 08:16:04 -0000
+Received: from unknown (HELO home.waugh.id.au) (218.214.67.227)
+        by smtp-2.syd.swiftdsl.com.au with SMTP; 28 Sep 2004 08:16:04 -0000
+Received: from home.waugh.id.au (ubuntu.home [192.168.10.100])
+        by home.waugh.id.au (Postfix) with ESMTP id 8950415B529
+        for <ubuntu-users@lists.ubuntu.com>;
+        Tue, 28 Sep 2004 18:15:50 +1000 (EST)
+Received: by home.waugh.id.au (Postfix, from userid 1000)
+        id 595FC14165; Tue, 28 Sep 2004 18:15:51 +1000 (EST)
+From: Jeff Waugh <jeff.waugh@canonical.com>
+To: Ubuntu Users <ubuntu-users@lists.ubuntu.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Canonical Ltd.
+Date: Tue, 28 Sep 2004 18:15:51 +1000
+Message-Id: <1096359351.2668.124.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.0
+Subject: New Lists! ubuntu-de, ubuntu-es, ubuntu-fr
+X-BeenThere: ubuntu-users@lists.ubuntu.com
+X-Mailman-Version: 2.1.5
+Precedence: list
+List-Id: Ubuntu Help and User Discussions <ubuntu-users.lists.ubuntu.com>
+List-Unsubscribe: <http://lists.ubuntu.com/mailman/listinfo/ubuntu-users>,
+        <mailto:ubuntu-users-request@lists.ubuntu.com?subject=unsubscribe>
+List-Archive: <http://lists.ubuntu.com/archives/ubuntu-users>
+List-Post: <mailto:ubuntu-users@lists.ubuntu.com>
+List-Help: <mailto:ubuntu-users-request@lists.ubuntu.com?subject=help>
+List-Subscribe: <http://lists.ubuntu.com/mailman/listinfo/ubuntu-users>,
+        <mailto:ubuntu-users-request@lists.ubuntu.com?subject=subscribe>
+X-List-Received-Date: Tue, 28 Sep 2004 08:15:55 -0000
+Status: O
+Content-Length: 543
+Lines: 19
+
+Hi everyone,
+
+Due to popular demand, there are new lists available for discussion in
+German, Spanish and French.
+
+   German: http://lists.ubuntu.com/mailman/listinfo/ubuntu-de
+  Spanish: http://lists.ubuntu.com/mailman/listinfo/ubuntu-es
+   French: http://lists.ubuntu.com/mailman/listinfo/ubuntu-fr
+
+There are already some new IRC channels sprouting up, like #ubuntu-es on
+freenode, and very soon we'll have translatable web pages and wiki! Woo!
+
+Thanks,
+
+- Jeff
+
+--
+Ooh, ooh, ooh!             http://www.ubuntulinux.org/           Ubuntu!
+
+
+
+From jeff.waugh@canonical.com Tue Sep 28 03:15:55 2004
+Received: from smtp-2.syd.swiftdsl.com.au ([218.214.224.98])
+        by rince.africaninspace.com with smtp (Exim 4.34) id 1CCD9O-0006H5-Nl
+        for ubuntu-users@lists.ubuntu.com; Tue, 28 Sep 2004 03:15:55 -0500
+Received: (qmail 8575 invoked from network); 28 Sep 2004 08:16:04 -0000
+Received: from unknown (HELO home.waugh.id.au) (218.214.67.227)
+        by smtp-2.syd.swiftdsl.com.au with SMTP; 28 Sep 2004 08:16:04 -0000
+Received: from home.waugh.id.au (ubuntu.home [192.168.10.100])
+        by home.waugh.id.au (Postfix) with ESMTP id B18CD15B52A
+        for <ubuntu-users@lists.ubuntu.com>;
+        Tue, 28 Sep 2004 18:15:50 +1000 (EST)
+Received: by home.waugh.id.au (Postfix, from userid 1000)
+        id 79F5E13DB0; Tue, 28 Sep 2004 18:15:51 +1000 (EST)
+From: Jeff Waugh <jeff.waugh@canonical.com>
+To: Ubuntu Users <ubuntu-users@lists.ubuntu.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Canonical Ltd.
+Date: Tue, 28 Sep 2004 18:15:51 +1000
+Message-Id: <1096359351.2668.125.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.0
+Subject: New Lists! ubuntu-de, ubuntu-es, ubuntu-fr
+X-BeenThere: ubuntu-users@lists.ubuntu.com
+X-Mailman-Version: 2.1.5
+Precedence: list
+List-Id: Ubuntu Help and User Discussions <ubuntu-users.lists.ubuntu.com>
+List-Unsubscribe: <http://lists.ubuntu.com/mailman/listinfo/ubuntu-users>,
+        <mailto:ubuntu-users-request@lists.ubuntu.com?subject=unsubscribe>
+List-Archive: <http://lists.ubuntu.com/archives/ubuntu-users>
+List-Post: <mailto:ubuntu-users@lists.ubuntu.com>
+List-Help: <mailto:ubuntu-users-request@lists.ubuntu.com?subject=help>
+List-Subscribe: <http://lists.ubuntu.com/mailman/listinfo/ubuntu-users>,
+        <mailto:ubuntu-users-request@lists.ubuntu.com?subject=subscribe>
+X-List-Received-Date: Tue, 28 Sep 2004 08:15:55 -0000
+Status: O
+Content-Length: 543
+Lines: 19
+
+Hi everyone,
+
+Due to popular demand, there are new lists available for discussion in
+German, Spanish and French.
+
+   German: http://lists.ubuntu.com/mailman/listinfo/ubuntu-de
+  Spanish: http://lists.ubuntu.com/mailman/listinfo/ubuntu-es
+   French: http://lists.ubuntu.com/mailman/listinfo/ubuntu-fr
+
+There are already some new IRC channels sprouting up, like #ubuntu-es on
+freenode, and very soon we'll have translatable web pages and wiki! Woo!
+
+Thanks,
+
+- Jeff
+
+--
+Ooh, ooh, ooh!             http://www.ubuntulinux.org/           Ubuntu!
