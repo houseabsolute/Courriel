@@ -241,8 +241,10 @@ sub _key_indices_for {
             my @lines = split $sep_re, substr( ${$text}, 0, $pos );
             my $count = ( scalar @lines ) + 1;
 
+            my $line = ( split $sep_re, ${$text} )[ $count - 1 ];
+
             die
-                "Found an unparseable chunk in the header text starting at line $count.";
+                "Found an unparseable chunk in the header text starting at line $count:\n  $line";
         }
 
         for ( my $i = 1; $i < @headers; $i += 2 ) {
