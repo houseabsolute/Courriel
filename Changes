@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.17     2011-08-19
+
 - Email parsing is now much more flexible, and throws fewer
   exceptions. Ultimately, it's likely that Courriel will never throw an
   exception from parsing, since email in the wild is often broken, and some
