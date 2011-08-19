@@ -698,6 +698,36 @@ EOF
     );
 }
 
+{
+    my $text = <<'EOF';
+From autarch@gmail.com Sun May 29 11:22:29 2011
+MIME-Version: 1.0
+Date: Sun, 29 May 2011 11:22:22 -0500
+Message-ID: <BANLkTimjF2BDbOKO_2jFJsp6t+0KvqxCwQ@mail.gmail.com>
+Subject: Testing
+From: Dave Rolsky <autarch@gmail.com>
+To: Dave Rolsky <autarch@urth.org>
+Content-Type: multipart/alternative; boundary=20cf3071cfd06272ae04a46c9306
+
+WTF, just a single part.
+EOF
+
+    my $email;
+    is(
+        exception {
+            $email = Courriel->parse( text => \$text );
+        },
+        undef,
+        'multipart mime type with single part body still parses'
+    );
+
+    is(
+        $email->part_count(),
+        1,
+        'email has one part'
+    );
+}
+
 done_testing();
 
 sub _compare_text {
