@@ -284,7 +284,7 @@ sub _build_plain_body_part {
 
     return $self->first_part_matching(
         sub {
-            lc $_[0]->mime_type() eq 'text/plain'
+            $_[0]->mime_type() eq 'text/plain'
                 && $_[0]->is_inline();
         }
     );
@@ -295,7 +295,7 @@ sub _build_html_body_part {
 
     return $self->first_part_matching(
         sub {
-            lc $_[0]->mime_type() eq 'text/html'
+            $_[0]->mime_type() eq 'text/html'
                 && $_[0]->is_inline();
         }
     );

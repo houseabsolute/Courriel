@@ -1,5 +1,13 @@
 {{$NEXT}}
 
+- The Courriel->plain_body_part() and ->html_body_part() methods ignore the case
+  of an attachment's mime type, per RFC 2045.
+
+- The Courriel::ContentType->mime_type() method always returns a value in
+  lower case, but it preserves the original casing when constructing a header
+  value.
+
+
 0.16     2011-07-21
 
 - Add Courriel->from(), ->to(), and ->cc() methods.

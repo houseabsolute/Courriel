@@ -639,6 +639,18 @@ EOF
         $email->html_body_part(),
         'ignored case of mime type when finding html body part'
     );
+
+    is(
+        $email->plain_body_part()->content_type()->mime_type(),
+        'text/plain',
+        'ContentType->mime_type method returns all lower case value'
+    );
+
+    is(
+        $email->plain_body_part()->content_type()->as_header_value(),
+        'TEXT/PLAIN; charset=ISO-8859-1',
+        'header value preserves original casing of mime type'
+    );
 }
 
 done_testing();

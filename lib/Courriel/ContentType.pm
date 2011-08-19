@@ -16,6 +16,12 @@ has mime_type => (
     required => 1,
 );
 
+has _original_mime_type => (
+    is       => 'ro',
+    isa      => NonEmptyStr,
+    required => 1,
+);
+
 has charset => (
     is        => 'rw',
     writer    => '_set_charset',
@@ -36,6 +42,17 @@ has _attributes => (
     },
 );
 
+override BUILDARGS => sub {
+    my $class = shift;
+
+    my $p = super();
+
+    $p->{_original_mime_type} = $p->{mime_type};
+    $p->{mime_type} = lc $p->{mime_type};
+
+    return $p;
+};
+
 sub BUILD {
     my $self = shift;
 
@@ -48,7 +65,7 @@ sub BUILD {
 sub as_header_value {
     my $self = shift;
 
-    my $string = $self->mime_type();
+    my $string = $self->_original_mime_type();
 
     my $attr = $self->_attributes();
 
@@ -122,7 +139,9 @@ etc. This is optional, and can be empty.
 
 =head2 $ct->mime_type()
 
-Returns the mime type value passed to the constructor.
+Returns the mime type value passed to the constructor. However, this value
+will be in all lower-case, regardless of the original casing passed to the
+constructor.
 
 =head2 $ct->charset()
 
@@ -145,4 +164,6 @@ can be C<undef> if the attribute doesn't exist.
 
 =head2 $ct->as_header_value()
 
-Returns the object as a string suitable for a header value (but not folded).
+Returns the object as a string suitable for a header value (but not
+folded). Note that this uses the original casing of the mime type as passed to
+the constructor.
