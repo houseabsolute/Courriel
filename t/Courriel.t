@@ -653,6 +653,51 @@ EOF
     );
 }
 
+{
+    my $text = <<'EOF';
+From: Dave Rolsky <autarch@gmail.com>
+MIME-Version: 1.0
+Resent-Date: Sun, 29 May 2011 11:22:23 -0500
+Message-ID: <BANLkTimjF2BDbOKO_2jFJsp6t+0KvqxCwQ@mail.gmail.com>
+Subject: Testing
+To: Dave Rolsky <autarch@urth.org>
+Content-Type: text/plain
+
+foo
+EOF
+
+    my $email = Courriel->parse( text => \$text );
+
+    is(
+        $email->headers()->get('From'),
+        'Dave Rolsky <autarch@gmail.com>',
+        'From header at beginning of mail is not stripped by mbox separator removal',
+    );
+}
+{
+    my $text = <<'EOF';
+From
+  blah blah blah
+MIME-Version: 1.0
+Resent-Date: Sun, 29 May 2011 11:22:23 -0500
+Message-ID: <BANLkTimjF2BDbOKO_2jFJsp6t+0KvqxCwQ@mail.gmail.com>
+Subject: Testing
+From: Dave Rolsky <autarch@gmail.com>
+To: Dave Rolsky <autarch@urth.org>
+Content-Type: text/plain
+
+foo
+EOF
+
+    is(
+        exception {
+            Courriel->parse( text => \$text );
+        },
+        undef,
+        'mbox separator which contains a newline is parser correctly'
+    );
+}
+
 done_testing();
 
 sub _compare_text {
