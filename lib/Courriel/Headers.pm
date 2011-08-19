@@ -193,7 +193,7 @@ sub _key_indices_for {
                           (.*)               # header value - can be empty
                       )
                       |
-                      $horiz_ws+(\S.*)       # continuation line
+                      $horiz_ws+(\S.*)?      # continuation line
                      /x;
 
     my @spec = (
@@ -230,7 +230,7 @@ sub _key_indices_for {
                 # leading whitespace should be compressed down to a single
                 # space, so that's what we do.
                 $headers[-1] .= q{ } if length $headers[-1];
-                $headers[-1] .= $3;
+                $headers[-1] .= $3 if defined $3;
             }
         }
 
