@@ -439,7 +439,16 @@ sub _parse_parts {
                 (.*)                    # epilogue
                 /smx;
 
-    my @part_text = split /^--\Q$boundary\E\s*/m, $all_parts;
+    my @part_text;
+
+    if ( defined $all_parts ) {
+        @part_text = split /^--\Q$boundary\E\s*/m, $all_parts;
+    }
+
+    unless (@part_text) {
+        ${$text} =~ s/^--\Q$boundary\E\s*//m;
+        push @part_text, ${$text};
+    }
 
     die 'Could not parse any parts from a supposedly multipart message.'
         unless @part_text;
