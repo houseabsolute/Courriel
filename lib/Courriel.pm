@@ -452,9 +452,6 @@ sub _parse_parts {
         push @part_text, ${$text};
     }
 
-    die 'Could not parse any parts from a supposedly multipart message.'
-        unless @part_text;
-
     return Courriel::Part::Multipart->new(
         headers => $headers,
         (
