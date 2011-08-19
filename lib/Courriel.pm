@@ -401,13 +401,12 @@ sub _parse_headers {
         $line_sep    = $2;
     }
     else {
-        die
-            'The text you passed to parse() does not appear to be a valid email.';
+        return ( q{}, 0, Courriel::Headers::->new() );
     }
 
     # Need to quote class name or else this perl sees this as
     # Courriel::Headers() because of the Headers type constraint.
-    my $headers = 'Courriel::Headers'->parse(
+    my $headers = Courriel::Headers::->parse(
         text     => \$header_text,
         line_sep => $line_sep,
     );
