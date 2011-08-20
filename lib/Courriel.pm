@@ -15,6 +15,7 @@ use Courriel::Types
     qw( ArrayRef Bool Headers Maybe NonEmptyStr Part StringRef );
 use DateTime;
 use DateTime::Format::Mail;
+use DateTime::Format::Natural;
 use Email::Address;
 use List::AllUtils qw( uniq );
 use MooseX::Params::Validate qw( validated_list );
@@ -191,41 +192,40 @@ sub _build_subject {
 }
 
 {
-    my $parser = DateTime::Format::Mail->new( loose => 1 );
+    my $mail_parser = DateTime::Format::Mail->new( loose => 1 );
+    my $natural_parser = DateTime::Format::Natural->new( time_zone => 'UTC' );
 
     sub _build_datetime {
         my $self = shift;
 
-        # Stolen from Email::Date
-        my $raw_date 
-            = $self->headers()->get('Date')
-            || $self->_find_date_received( $self->headers()->get('Received') )
-            || $self->headers()->get('Resent-Date');
+        # Stolen from Email::Date and then modified
+        for my $possible (
+            $self->headers()->get('Date'),
+            $self->_find_date_received( $self->headers()->get('Received') ),
+            $self->headers()->get('Resent-Date')
+            ) {
 
-        if ( defined $raw_date && length $raw_date ) {
-            my $dt = eval { $parser->parse_datetime($raw_date) };
+            next unless defined $possible && length $possible;
 
-            if ($dt) {
-                $dt->set_time_zone('UTC');
-                return $dt;
+            my $dt = eval { $mail_parser->parse_datetime($possible) };
+            unless ($dt) {
+                $dt = $natural_parser->parse_datetime($possible);
+                next unless $natural_parser->success();
             }
+
+            $dt->set_time_zone('UTC');
+            return $dt;
         }
 
         return DateTime->now( time_zone => 'UTC' );
     }
 }
 
-# Stolen from Email::Date
+# Stolen from Email::Date and modified
 sub _find_date_received {
     shift;
 
-    return unless defined $_[0] and length $_[0];
-
-    my $most_recent = pop;
-
-    $most_recent =~ s/.+;//;
-
-    return $most_recent;
+    return map { s/.+;//; $_ } grep { defined && length } @_;
 }
 
 sub _build_to {
@@ -557,8 +557,8 @@ Returns a L<DateTime> object for the email. The DateTime object is always in
 the "UTC" time zone.
 
 This uses the Date header by default one. Otherwise it looks at the date in
-the first Received header, and then it looks for a Resent-Date header. If none
-of these exists, it just returns C<< DateTime->now() >>.
+each Received header, and then it looks for a Resent-Date header. If none of
+these exists, it just returns C<< DateTime->now() >>.
 
 =head2 $email->from()
 
