@@ -563,7 +563,8 @@ these exists, it just returns C<< DateTime->now() >>.
 =head2 $email->from()
 
 This returns a single L<Email::Address> object based on the From header of the
-email. If the email has no From header, it returns C<undef>.
+email. If the email has no From header or if the From header is broken, it
+returns C<undef>.
 
 =head2 $email->participants()
 
@@ -571,20 +572,28 @@ This returns a list of L<Email::Address> objects, one for each unique
 participant in the email. This includes any address in the From, To, or CC
 headers.
 
+Just like with the From header, broken addresses will not be included.
+
 =head2 $email->recipients()
 
 This returns a list of L<Email::Address> objects, one for each unique
 recipient in the email. This includes any address in the To or CC headers.
+
+Just like with the From header, broken addresses will not be included.
 
 =head2 $email->to()
 
 This returns a list of L<Email::Address> objects, one for each unique
 address in the To header.
 
+Just like with the From header, broken addresses will not be included.
+
 =head2 $email->cc()
 
 This returns a list of L<Email::Address> objects, one for each unique
 address in the CC header.
+
+Just like with the From header, broken addresses will not be included.
 
 =head2 $email->plain_body_part()
 
