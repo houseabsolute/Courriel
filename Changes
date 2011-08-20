@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+- Courriel tries a lot harder to find a date for the email. It now looks at
+  all the Received headers, and it also uses DateTime::Format::Natural to
+  parse dates if DateTime::Format::Mail fails.
+
+
 0.17     2011-08-19
 
 - Email parsing is now much more flexible, and throws fewer
