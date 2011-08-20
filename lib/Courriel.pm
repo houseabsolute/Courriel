@@ -198,13 +198,17 @@ sub _build_subject {
     sub _build_datetime {
         my $self = shift;
 
-        # Stolen from Email::Date and then modified
-        for my $possible (
+        my @possible = (
             $self->headers()->get('Date'),
-            $self->_find_date_received( $self->headers()->get('Received') ),
+            (
+                map { $self->_find_date_received($_) }
+                    $self->headers()->get('Received')
+            ),
             $self->headers()->get('Resent-Date')
-            ) {
+        );
 
+        # Stolen from Email::Date and then modified
+        for my $possible (@possible) {
             next unless defined $possible && length $possible;
 
             my $dt = eval { $mail_parser->parse_datetime($possible) };
@@ -224,8 +228,13 @@ sub _build_subject {
 # Stolen from Email::Date and modified
 sub _find_date_received {
     shift;
+    my $received = shift;
 
-    return map { s/.+;//; $_ } grep { defined && length } @_;
+    return unless defined $received && length $received;
+
+    $received =~ s/.+;//;
+
+    return $received;
 }
 
 sub _build_to {
