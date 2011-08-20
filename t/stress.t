@@ -20,10 +20,10 @@ my $dir = dir(qw( t data stress-test));
 while ( my $file = $dir->next() ) {
     next if $file->is_dir();
 
-    my $mail = read_file( $file->stringify() );
+    my $text = read_file( $file->stringify() );
 
     is(
-        exception { Courriel->parse( text => $mail ) },
+        exception { Courriel->parse( text => $text ) },
         undef,
         'no exception from parsing ' . $file->basename()
     )
