@@ -147,6 +147,8 @@ sub _default_mime_type {
 
         return \$bytes if $self->content_type()->is_binary();
 
+        return \$bytes if lc $self->content_type()->charset() eq 'unknown-8bit';
+
         return \(
             decode(
                 $self->content_type()->charset(),
