@@ -227,7 +227,7 @@ EOF
             minute    => 24,
             second    => 44,
             time_zone => '-0500',
-        ),
+        )->set_time_zone('UTC'),
         'email datetime is parsed from Received header correctly'
     );
 }

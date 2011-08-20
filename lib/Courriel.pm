@@ -201,7 +201,8 @@ sub _build_subject {
         my @possible = (
             $self->headers()->get('Date'),
             (
-                map { $self->_find_date_received($_) }
+                reverse
+                    map { $self->_find_date_received($_) }
                     $self->headers()->get('Received')
             ),
             $self->headers()->get('Resent-Date')
@@ -212,6 +213,7 @@ sub _build_subject {
             next unless defined $possible && length $possible;
 
             my $dt = eval { $mail_parser->parse_datetime($possible) };
+
             unless ($dt) {
                 $dt = $natural_parser->parse_datetime($possible);
                 next unless $natural_parser->success();
