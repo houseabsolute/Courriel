@@ -8,7 +8,6 @@ use Test::Requires (
     'Path::Class' => '0',
 );
 
-use Email::MIME;
 use File::Slurp qw( read_file );
 use Path::Class qw( dir );
 
