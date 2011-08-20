@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.18     2011-08-20
+
 - More improvements in handling broken email based on jwang's corpus of broken
   messages.
 
