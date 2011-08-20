@@ -15,7 +15,7 @@ use Path::Class qw( dir );
 
 use Courriel;
 
-my $dir = dir(qw( t data stress-test));
+my $dir = dir(qw( t data stress-test ));
 
 while ( my $file = $dir->next() ) {
     next if $file->is_dir();
@@ -26,7 +26,7 @@ while ( my $file = $dir->next() ) {
         exception { Courriel->parse( text => $text ) },
         undef,
         'no exception from parsing ' . $file->basename()
-    )
+    );
 }
 
 done_testing();
