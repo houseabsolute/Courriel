@@ -7,7 +7,8 @@
   all the Received headers, and it also uses DateTime::Format::Natural to
   parse dates if DateTime::Format::Mail fails.
 
-- Courriel handles the charset "unknown-8bit".
+- Courriel handles the charset "unknown-8bit" (by ignoring it and treating it
+  as ASCII).
 
 
 0.17     2011-08-19
