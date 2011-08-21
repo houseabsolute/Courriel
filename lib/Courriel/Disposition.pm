@@ -65,7 +65,10 @@ has filename => (
             my $val = $_[0]->_attributes()->{$name_in_header};
             return unless $val;
 
-            return $parser->parse_datetime($val);
+            my $dt = $parser->parse_datetime($val);
+            $dt->set_time_zone('UTC') if $dt;
+
+            return $dt;
         };
 
         has $attr => (
