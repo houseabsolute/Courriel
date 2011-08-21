@@ -171,7 +171,7 @@ EOF
             minute    => 22,
             second    => 22,
             time_zone => '-0500',
-        ),
+        )->set_time_zone('UTC'),
         'email datetime is parsed from Date header correctly'
     );
 
@@ -258,7 +258,7 @@ EOF
             minute    => 22,
             second    => 23,
             time_zone => '-0500',
-        ),
+        )->set_time_zone('UTC'),
         'email datetime is parsed from Resent-Date header correctly'
     );
 }
