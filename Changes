@@ -1,5 +1,13 @@
 {{$NEXT}}
 
+- Fixed some test failures with older versions of Test::More, which stringify
+  objects passed to is() rather than using their overloading. Reported by
+  Maximilian Gaß. RT #70395.
+
+- The Courriel::Disposition methods which return DateTime objects now
+  explicitly set the time zone of the objects to UTC before returning it.
+
+
 0.18     2011-08-20
 
 - More improvements in handling broken email based on jwang's corpus of broken
