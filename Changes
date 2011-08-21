@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.19     2011-08-21
+
 - Fixed some test failures with older versions of Test::More, which stringify
   objects passed to is() rather than using their overloading. Reported by
   Maximilian Gaß. RT #70395.
