@@ -162,7 +162,7 @@ EOF
     );
 
     is(
-        $email->datetime(),
+        $email->datetime()->strftime('%{datetime} %Z'),
         DateTime->new(
             year      => 2011,
             month     => 5,
@@ -171,7 +171,7 @@ EOF
             minute    => 22,
             second    => 22,
             time_zone => '-0500',
-        )->set_time_zone('UTC'),
+            )->set_time_zone('UTC')->strftime('%{datetime} %Z'),
         'email datetime is parsed from Date header correctly'
     );
 
@@ -218,7 +218,7 @@ EOF
     my $email = Courriel->parse( text => \$text );
 
     is(
-        $email->datetime(),
+        $email->datetime()->strftime('%{datetime} %Z'),
         DateTime->new(
             year      => 2011,
             month     => 5,
@@ -227,7 +227,7 @@ EOF
             minute    => 24,
             second    => 44,
             time_zone => '-0500',
-        )->set_time_zone('UTC'),
+            )->set_time_zone('UTC')->strftime('%{datetime} %Z'),
         'email datetime is parsed from Received header correctly'
     );
 }
@@ -249,7 +249,7 @@ EOF
     my $email = Courriel->parse( text => \$text );
 
     is(
-        $email->datetime(),
+        $email->datetime()->strftime('%{datetime} %Z'),
         DateTime->new(
             year      => 2011,
             month     => 5,
@@ -258,7 +258,7 @@ EOF
             minute    => 22,
             second    => 23,
             time_zone => '-0500',
-        )->set_time_zone('UTC'),
+            )->set_time_zone('UTC')->strftime('%{datetime} %Z'),
         'email datetime is parsed from Resent-Date header correctly'
     );
 }
@@ -450,7 +450,8 @@ EOF
     );
 
     is(
-        $attachment->disposition()->creation_datetime(),
+        $attachment->disposition()->creation_datetime()
+            ->strftime('%{datetime} %Z'),
         DateTime->new(
             year      => 2011,
             month     => 5,
@@ -459,12 +460,13 @@ EOF
             minute    => 01,
             second    => 02,
             time_zone => '-0500',
-        ),
+            )->set_time_zone('UTC')->strftime('%{datetime} %Z'),
         'got creation_datetime from content disposition'
     );
 
     is(
-        $attachment->disposition()->modification_datetime(),
+        $attachment->disposition()->modification_datetime()
+            ->strftime('%{datetime} %Z'),
         DateTime->new(
             year      => 2011,
             month     => 5,
@@ -473,12 +475,13 @@ EOF
             minute    => 01,
             second    => 03,
             time_zone => '-0500',
-        ),
+            )->set_time_zone('UTC')->strftime('%{datetime} %Z'),
         'got modification_datetime from content disposition'
     );
 
     is(
-        $attachment->disposition()->read_datetime(),
+        $attachment->disposition()->read_datetime()
+            ->strftime('%{datetime} %Z'),
         DateTime->new(
             year      => 2011,
             month     => 5,
@@ -487,7 +490,7 @@ EOF
             minute    => 01,
             second    => 04,
             time_zone => '-0500',
-        ),
+            )->set_time_zone('UTC')->strftime('%{datetime} %Z'),
         'got read_datetime from content disposition'
     );
 }
@@ -505,7 +508,7 @@ EOF
         'email is multipart/mixed'
     );
 
-    my @parts = $email->all_parts_matching( sub {1} );
+    my @parts = $email->all_parts_matching( sub { 1 } );
 
     is(
         scalar @parts, 4,
@@ -520,7 +523,7 @@ EOF
         'after clone type is text/plain'
     );
 
-    @parts = $clone->all_parts_matching( sub {1} );
+    @parts = $clone->all_parts_matching( sub { 1 } );
 
     is(
         scalar @parts, 1,
@@ -553,7 +556,7 @@ EOF
         'email is multipart/mixed'
     );
 
-    my @parts = $email->all_parts_matching( sub {1} );
+    my @parts = $email->all_parts_matching( sub { 1 } );
 
     is(
         scalar @parts, 6,
@@ -568,7 +571,7 @@ EOF
         'after clone type is multipart/alternative'
     );
 
-    @parts = $clone->all_parts_matching( sub {1} );
+    @parts = $clone->all_parts_matching( sub { 1 } );
 
     is(
         scalar @parts, 3,
