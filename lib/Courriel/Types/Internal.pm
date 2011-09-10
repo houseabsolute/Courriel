@@ -4,17 +4,19 @@ use strict;
 use warnings;
 use namespace::autoclean;
 
+use List::AllUtils qw( all );
+use Scalar::Util qw( blessed );
+
 use MooseX::Types -declare => [
     qw(
         Body
         EmailAddressStr
-        EvenArrayRef
+        HeaderArray
         Headers
         Part
         StringRef
         )
 ];
-
 use MooseX::Types::Common::String qw( NonEmptyStr );
 use MooseX::Types::Moose qw( ArrayRef HashRef ScalarRef Str );
 
@@ -32,14 +34,31 @@ coerce EmailAddressStr,
     from class_type('Email::Address'),
     via { $_->format() };
 
-subtype EvenArrayRef,
-    as ArrayRef,
-    where { @{$_} % 2 == 0 },
-    message { 'The array reference must contain an even number of elements' };
+my $_check_header_array = sub {
+    return 0 unless @{$_} % 2 == 0;
 
-coerce EvenArrayRef,
-    from HashRef,
-    via { %{@_} };
+    my ( @even, @odd );
+    for my $i ( 0 .. $#{$_} ) {
+        if ( $i % 2 ) {
+            push @odd, $i;
+        }
+        else {
+            push @even, $i;
+        }
+    }
+
+    return 0 unless all { defined $_ && length $_ && !ref $_ } @{$_}[@even];
+    return 0
+        unless all { blessed($_) && $_->isa('Courriel::Header') } @{$_}[@odd];
+
+    return 1;
+};
+
+subtype HeaderArray,
+    as ArrayRef,
+    # prototype wants an actual block, not a ref to a sub
+    &where($_check_header_array),
+    message { 'The array reference must contain an even number of elements' };
 
 subtype Part,
     as role_type('Courriel::Role::Part');

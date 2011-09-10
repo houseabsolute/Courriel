@@ -36,7 +36,7 @@ use List::AllUtils qw( all );
 
     for my $key ( sort keys %expect ) {
         is_deeply(
-            [ $email->headers()->get($key) ],
+            [ map { $_->value() } $email->headers()->get($key) ],
             [ $expect{$key} ],
             "got expected value for $key header"
         );
@@ -45,7 +45,7 @@ use List::AllUtils qw( all );
     my @date = $email->headers()->get('Date');
     is( scalar @date, 1, 'found one Date header' );
     like(
-        $date[0],
+        $date[0]->value(),
         qr/\w\w\w, \d\d \w\w\w \d\d\d\d \d\d:\d\d:\d\d [-+]\d\d\d\d/,
         'Date header looks like a proper date'
     );
@@ -53,7 +53,7 @@ use List::AllUtils qw( all );
     my @id = $email->headers()->get('Message-Id');
     is( scalar @id, 1, 'found one Message-Id header' );
     like(
-        $id[0],
+        $id[0]->value(),
         qr/<[^>]+>/,
         'Message-Id is in brackets'
     );
@@ -71,7 +71,7 @@ use List::AllUtils qw( all );
     my @ct = $email->headers()->get('Content-Type');
     is( scalar @ct, 1, 'found one Content-Type header' );
     is(
-        $ct[0],
+        $ct[0]->value(),
         'text/plain; charset=ISO-8859-1',
         'Content-Type has the right charset'
     );
@@ -89,7 +89,7 @@ use List::AllUtils qw( all );
     my @date = $email->headers()->get('Date');
     is( scalar @date, 1, 'found one Date header' );
     is(
-        $date[0],
+        $date[0]->value(),
         'Tue, 01 Jan 1980 00:00:00 -0000',
         'explicit Date header is not overwritten'
     );
@@ -330,7 +330,7 @@ EOF
     my $attachment
         = $email->first_part_matching( sub { $_[0]->is_attachment() } );
     is_deeply(
-        [ $attachment->headers()->get('Content-ID') ],
+        [ map { $_->value() } $attachment->headers()->get('Content-ID') ],
         ['<abc123>'],
         'attachment has the correct Content-ID, and it is wrapped in brackets'
     );

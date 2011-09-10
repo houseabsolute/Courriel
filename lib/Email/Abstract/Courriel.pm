@@ -16,7 +16,7 @@ sub construct {
 
 sub get_header {
     my ( $class, $obj, $header ) = @_;
-    my @values = $obj->headers()->get($header);
+    my @values = map { $_->value() } $obj->headers()->get($header);
     return wantarray ? @values : $values[0];
 }
 

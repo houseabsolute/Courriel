@@ -5,8 +5,8 @@ use warnings;
 
 use Carp qw( croak );
 use Courriel;
-use Courriel::ContentType;
-use Courriel::Disposition;
+use Courriel::Header::ContentType;
+use Courriel::Header::Disposition;
 use Courriel::Headers;
 use Courriel::Helpers qw( parse_header_with_attributes );
 use Courriel::Part::Multipart;
@@ -82,7 +82,7 @@ use Sub::Exporter -setup => {
 
         my $body_part;
         if ( $plain_body && $html_body ) {
-            my $ct = Courriel::ContentType->new(
+            my $ct = Courriel::Header::ContentType->new(
                 mime_type => 'multipart/alternative',
             );
 
@@ -100,7 +100,7 @@ use Sub::Exporter -setup => {
         }
 
         if (@attachments) {
-            my $ct = Courriel::ContentType->new(
+            my $ct = Courriel::Header::ContentType->new(
                 mime_type => 'multipart/mixed' );
 
             $body_part = Courriel::Part::Multipart->new(
@@ -290,7 +290,7 @@ sub html_body {
     if (@attachments) {
         $body = Courriel::Part::Multipart->new(
             headers      => Courriel::Headers->new(),
-            content_type => Courriel::ContentType->new(
+            content_type => Courriel::Header::ContentType->new(
                 mime_type => 'multipart/related'
             ),
             parts => [
@@ -326,7 +326,7 @@ sub html_body {
             @spec,
         );
 
-        my $ct = Courriel::ContentType->new(
+        my $ct = Courriel::Header::ContentType->new(
             mime_type  => $mime_type,
             attributes => { charset => $charset },
         );
@@ -400,7 +400,7 @@ my $flm = File::LibMagic->new();
         my $ct = _content_type( $mime_type
                 // $flm->checktype_contents( ${$content} ) );
 
-        my $disp = Courriel::Disposition->new(
+        my $disp = Courriel::Header::Disposition->new(
             disposition => 'attachment',
             attributes  => {
                 defined $filename ? ( filename => basename($filename) ) : ()
@@ -420,15 +420,15 @@ my $flm = File::LibMagic->new();
 sub _content_type {
     my $type = shift;
 
-    return Courriel::ContentType->new( mime_type => 'application/unknown' )
+    return Courriel::Header::ContentType->new( mime_type => 'application/unknown' )
         unless defined $type;
 
     my ( $mime_type, $attr ) = parse_header_with_attributes($type);
 
-    return Courriel::ContentType->new( mime_type => 'application/unknown' )
+    return Courriel::Header::ContentType->new( mime_type => 'application/unknown' )
         unless defined $mime_type && length $mime_type;
 
-    return Courriel::ContentType->new(
+    return Courriel::Header::ContentType->new(
         mime_type  => $mime_type,
         attributes => $attr,
     );
@@ -452,7 +452,7 @@ sub _attachment_headers {
 sub _attachment_disposition {
     my $file = shift;
 
-    return Courriel::Disposition->new(
+    return Courriel::Header::Disposition->new(
         disposition => 'attachment',
         attributes => { defined $file ? ( filename => basename($file) ) : () }
     );

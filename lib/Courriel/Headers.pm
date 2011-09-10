@@ -4,13 +4,17 @@ use strict;
 use warnings;
 use namespace::autoclean;
 
+use Courriel::Header;
+use Courriel::Header::ContentType;
+use Courriel::Header::Disposition;
 use Courriel::Helpers qw( fold_header );
 use Courriel::Types
-    qw( ArrayRef Defined EvenArrayRef HashRef NonEmptyStr Str StringRef );
+    qw( ArrayRef Defined HashRef HeaderArray NonEmptyStr Str StringRef );
 use Encode qw( decode encode find_encoding );
 use MIME::Base64 qw( decode_base64 encode_base64 );
 use MIME::QuotedPrint qw( decode_qp );
 use MooseX::Params::Validate qw( pos_validated_list validated_list );
+use Scalar::Util qw( blessed reftype );
 
 use Moose;
 use MooseX::StrictConstructor;
@@ -18,7 +22,7 @@ use MooseX::StrictConstructor;
 has _headers => (
     traits   => ['Array'],
     is       => 'ro',
-    isa      => EvenArrayRef [Str],
+    isa      => HeaderArray,
     default  => sub { [] },
     init_arg => 'headers',
     handles  => {
@@ -51,6 +55,59 @@ has _key_indices => (
     },
 );
 
+override BUILDARGS => sub {
+    my $class = shift;
+
+    my $p = super();
+
+    return $p unless $p->{headers};
+
+    # Could this be done as a coercion for the HeaderArray type? Maybe, but
+    # it'd probably need structured types, which seems like as much of a
+    # hassle as just doing this.
+    if ( reftype( $p->{headers} ) eq 'ARRAY' ) {
+        my $headers = $p->{headers};
+
+        for ( my $i = 1 ; $i < @{$headers} ; $i += 2 ) {
+            next if blessed( $headers->[ $i - 1 ] );
+
+            my $name = $headers->[ $i - 1 ];
+
+            next unless defined $name;
+
+            $headers->[$i] = $class->_inflate_header( $name, $headers->[$i] );
+        }
+    }
+    elsif ( reftype( $p->{headers} ) eq 'HASH' ) {
+        for my $name ( keys %{ $p->{headers} } ) {
+            next if blessed( $p->{headers}{$name} );
+
+            $p->{headers}{$name}
+                = $class->_inflate_header( $name, $p->{headers}{$name} );
+        }
+    }
+
+    return $p;
+};
+
+sub _inflate_header {
+    my $class = shift;
+    my $name  = shift;
+    my $value = shift;
+
+    my ( $header_class, $method )
+        = lc $name eq 'content-type'
+        ? ( 'Courriel::Header::ContentType', 'new_from_value' )
+        : lc $name eq 'content-disposition'
+        ? ( 'Courriel::Header::Disposition', 'new_from_value' )
+        : ( 'Courriel::Header', 'new' );
+
+    return $header_class->$method(
+        name  => $name,
+        value => $value,
+    );
+}
+
 sub _build_key_indices {
     my $self = shift;
 
@@ -69,20 +126,20 @@ sub _build_key_indices {
 
     sub get {
         my $self = shift;
-        my ($key) = pos_validated_list(
+        my ($name) = pos_validated_list(
             \@_,
             @spec,
         );
 
-        return @{ $self->_headers() }[ $self->_key_indices_for($key) ];
+        return @{ $self->_headers() }[ $self->_key_indices_for($name) ];
     }
 }
 
 sub _key_indices_for {
     my $self = shift;
-    my $key  = shift;
+    my $name = shift;
 
-    return @{ $self->__key_indices_for( lc $key ) || [] };
+    return @{ $self->__key_indices_for( lc $name ) || [] };
 }
 
 {
@@ -93,20 +150,26 @@ sub _key_indices_for {
 
     sub add {
         my $self = shift;
-        my ( $key, $val ) = pos_validated_list(
+        my ( $name, $value ) = pos_validated_list(
             \@_,
             @spec,
         );
 
         my $headers = $self->_headers();
 
-        my $last_index = ( $self->_key_indices_for($key) )[-1];
+        my $last_index = ( $self->_key_indices_for($name) )[-1];
+
+        my $header
+            = blessed($value)
+            && $value->isa('Courriel::Header')
+            ? $value
+            : $self->_inflate_header( $name, $value );
 
         if ($last_index) {
-            splice @{$headers}, $last_index + 1, 0, ( $key => $val );
+            splice @{$headers}, $last_index + 1, 0, ( $name => $header );
         }
         else {
-            push @{$headers}, ( $key => $val );
+            push @{$headers}, ( $name => $header );
         }
 
         $self->_clear_key_indices();
@@ -124,7 +187,7 @@ sub _key_indices_for {
     # Used to add things like Resent or Received headers
     sub unshift {
         my $self = shift;
-        my ( $key, $val ) = pos_validated_list(
+        my ( $name, $value ) = pos_validated_list(
             \@_,
             { isa => NonEmptyStr },
             ( { isa => Defined } ) x ( @_ - 1 ),
@@ -133,7 +196,13 @@ sub _key_indices_for {
 
         my $headers = $self->_headers();
 
-        unshift @{$headers}, ( $key => $val );
+        my $header
+            = blessed($value)
+            && $value->isa('Courriel::Header')
+            ? $value
+            : $self->_inflate_header( $name, $value );
+
+        unshift @{$headers}, ( $name => $header );
 
         return;
     }
@@ -146,14 +215,14 @@ sub _key_indices_for {
 
     sub remove {
         my $self = shift;
-        my ($key) = pos_validated_list(
+        my ($name) = pos_validated_list(
             \@_,
             @spec,
         );
 
         my $headers = $self->_headers();
 
-        for my $idx ( reverse $self->_key_indices_for($key) ) {
+        for my $idx ( reverse $self->_key_indices_for($name) ) {
             splice @{$headers}, $idx - 1, 2;
         }
 
@@ -171,13 +240,13 @@ sub _key_indices_for {
 
     sub replace {
         my $self = shift;
-        my ( $key, $val ) = pos_validated_list(
+        my ( $name, $value ) = pos_validated_list(
             \@_,
             @spec,
         );
 
-        $self->remove($key);
-        $self->add( $key => $val );
+        $self->remove($name);
+        $self->add( $name => $value );
 
         return;
     }
@@ -248,7 +317,7 @@ sub _key_indices_for {
                 : 'Could not parse headers at all';
         }
 
-        for ( my $i = 1; $i < @headers; $i += 2 ) {
+        for ( my $i = 1 ; $i < @headers ; $i += 2 ) {
             $headers[$i] = $class->_mime_decode( $headers[$i] );
         }
 
@@ -261,7 +330,7 @@ sub _maybe_fix_broken_headers {
     my $text   = shift;
     my $sep_re = shift;
 
-    # Some broken email messages have a newline int he headers that isn't
+    # Some broken email messages have a newline in the headers that isn't
     # acting as a continuation, it's just an arbitrary line break. See
     # t/data/stress-test/mbox_mime_applemail_1xb.txt
     ${$text} =~ s/$sep_re([^\s:][^:]+$sep_re)/$1/g;
@@ -291,7 +360,7 @@ sub _maybe_fix_broken_headers {
         for ( my $i = 0; $i < @{$headers}; $i += 2 ) {
             next if $skip{ lc $headers->[$i] };
 
-            my $value = $headers->[ $i + 1 ];
+            my $value = $headers->[ $i + 1 ]->value();
 
             $value = $self->_mime_encode( $value, $charset )
                 unless $value =~ /^[\x20-\x7e]+$/;

@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use namespace::autoclean;
 
-use Courriel::Helpers qw( parse_header_with_attributes );
+use Courriel::Header::Disposition;
 use Courriel::Types qw( NonEmptyStr StringRef );
 use Email::MIME::Encodings;
 use Encode qw( decode encode );
@@ -38,7 +38,7 @@ has encoded_content_ref => (
 
 has disposition => (
     is        => 'ro',
-    isa       => 'Courriel::Disposition',
+    isa       => 'Courriel::Header::Disposition',
     lazy      => 1,
     builder   => '_build_disposition',
     predicate => '_has_disposition',
@@ -66,7 +66,7 @@ sub BUILD {
     if ( !$self->_has_encoding() ) {
         my @enc = $self->headers()->get('Content-Transfer-Encoding');
 
-        $self->_set_encoding( $enc[0] )
+        $self->_set_encoding( $enc[0]->value() )
             if @enc && $enc[0];
     }
 
@@ -100,27 +100,26 @@ sub _maybe_set_disposition_in_headers {
     return unless $self->_has_disposition();
 
     $self->headers()
-        ->replace(
-        'Content-Disposition' => $self->disposition()->as_header_value() );
+        ->replace( 'Content-Disposition' => $self->disposition() );
 }
 
-sub _build_disposition {
-    my $self = shift;
-
-    my @disp = $self->headers()->get('Content-Disposition');
-    if ( @disp > 1 ) {
-        die 'This email defines more than one Content-Disposition header.';
-    }
-
-    my ( $disposition, $attributes )
-        = defined $disp[0]
-        ? parse_header_with_attributes( $disp[0] )
-        : ( 'inline', {} );
-
-    return Courriel::Disposition->new(
-        disposition => $disposition,
-        attributes  => $attributes,
+{
+    my $fake_disp = Courriel::Header::Disposition->new_from_value(
+        name  => 'Content-Disposition',
+        value => 'inline',
     );
+
+    sub _build_disposition {
+        my $self = shift;
+
+        my @disp = $self->headers()->get('Content-Disposition');
+        if ( @disp > 1 ) {
+            die
+                'This email defines more than one Content-Disposition header.';
+        }
+
+        return $disp[0] // $fake_disp;
+    }
 }
 
 sub is_multipart {0}
@@ -241,12 +240,12 @@ modified, so don't pass in something you don't want modified.
 
 =item * content_type
 
-A L<Courriel::ContentType> object. This will default to one with the mime type
+A L<Courriel::Header::ContentType> object. This will default to one with the mime type
 "text/plain".
 
 =item * disposition
 
-A L<Courriel::Disposition> object representing this part's content
+A L<Courriel::Header::Disposition> object representing this part's content
 disposition. This will default to "inline" with no other attributes.
 
 =item * encoding
@@ -298,11 +297,11 @@ Returns the filename from the part's content disposition, if any.
 
 =head2 $part->content_type()
 
-Returns the L<Courriel::ContentType> object for this part.
+Returns the L<Courriel::Header::ContentType> object for this part.
 
 =head2 $part->disposition()
 
-Returns the L<Courriel::Disposition> object for this part.
+Returns the L<Courriel::Header::Disposition> object for this part.
 
 =head2 $part->encoding()
 

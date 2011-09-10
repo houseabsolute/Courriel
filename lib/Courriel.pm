@@ -6,9 +6,8 @@ use strict;
 use warnings;
 use namespace::autoclean;
 
-use Courriel::ContentType;
 use Courriel::Headers;
-use Courriel::Helpers qw( parse_header_with_attributes unique_boundary );
+use Courriel::Helpers qw( unique_boundary );
 use Courriel::Part::Multipart;
 use Courriel::Part::Single;
 use Courriel::Types
@@ -148,7 +147,7 @@ sub clone_without_attachments {
     my $headers = $self->headers();
 
     if ( $plain_body && $html_body ) {
-        my $ct = Courriel::ContentType->new(
+        my $ct = Courriel::Header::ContentType->new(
             mime_type  => 'multipart/alternative',
             attributes => { boundary => unique_boundary() },
         );
@@ -188,7 +187,9 @@ sub clone_without_attachments {
 sub _build_subject {
     my $self = shift;
 
-    return $self->headers()->get('Subject');
+    my $subject = $self->headers()->get('Subject');
+
+    return $subject ? $subject->value() : undef;
 }
 
 {
@@ -199,13 +200,13 @@ sub _build_subject {
         my $self = shift;
 
         my @possible = (
-            $self->headers()->get('Date'),
+            ( map { $_->value() } $self->headers()->get('Date') ),
             (
                 reverse
-                    map { $self->_find_date_received($_) }
+                    map { $self->_find_date_received( $_->value() ) }
                     $self->headers()->get('Received')
             ),
-            $self->headers()->get('Resent-Date')
+            ( map { $_->value() } $self->headers()->get('Resent-Date') ),
         );
 
         # Stolen from Email::Date and then modified
@@ -242,8 +243,8 @@ sub _find_date_received {
 sub _build_to {
     my $self = shift;
 
-    my @addresses
-        = map { Email::Address->parse($_) } $self->headers()->get('To');
+    my @addresses = map { Email::Address->parse( $_->value() ) }
+        $self->headers()->get('To');
 
     return $self->_unique_addresses( \@addresses );
 }
@@ -251,8 +252,8 @@ sub _build_to {
 sub _build_cc {
     my $self = shift;
 
-    my @addresses
-        = map { Email::Address->parse($_) } $self->headers()->get('CC');
+    my @addresses = map { Email::Address->parse( $_->value() ) }
+        $self->headers()->get('CC');
 
     return $self->_unique_addresses( \@addresses );
 }
@@ -260,7 +261,8 @@ sub _build_cc {
 sub _build_from {
     my $self = shift;
 
-    my @addresses = Email::Address->parse( $self->headers()->get('From') );
+    my @addresses = Email::Address->parse( map { $_->value() }
+            $self->headers()->get('From') );
 
     return $addresses[0];
 }
@@ -425,24 +427,49 @@ sub _parse_headers {
     return ( $line_sep, $sep_idx, $headers );
 }
 
-sub _parse_parts {
+{
+    my $fake_ct = Courriel::Header::ContentType->new_from_value(
+        name  => 'Content-Type',
+        value => 'text/plain'
+    );
+
+    sub _parse_parts {
+        my $class   = shift;
+        my $text    = shift;
+        my $headers = shift;
+
+        my @ct = $headers->get('Content-Type');
+        if ( @ct > 1 ) {
+            die 'This email defines more than one Content-Type header.';
+        }
+
+        my $ct = $ct[0] // $fake_ct;
+
+        if ( $ct->mime_type() !~ /^multipart/i ) {
+            return Courriel::Part::Single->new(
+                headers         => $headers,
+                encoded_content => $text,
+            );
+        }
+
+        return $class->_parse_multipart( $text, $headers, $ct );
+    }
+}
+
+sub _parse_multipart {
     my $class   = shift;
     my $text    = shift;
     my $headers = shift;
+    my $ct      = shift;
 
-    my ( $mime, $ct_attr ) = $class->_content_type_from_headers($headers);
+    my $boundary_attr = $ct->attribute('boundary');
 
-    if ( $mime !~ /^multipart/ ) {
-        return Courriel::Part::Single->new(
-            headers         => $headers,
-            encoded_content => $text,
-        );
-    }
+    die q{The message's mime type claims this is a multipart message (}
+        . $ct->mime_type()
+        . q{) but it does not specify a boundary.}
+        unless $boundary_attr && length $boundary_attr->value();
 
-    my $boundary = $ct_attr->{boundary}
-        // die q{The message's mime type claims this is a multipart message (}
-        . $mime
-        . q{) but it does not specify a boundary.};
+    my $boundary = $boundary_attr->value();
 
     my ( $preamble, $all_parts, $epilogue ) = ${$text} =~ /
                 (.*?)                   # preamble
@@ -476,22 +503,8 @@ sub _parse_parts {
                 && $epilogue =~ /\S/ ? ( epilogue => $epilogue ) : ()
         ),
         boundary => $boundary,
-        parts => [ map { $class->_parse( \$_ ) } @part_text ],
+        parts    => [ map { $class->_parse( \$_ ) } @part_text ],
     );
-}
-
-sub _content_type_from_headers {
-    my $class   = shift;
-    my $headers = shift;
-
-    my @ct = $headers->get('Content-Type');
-    if ( @ct > 1 ) {
-        die 'This email defines more than one Content-Type header.';
-    }
-
-    return defined $ct[0]
-        ? parse_header_with_attributes( $ct[0] )
-        : ( 'text/plain', {} );
 }
 
 __PACKAGE__->meta()->make_immutable();
@@ -641,7 +654,7 @@ This method returns all of the parts that match the subroutine.
 
 =head2 $email->content_type()
 
-Returns the L<Courriel::ContentType> object associated with the email.
+Returns the L<Courriel::Header::ContentType> object associated with the email.
 
 =head2 $email->headers()
 

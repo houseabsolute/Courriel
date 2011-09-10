@@ -5,12 +5,14 @@ use utf8;
 
 use Test::More 0.88;
 
-use Courriel::ContentType;
+use Courriel::Header::ContentType;
+use Courriel::Header::Disposition;
 use Courriel::Headers;
 use Courriel::Part::Single;
 use Email::MIME::Encodings;
 use Encode qw( encode );
 use MIME::Base64 qw( encode_base64 );
+use Scalar::Util qw( blessed );
 
 my $crlf = "\x0d\x0a";
 
@@ -24,7 +26,7 @@ EOF
 
     my $part = Courriel::Part::Single->new(
         headers      => Courriel::Headers->new(),
-        content_type => Courriel::ContentType->new(
+        content_type => Courriel::Header::ContentType->new(
             mime_type => 'text/plain',
         ),
         encoding        => '8bit',
@@ -56,7 +58,7 @@ EOF
 
     my $part = Courriel::Part::Single->new(
         headers      => Courriel::Headers->new(),
-        content_type => Courriel::ContentType->new(
+        content_type => Courriel::Header::ContentType->new(
             mime_type => 'text/plain',
         ),
         encoding        => 'base64',
@@ -82,7 +84,7 @@ EOF
 
     my $part = Courriel::Part::Single->new(
         headers      => Courriel::Headers->new(),
-        content_type => Courriel::ContentType->new(
+        content_type => Courriel::Header::ContentType->new(
             mime_type => 'text/plain',
         ),
         encoding        => 'quoted-printable',
@@ -108,7 +110,7 @@ EOF
 
     my $part = Courriel::Part::Single->new(
         headers      => Courriel::Headers->new(),
-        content_type => Courriel::ContentType->new(
+        content_type => Courriel::Header::ContentType->new(
             mime_type => 'text/plain',
         ),
         encoding => 'base64',
@@ -116,7 +118,10 @@ EOF
     );
 
     is_deeply(
-        [ $part->headers()->get('Content-Transfer-Encoding') ],
+        [
+            map { $_->value() }
+                $part->headers()->get('Content-Transfer-Encoding')
+        ],
         ['base64'],
         'Content-Transfer-Encoding is always set in part headers'
     );
@@ -138,8 +143,8 @@ EOF
     my $part = Courriel::Part::Single->new(
         headers => Courriel::Headers->new(),
         content_type =>
-            Courriel::ContentType->new( mime_type => 'image/jpeg' ),
-        disposition => Courriel::Disposition->new(
+            Courriel::Header::ContentType->new( mime_type => 'image/jpeg' ),
+        disposition => Courriel::Header::Disposition->new(
             disposition => 'attachment',
             attributes  => { filename => 'foo.jpg' },
         ),
@@ -151,10 +156,10 @@ EOF
     $part->_set_headers($new_h);
 
     is_deeply(
-        [ $new_h->headers() ],
+        _headers_as_arrayref($new_h),
         [
             'Content-Type'              => 'image/jpeg',
-            'Content-Disposition'       => q{attachment; filename="foo.jpg"},
+            'Content-Disposition'       => q{attachment; filename=foo.jpg},
             'Content-Transfer-Encoding' => '8bit',
         ],
         'content type is updated when headers are set'
@@ -167,7 +172,7 @@ EOF
 
     my $part = Courriel::Part::Single->new(
         headers      => Courriel::Headers->new(),
-        content_type => Courriel::ContentType->new(
+        content_type => Courriel::Header::ContentType->new(
             mime_type  => 'text/plain',
             attributes => { charset => 'UTF-8' },
         ),
@@ -187,7 +192,7 @@ EOF
 
     my $part = Courriel::Part::Single->new(
         headers      => Courriel::Headers->new(),
-        content_type => Courriel::ContentType->new(
+        content_type => Courriel::Header::ContentType->new(
             mime_type  => 'text/plain',
             attributes => { charset => 'UTF-8' },
         ),
@@ -210,7 +215,7 @@ EOF
 
     my $part = Courriel::Part::Single->new(
         headers      => Courriel::Headers->new(),
-        content_type => Courriel::ContentType->new(
+        content_type => Courriel::Header::ContentType->new(
             mime_type  => 'text/plain',
             attributes => { charset => 'UTF-8' },
         ),
@@ -230,7 +235,7 @@ EOF
 
     my $part = Courriel::Part::Single->new(
         headers      => Courriel::Headers->new(),
-        content_type => Courriel::ContentType->new(
+        content_type => Courriel::Header::ContentType->new(
             mime_type  => 'text/plain',
             attributes => { charset => 'UTF-8' },
         ),
@@ -249,7 +254,7 @@ EOF
     my $part = Courriel::Part::Single->new(
         headers => Courriel::Headers->new(),
         content_type =>
-            Courriel::ContentType->new( mime_type => 'image/jpeg' ),
+            Courriel::Header::ContentType->new( mime_type => 'image/jpeg' ),
         encoded_content => 'foo',
     );
 
@@ -263,7 +268,7 @@ EOF
     my $part = Courriel::Part::Single->new(
         headers => Courriel::Headers->new(),
         content_type =>
-            Courriel::ContentType->new( mime_type => 'image/jpeg' ),
+            Courriel::Header::ContentType->new( mime_type => 'image/jpeg' ),
         content => 'foo',
     );
 
@@ -274,4 +279,10 @@ EOF
 }
 
 done_testing();
+
+sub _headers_as_arrayref {
+    my $h = shift;
+
+    return [ map { blessed($_) ? $_->value() : $_ } $h->headers() ];
+}
 

@@ -8,6 +8,7 @@ use Test::More 0.88;
 use Courriel;
 use Courriel::Builder;
 use Courriel::Helpers;
+use Scalar::Util qw( blessed );
 
 my $crlf = $Courriel::Helpers::CRLF;
 
@@ -25,7 +26,7 @@ EOF
     is( $email->part_count(), 1, 'email has one part' );
 
     is_deeply(
-        [ $email->headers()->headers() ],
+        _headers_as_arrayref($email),
         [
             Subject                     => 'Foo',
             'Content-Transfer-Encoding' => '8bit',
@@ -40,8 +41,9 @@ EOF
         'email with no content type defaults to text/plain'
     );
 
-    ok(
-        !$part->content_type()->has_charset(),
+    is(
+        $part->content_type()->charset(),
+        undef,
         'email with no charset does not get a default charset'
     );
 
@@ -96,7 +98,7 @@ EOF
     is( $email->part_count(), 2, 'email has two parts' );
 
     is_deeply(
-        [ $email->headers()->headers() ],
+        _headers_as_arrayref($email),
         [
             'MIME-Version' => '1.0',
             'Date'         => 'Sun, 29 May 2011 11:22:22 -0500',
@@ -536,7 +538,10 @@ EOF
     );
 
     is_deeply(
-        [ $parts[0]->headers()->get('Content-Transfer-Encoding') ],
+        [
+            map { $_->value() }
+                $parts[0]->headers()->get('Content-Transfer-Encoding')
+        ],
         ['base64'],
         'Content-Transfer encoding is base64'
     );
@@ -585,7 +590,10 @@ EOF
     );
 
     is_deeply(
-        [ $plain->headers()->get('Content-Transfer-Encoding') ],
+        [
+            map { $_->value() }
+                $plain->headers()->get('Content-Transfer-Encoding')
+        ],
         ['base64'],
         'plain part Content-Transfer encoding is base64'
     );
@@ -597,7 +605,10 @@ EOF
     );
 
     is_deeply(
-        [ $html->headers()->get('Content-Transfer-Encoding') ],
+        [
+            map { $_->value() }
+                $html->headers()->get('Content-Transfer-Encoding')
+        ],
         ['base64'],
         'html part Content-Transfer encoding is base64'
     );
@@ -672,7 +683,7 @@ EOF
     my $email = Courriel->parse( text => \$text );
 
     is(
-        $email->headers()->get('From'),
+        $email->headers()->get('From')->value(),
         'Dave Rolsky <autarch@gmail.com>',
         'From header at beginning of mail is not stripped by mbox separator removal',
     );
@@ -732,6 +743,12 @@ EOF
 }
 
 done_testing();
+
+sub _headers_as_arrayref {
+    my $email = shift;
+
+    return [ map { blessed($_) ? $_->value() : $_ } $email->headers()->headers() ];
+}
 
 sub _compare_text {
     my $got    = shift;
