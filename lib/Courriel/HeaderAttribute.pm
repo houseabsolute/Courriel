@@ -44,7 +44,7 @@ has language => (
                                |
                                    [^\p{ASCII}]      # anything that's not ascii
                                |
-                                   [\x00-\x1f\x07f]  # ctrl chars
+                                   [\x00-\x1f\x7f]  # ctrl chars
                            }x;
 
     sub as_string {
