@@ -27,7 +27,7 @@ has value => (
 has charset => (
     is      => 'ro',
     isa     => NonEmptyStr,
-    default => 'ascii',
+    default => 'us-ascii',
 );
 
 has language => (
@@ -35,6 +35,18 @@ has language => (
     isa     => Maybe [NonEmptyStr],
     default => undef,
 );
+
+override BUILDARGS => sub {
+    my $class = shift;
+
+    my $p = super();
+
+    return $p unless defined $p->{value};
+
+    $p->{charset} = 'UTF-8' if $p->{value} =~ /[^\p{ASCII}]/;
+
+    return $p;
+};
 
 {
     my $non_attribute_char = qr{
@@ -56,17 +68,21 @@ has language => (
 
         if (   $value =~ /[\x00-\x1f]|\x7f|[^\p{ASCII}]/
             || defined $self->language()
-            || $self->charset() ne 'ascii' ) {
+            || $self->charset() ne 'us-ascii' ) {
 
             $value = encode( 'utf-8', $value );
             $value
-                =~ s/($non_attribute_char)/'%' . sprintf( '%02x', ord($1) )/eg;
+                =~ s/($non_attribute_char)/'%' . uc sprintf( '%02x', ord($1) )/eg;
 
             $transport_method = '_encoded_parameter';
         }
         elsif ( $value =~ /$non_attribute_char/ ) {
             $transport_method = '_quoted_parameter';
         }
+
+        # XXX - hard code 78 as the max line length may not be right. Should
+        # this account for the length that the parameter name takes up (as
+        # well as encoding information, etc.)?
 
         my @pieces;
         while ( length $value ) {
@@ -130,12 +146,9 @@ sub _encoded_parameter {
 
     # XXX (1) - does it makes sense to just say everything is utf-8? in theory
     # someone could pass through binary data in another encoding.
-    #
-    # XXX (2) - defaulting to en-us makes no sense, but if we have non-ascii
-    # data the rfc says we need to include a language.
     unless ($order) {
         $param .= 'UTF-8' . q{'}
-            . ( $self->language() // 'en-us' ) . q{'};
+            . ( $self->language() // q{} ) . q{'};
     }
 
     $param .= $value;
