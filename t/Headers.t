@@ -240,6 +240,29 @@ EOF
 
 
 {
+    my ( undef, $attrs )
+        = Courriel::Helpers::parse_header_with_attributes(
+        q{foo/bar; val*=UTF-8''%e4%b8%80%e4%b8%80});
+
+    my $attr = $attrs->{val};
+
+    is_deeply(
+        [
+            $attr->value(),
+            $attr->charset(),
+            $attr->language(),
+        ],
+        [
+            "\x{4E00}\x{4E00}",
+            'UTF-8',
+            undef,
+        ],
+        'parsed encoded chinese attribute correctly, with no language'
+    );
+}
+
+
+{
     my $extended = <<'EOF';
 foo/bar;
   val*0*=UTF-8'en-gb'Some%20text%20with%20encoding;

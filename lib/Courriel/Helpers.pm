@@ -131,6 +131,7 @@ sub _parse_attributes {
             }
             else {
                 ( $charset, $language, my $raw ) = split /\'/, $+{value}, 3;
+                $language = undef unless length $language;
 
                 $value = _decode_raw_value( $raw, $charset );
             }
