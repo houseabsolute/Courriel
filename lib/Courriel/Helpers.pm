@@ -4,7 +4,9 @@ use strict;
 use warnings;
 
 use Courriel::HeaderAttribute;
+use Encode qw( decode );
 use Exporter qw( import );
+use List::AllUtils qw( first );
 
 our @EXPORT_OK = qw(
     fold_header
@@ -55,90 +57,132 @@ sub parse_header_with_attributes {
 
     return unless defined $text;
 
-    my ($val) = $text =~ /(.+?)(s*;.+|\z)/;
+    my ($val) = $text =~ /([^\s;]+)(?:\s*;\s*(.*))?\z/s;
 
     return (
         $val,
-        _parse_attributes($2) // {},
+        _parse_attributes($2),
     );
 }
 
-# The rest of the code was taken mostly wholesale from Email::MIME::ContentType.
 our $TSPECIALS = quotemeta '()<>@,;:\\"/[]?=';
 my $extract_quoted
-    = qr/(?:\"(?:[^\\\"]*(?:\\.[^\\\"]*)*)\"|\'(?:[^\\\']*(?:\\.[^\\\']*)*)\')/;
+    = qr/
+        (?:
+            \"
+            (?<quoted_value>
+                [^\\\"]*
+                (?:
+                    \\.[^\\\"]*
+                )*
+            )
+            \"
+        |
+            \'
+            (?<quoted_value>
+                [^\\\']*
+                (?:
+                    \\.[^\\\']*
+                )*
+            )
+            \'
+        )/x;
+
+# This is a very loose regex. RFC2231 has a much tighter definition of what
+# can go in an attribute name, but this parser is designed to accept all the
+# crap the internet throws at it.
+my $attr_re = qr/
+                (?<name>[^\s=\*]+)     # names cannot include spaces, "=", or "*"
+                (?:
+                    \*(?<order>[\d+])
+                )?
+                (?<is_encoded>\*)?
+                =
+                (?:
+                    $extract_quoted
+                |
+                    (?<value>[^\s;]+)  # unquoted values cannot contain spaces
+                )
+                (\s*;\s*)?
+                /xs;
 
 sub _parse_attributes {
-    local $_ = shift;
-    my $attribs = {};
-    while ($_) {
-        s/^;//;
-        s/^\s+// and next;
-        s/\s+$//;
-        unless (s/^([^$TSPECIALS]+)=//) {
+    my $attr_text = shift;
 
-            # We check for $_'s truth because some mail software generates a
-            # Content-Type like this: "Content-Type: text/plain;"
-            # RFC 1521 section 3 says a parameter must exist if there is a
-            # semicolon.
-            die "Illegal header parameter $_" if $_;
-            return $attribs;
+    return {} unless defined $attr_text && length $attr_text;
+
+    my $attrs = {};
+
+    while ( $attr_text =~ /\G$attr_re/g ) {
+        my $name = $+{name};
+
+        my $value;
+        my $charset;
+        my $language;
+
+        my $order = $+{order} || 0 ;
+
+        if ( $+{is_encoded} ) {
+            if ($order) {
+                $value = _decode_raw_value(
+                    $+{value},
+                    $attrs->{$name}[$order]{charset},
+                );
+            }
+            else {
+                ( $charset, $language, my $raw ) = split /\'/, $+{value}, 3;
+
+                $value = _decode_raw_value( $raw, $charset );
+            }
         }
-        my $attribute = lc $1;
-
-        $attribute =~ s/(?:\*([\d+]))?(\*)?$//;
-        my $order = $1;
-        my $encoded = $2;
-
-        my $value = _extract_ct_attribute_value($encoded);
-
-        if ( defined $order ) {
-            $attribs->{$attribute}[$order] = $value;
+        elsif ( defined $+{quoted_value} ) {
+            ( $value = $+{quoted_value} ) =~ s/\G(.*?)\\(.)/$1$2/g;
         }
         else {
-            $attribs->{$attribute} = [$value];
+            $value = $+{value};
         }
+
+        $attrs->{$name}[ $order] = {
+            value    => $value,
+            charset  => $charset,
+            language => $language,
+        };
     }
 
     return {
-        map {
-            my $value = join q{}, grep { defined } @{ $attribs->{$_} };
-
-            $_ => Courriel::HeaderAttribute->new(
-                name  => $_,
-                value => $value,
-            );
-            } keys %{$attribs}
+        map { $_ => _inflate_attribute( $_, $attrs->{$_} ) }
+            keys %{$attrs}
     };
 }
 
-sub _extract_ct_attribute_value {    # EXPECTS AND MODIFIES $_
-    my $is_encoded = shift;
+sub _decode_raw_value {
+    my $raw     = shift;
+    my $charset = shift;
 
-    my $value;
-    while ($_) {
-        s/^([^$TSPECIALS]+)// and do {
-            $value .= $1;
-        };
+    $raw =~ s/%([\da-fA_F]{2})/chr(hex($1))/eg;
 
-        s/^($extract_quoted)// and do {
-            my $sub = $1;
-            $sub =~ s/^["']//;
-            $sub =~ s/["']$//;
-            $value .= $sub;
-        };
+    return $raw unless defined $charset;
 
-        /^;/ and last;
+    return decode( $charset, $raw );
+}
 
-        /^([$TSPECIALS])/ and do {
-            die "Unquoted $1 not allowed in header attribute!";
-            return;
-            }
+sub _inflate_attribute {
+    my $name     = shift;
+    my $raw_data = shift;
+
+    my $value = join q{}, grep { defined } map { $_->{value} } @{$raw_data};
+
+    my %p = (
+        name  => $_,
+        value => $value,
+    );
+
+    for my $key (qw( charset language )) {
+        $p{$key} = $raw_data->[0]{$key}
+            if defined $raw_data->[0]{$key};
     }
 
-    $value =~ s/\G(.*?)\\(.)/$1$2/g;
-
-    return $value;
+    return Courriel::HeaderAttribute->new(%p);
 }
 
 sub unique_boundary {

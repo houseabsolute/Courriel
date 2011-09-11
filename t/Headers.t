@@ -126,6 +126,40 @@ EOF
 {
     my ( $val, $attrs )
         = Courriel::Helpers::parse_header_with_attributes(
+        q{foo/bar; test1=simple; test2="quoted string"}
+        );
+
+    is( $val, 'foo/bar', 'got correct value for header with attributes' );
+    is_deeply(
+        _attributes_as_hashref($attrs),
+        {
+            test1 => 'simple',
+            test2 => 'quoted string',
+        },
+        'parsed attributes with simple values correctly'
+    );
+}
+
+{
+    my ( $val, $attrs )
+        = Courriel::Helpers::parse_header_with_attributes(
+        q{foo/bar; test1='single'; test2="double"}
+        );
+
+    is( $val, 'foo/bar', 'got correct value for header with attributes' );
+    is_deeply(
+        _attributes_as_hashref($attrs),
+        {
+            test1 => 'single',
+            test2 => 'double',
+        },
+        'parsed attributes with simple values correctly'
+    );
+}
+
+{
+    my ( $val, $attrs )
+        = Courriel::Helpers::parse_header_with_attributes(
         q{foo/bar; test1="has \\"escaped \\vals"; test2="contains ' single \\quote"}
         );
 
@@ -179,6 +213,98 @@ EOF
             val => 'foo bar',
         },
         'parsed partially quoted attribute continuation correctly'
+    );
+}
+
+{
+    my ( undef, $attrs )
+        = Courriel::Helpers::parse_header_with_attributes(
+        q{foo/bar; val*=UTF-8'en-gb'Some%20text%20with%20encoding});
+
+    my $attr = $attrs->{val};
+
+    is_deeply(
+        [
+            $attr->value(),
+            $attr->charset(),
+            $attr->language(),
+        ],
+        [
+            'Some text with encoding',
+            'UTF-8',
+            'en-gb',
+        ],
+        'parsed encoded attribute correctly'
+    );
+}
+
+
+{
+    my $extended = <<'EOF';
+foo/bar;
+  val*0*=UTF-8'en-gb'Some%20text%20with%20encoding;
+  val*1=" but now it's quoted and then ";
+  val*2=simple;
+  val*3*=%20then%20hex%20simple;
+EOF
+
+    my ( undef, $attrs )
+        = Courriel::Helpers::parse_header_with_attributes($extended);
+
+    my $attr = $attrs->{val};
+
+    is_deeply(
+        [
+            $attr->value(),
+            $attr->charset(),
+            $attr->language(),
+        ],
+        [
+            q{Some text with encoding but now it's quoted and then simple then hex simple},
+            'UTF-8',
+            'en-gb',
+        ],
+        'parsed encoded attribute with continuations correctly'
+    );
+}
+
+{
+    my ( $value, $attrs );
+
+    is(
+        exception {
+            ( $value, $attrs )
+                = Courriel::Helpers::parse_header_with_attributes(
+                q{foo/bar;});
+        },
+        undef,
+        'no exception for trailing semi-colon on header that can have attributes'
+    );
+
+    is_deeply(
+        [ $value, $attrs ],
+        [ 'foo/bar', {} ],
+        'handled trailing semi-colon correctly (parsed as having no attributes'
+    );
+}
+
+{
+    my ( $value, $attrs );
+
+    is(
+        exception {
+            ( $value, $attrs )
+                = Courriel::Helpers::parse_header_with_attributes(
+                q{foo/bar; bad});
+        },
+        undef,
+        'no exception for bad attribute syntax'
+    );
+
+    is_deeply(
+        [ $value, $attrs ],
+        [ 'foo/bar', {} ],
+        'handled bad attribute syntax correctly'
     );
 }
 
