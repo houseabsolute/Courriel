@@ -3,7 +3,6 @@ package Courriel::Helpers;
 use strict;
 use warnings;
 
-use Courriel::HeaderAttribute;
 use Encode qw( decode );
 use Exporter qw( import );
 use List::AllUtils qw( first );
@@ -67,44 +66,44 @@ sub parse_header_with_attributes {
 
 our $TSPECIALS = qr{\Q()<>@,;:\"/[]?=};
 
-my $extract_quoted
-    = qr/
-        (?:
-            \"
-            (?<quoted_value>
-                [^\\\"]*
-                (?:
-                    \\.[^\\\"]*
-                )*
-            )
-            \"
-        |
-            \'
-            (?<quoted_value>
-                [^\\\']*
-                (?:
-                    \\.[^\\\']*
-                )*
-            )
-            \'
-        )/x;
+my $extract_quoted = qr/
+                           (?:
+                               \"
+                               (?<quoted_value>
+                                   [^\\\"]*
+                                   (?:
+                                       \\.[^\\\"]*
+                                   )*
+                               )
+                               \"
+                           |
+                               \'
+                               (?<quoted_value>
+                                   [^\\\']*
+                                   (?:
+                                       \\.[^\\\']*
+                                   )*
+                               )
+                               \'
+                           )
+                       /x;
 
 # This is a very loose regex. RFC2231 has a much tighter definition of what
 # can go in an attribute name, but this parser is designed to accept all the
 # crap the internet throws at it.
 my $attr_re = qr/
-                (?<name>[^\s=\*]+)     # names cannot include spaces, "=", or "*"
-                (?:
-                    \*(?<order>[\d+])
-                )?
-                (?<is_encoded>\*)?
-                =
-                (?:
-                    $extract_quoted
-                |
-                    (?<value>[^\s;]+)  # unquoted values cannot contain spaces
-                )
-                (\s*;\s*)?
+                    (?<name>[^\s=\*]+)     # names cannot include spaces, "=", or "*"
+                    (?:
+                        \*(?<order>[\d+])
+                    )?
+                    (?<is_encoded>\*)?
+                    =
+                    (?:
+                        $extract_quoted
+                    |
+                        (?<value>[^\s;]+)  # unquoted values cannot contain spaces
+                    )
+                    (\s*;\s*)?
                 /xs;
 
 sub _parse_attributes {
@@ -189,5 +188,8 @@ sub _inflate_attribute {
 sub unique_boundary {
     return Email::MessageID->new()->user();
 }
+
+# Courriel::HeaderAttribute requires that $TSPECIALS be defined
+require Courriel::HeaderAttribute;
 
 1;

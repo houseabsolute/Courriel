@@ -7,6 +7,7 @@ use namespace::autoclean;
 use Courriel::HeaderAttribute;
 use Courriel::Helpers qw( quote_and_escape_attribute_value );
 use Courriel::Types qw( Maybe NonEmptyStr Str );
+use Encode qw( encode );
 
 use Moose;
 use MooseX::StrictConstructor;
@@ -26,7 +27,7 @@ has value => (
 has charset => (
     is      => 'ro',
     isa     => NonEmptyStr,
-    default => 'ASCII',
+    default => 'ascii',
 );
 
 has language => (
@@ -35,23 +36,111 @@ has language => (
     default => undef,
 );
 
-sub as_string {
-    my $self = shift;
+{
+    my $non_attribute_char = qr{
+                                   $Courriel::Helpers::TSPECIALS
+                               |
+                                   [ \*\%]           # space, *, %
+                               |
+                                   [^\p{ASCII}]      # anything that's not ascii
+                               |
+                                   [\x00-\x1f\x07f]  # ctrl chars
+                           }x;
 
-    my $value = $self->value();
+    sub as_string {
+        my $self = shift;
+
+        my $value = $self->value();
+
+        my $transport_method = '_simple_parameter';
+
+        if (   $value =~ /[\x00-\x1f]|\x7f|[^\p{ASCII}]/
+            || defined $self->language()
+            || $self->charset() ne 'ascii' ) {
+
+            $value = encode( 'utf-8', $value );
+            $value
+                =~ s/($non_attribute_char)/'%' . sprintf( '%02x', ord($1) )/eg;
+
+            $transport_method = '_encoded_parameter';
+        }
+        elsif ( $value =~ /$non_attribute_char/ ) {
+            $transport_method = '_quoted_parameter';
+        }
+
+        my @pieces;
+        while ( length $value ) {
+            my $last_percent = rindex( $value, '%', 78 );
+            my $size
+                = $last_percent >= 76 ? $last_percent - 1
+                : length $value > 78  ? 78
+                :                       length $value;
+
+            push @pieces, substr( $value, 0, $size, q{} );
+        }
+
+        if ( @pieces == 1 ) {
+            return $self->$transport_method( undef, $pieces[0] );
+        }
+        else {
+            return join q{ },
+                map { $self->$transport_method( $_, $pieces[$_] ) }
+                0 .. $#pieces;
+        }
+    }
+}
+
+sub _simple_parameter {
+    my $self  = shift;
+    my $order = shift;
+    my $value = shift;
+
+    my $param = $self->name();
+    $param .= q{*} . $order if defined $order;
+    $param .= q{=};
+    $param .= $value;
+
+    return $param;
+}
+
+sub _quoted_parameter {
+    my $self  = shift;
+    my $order = shift;
+    my $value = shift;
+
+    my $param = $self->name();
+    $param .= q{*} . $order if defined $order;
+    $param .= q{=};
+
     $value =~ s/\"/\\\"/g;
 
-    my $string = $self->name();
+    $param .= q{"} . $value . q{"};
 
-    # XXX - need to handle charset, language, and folding into continuations
-    if ( $value =~ $Courriel::Helpers::TSPECIALS || $value =~ / / ) {
-        $string .= q{="} . $value . q{"};
-    }
-    else {
-        $string .= q{=} . $value;
+    return $param;
+}
+
+sub _encoded_parameter {
+    my $self  = shift;
+    my $order = shift;
+    my $value = shift;
+
+    my $param = $self->name();
+    $param .= q{*} . $order if defined $order;
+    $param .= q{*=};
+
+    # XXX (1) - does it makes sense to just say everything is utf-8? in theory
+    # someone could pass through binary data in another encoding.
+    #
+    # XXX (2) - defaulting to en-us makes no sense, but if we have non-ascii
+    # data the rfc says we need to include a language.
+    unless ($order) {
+        $param .= 'UTF-8' . q{'}
+            . ( $self->language() // 'en-us' ) . q{'};
     }
 
-    return $string;
+    $param .= $value;
+
+    return $param;
 }
 
 1;
