@@ -87,8 +87,9 @@ override BUILDARGS => sub {
         my @pieces;
         while ( length $value ) {
             my $last_percent = rindex( $value, '%', 78 );
+
             my $size
-                = $last_percent >= 76 ? $last_percent - 1
+                = $last_percent >= 76 ? $last_percent
                 : length $value > 78  ? 78
                 :                       length $value;
 
