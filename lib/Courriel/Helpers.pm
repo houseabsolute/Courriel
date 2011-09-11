@@ -65,7 +65,8 @@ sub parse_header_with_attributes {
     );
 }
 
-our $TSPECIALS = quotemeta '()<>@,;:\\"/[]?=';
+our $TSPECIALS = qr{\Q()<>@,;:\\"/[]?=};
+
 my $extract_quoted
     = qr/
         (?:
