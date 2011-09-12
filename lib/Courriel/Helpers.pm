@@ -88,7 +88,7 @@ my $extract_quoted = qr/
                            )
                        /x;
 
-# This is a very loose regex. RFC2231 has a much tighter definition of what
+# This is a very loose regex. RFC 2231 has a much tighter definition of what
 # can go in an attribute name, but this parser is designed to accept all the
 # crap the internet throws at it.
 my $attr_re = qr/
