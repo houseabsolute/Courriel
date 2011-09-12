@@ -60,7 +60,7 @@ sub _attributes_as_string {
 
     my $attr = $self->_attributes();
 
-    return join '; ', map { $attr->{$_}->as_string() } sort keys %{$attr};
+    return join '; ', map { $attr->{$_}->as_header_string() } sort keys %{$attr};
 }
 
 {

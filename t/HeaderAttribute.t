@@ -12,7 +12,7 @@ use Courriel::HeaderAttribute;
     );
 
     is(
-        $attr->as_string(),
+        $attr->as_header_string(),
         'foo=simple',
         'simple attribute as string'
     );
@@ -28,7 +28,7 @@ use Courriel::HeaderAttribute;
     $expect .= q{ } . 'foo*1=' . ( 'a' x ( 150 - 78 ) );
 
     is(
-        $attr->as_string(),
+        $attr->as_header_string(),
         $expect,
         'simple attribute with continuation as string'
     );
@@ -42,7 +42,7 @@ use Courriel::HeaderAttribute;
 
 
     is(
-        $attr->as_string(),
+        $attr->as_header_string(),
         q{foo="has space"},
         'quoted attribute as string'
     );
@@ -56,7 +56,7 @@ use Courriel::HeaderAttribute;
 
 
     is(
-        $attr->as_string(),
+        $attr->as_header_string(),
         q{foo="has space and double quote (\\")"},
         'quoted attribute as string with escaped quote'
     );
@@ -72,7 +72,7 @@ use Courriel::HeaderAttribute;
     $expect .= q{ } . q{foo*1="} . ( 'a ' x 31 ) . q{"};
 
     is(
-        $attr->as_string(),
+        $attr->as_header_string(),
         $expect,
         'simple attribute with continuation as string'
     );
@@ -86,7 +86,7 @@ use Courriel::HeaderAttribute;
     );
 
     is(
-        $attr->as_string(),
+        $attr->as_header_string(),
         q{foo*=UTF-8'zh'not%20really%20chinese},
         'attribute with a language is always encoded'
     );
@@ -100,7 +100,7 @@ use Courriel::HeaderAttribute;
     );
 
     is(
-        $attr->as_string(),
+        $attr->as_header_string(),
         q{foo*=UTF-8'zh'%E4%B8%80%E4%B8%80%E4%B8%80},
         'attribute with utf-8 data'
     );
@@ -118,7 +118,7 @@ use Courriel::HeaderAttribute;
     );
 
     is(
-        $attr->as_string(),
+        $attr->as_header_string(),
         q{foo*=UTF-8''%E4%B8%80%E4%B8%80%E4%B8%80},
         'attribute with utf-8 data and no language'
     );
@@ -137,7 +137,7 @@ use Courriel::HeaderAttribute;
         'foo*3*=%E4%B8%80%E4%B8%80%E4%B8%80%E4%B8%80';
 
     is(
-        $attr->as_string(),
+        $attr->as_header_string(),
         $expect,
         'attribute with utf-8 data and continuations'
     );

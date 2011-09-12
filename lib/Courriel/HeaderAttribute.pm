@@ -59,7 +59,7 @@ override BUILDARGS => sub {
                                    [\x00-\x1f\x7f]   # ctrl chars
                            }x;
 
-    sub as_string {
+    sub as_header_string {
         my $self = shift;
 
         my $value = $self->value();
@@ -158,3 +158,70 @@ sub _encoded_parameter {
 }
 
 1;
+
+# ABSTRACT: A single attribute belonging to a header
+
+__END__
+
+=head1 SYNOPSIS
+
+  my $ct = $headers->get('Content-Type');
+  print $ct->get_attribute('charset')->value();
+
+=head1 DESCRIPTION
+
+This class represents a single attribute belonging to a header. An attribute
+consists of a name and value, with optional charset and language information.
+
+=head1 API
+
+This class supports the following methods:
+
+=head1 Courriel::HeaderAttribute->new( ... )
+
+This method creates a new object. It accepts the following parameters:
+
+=over 4
+
+=item * name
+
+The name of the attribute. This should be a non-empty string.
+
+=item * value
+
+The value of the attribute. This can be empty.
+
+=item * charset
+
+The charset for the value. If the value contains any non-ASCII data, this will
+always be "UTF-8", otherwise the default is "us-ascii".
+
+=item * language
+
+The language for the attribute's value. It should be a valid ISO language code
+like "en-us" or "zh". This is optional.
+
+=head2 $attribute->name()
+
+The attribute name as passed to the constructor.
+
+=head2 $attribute->value()
+
+The attribute value as passed to the constructor.
+
+=head2 $attribute->charset()
+
+The attribute's charset.
+
+=head2 $attribute->language()
+
+The attribute's language.
+
+=head2 $attribute->as_header_string()
+
+This returns the attribute in a form suitable for putting in an email. This
+may involve escaping, quoting, splitting up, and otherwise messing with the
+value.
+
+If the value needs to be split across continuations, each name/value pair is
+returned separate by a space, but not folded across multiple lines.

@@ -190,3 +190,11 @@ The attribute is a L<Courriel::HeaderAttribute> object.
 Returns the object as a string suitable for a header value (but not
 folded). Note that this uses the original casing of the mime type as passed to
 the constructor.
+
+=head1 EXTENDS
+
+This class extends L<Courriel::Header>.
+
+=head1 ROLES
+
+This class does the L<Courriel::Role::HeaderWithAttributes> role.

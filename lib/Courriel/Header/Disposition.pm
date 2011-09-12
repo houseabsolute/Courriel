@@ -217,3 +217,10 @@ The attribute is a L<Courriel::HeaderAttribute> object.
 
 Returns the object as a string suitable for a header value (but not folded).
 
+=head1 EXTENDS
+
+This class extends L<Courriel::Header>.
+
+=head1 ROLES
+
+This class does the L<Courriel::Role::HeaderWithAttributes> role.
