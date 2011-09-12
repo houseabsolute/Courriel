@@ -1,5 +1,44 @@
 {{$NEXT}}
 
+[BACKWARDS INCOMPATIBILITIES]
+
+- The way headers are represented has been changed quite a bit
+  internally. Read on for details.
+
+  All headers are now represented as Courriel::Header objects instead of plain
+  strings. This means that calling $headers->get('Foo') returns objects. To
+  get the value, you need to call ->value on the individual objects.
+
+  See Courriel::Header for the new class for headers.
+
+- As a corrolary, the Courriel::ContentType and Courriel::Disposition classes
+  have been renamed to Courriel::Header::ContentType and
+  Courriel::Header::Disposition. They are both now subclasses of
+  Courriel::Header. The APIs of these classes have remained mostly the same,
+  except for attribute handling (see below).
+
+  The old classes are still shipped in the distro, but they die when
+  loaded. This avoids leaving behind old modules which no longer work with
+  newer versions of Courriel.
+
+  Methods which returned the old object now return the new one. The
+  Courriel::Headers class will return the appropriate object when the header
+  is fetched with $headers->get().
+
+- Header attributes for the Content-Type and Content-Disposition object are
+  now represented as Courriel::HeaderAttribute objects. This is necessary
+  because these attributes may contain information about their character set
+  and language, per RFC2231.
+
+[IMPROVEMENTS]
+
+- Header attributes with character set and language data per RFC2231 are now
+  parsed properly. Reported by zby.
+
+- Header attribute parsing is much laxer and will not die on bad attributes
+  syntax (in most cases). It simply stops parsing and ignores bad data.
+
+
 0.19     2011-08-21
 
 - Fixed some test failures with older versions of Test::More, which stringify
