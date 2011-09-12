@@ -1,5 +1,26 @@
 {{$NEXT}}
 
+[BACKWARDS INCOMPATIBILITIES]
+
+- The ->get_attribute() method for Courriel::ContentType and ::Disposition
+  objects was replaced by ->attribute in 0.20.
+
+[IMPROVEMENTS]
+
+- Added a new ->get_values() method to Courriel::Headers. This lets you get
+  the header string values directly.
+
+- Added a new ->attribute_value() for Courriel::Header::ContentType and
+  ::Disposition. This lets you get the attribute's string value, if the
+  attribute exists. Suggested by zby.
+
+[BUG FIXES]
+
+- The previous release documented a method ->get_attribute() for
+  Courriel::Header::ContentType and ::Disposition objects. This method was
+  removed in 0.20 and replaced with a method named ->attribute().
+
+
 0.20     2011-09-11
 
 [BACKWARDS INCOMPATIBILITIES]
