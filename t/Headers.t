@@ -39,6 +39,18 @@ my $hola = "\x{00A1}Hola, se\x{00F1}or!";
         'got subject header (name is case-insensitive)'
     );
 
+    is_deeply(
+        [ $h->get_values('subject') ],
+        ['Foo bar'],
+        'got subject header with get_values method'
+    );
+
+    is_deeply(
+        [ $h->get_values('no-such-header') ],
+        [],
+        'get_values returns empty list for nonexistent header'
+    );
+
     $h->add( 'Content-Type' => 'text/plain' );
 
     is_deeply(

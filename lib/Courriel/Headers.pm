@@ -135,6 +135,22 @@ sub _build_key_indices {
     }
 }
 
+{
+    my @spec = ( { isa => NonEmptyStr } );
+
+    sub get_values {
+        my $self = shift;
+        my ($name) = pos_validated_list(
+            \@_,
+            @spec,
+        );
+
+        return
+            map { $_->value() }
+            @{ $self->_headers() }[ $self->_key_indices_for($name) ];
+    }
+}
+
 sub _key_indices_for {
     my $self = shift;
     my $name = shift;
@@ -546,8 +562,14 @@ Header order is preserved, per RFC 5322.
 
 =head2 $headers->get($name)
 
-Given a header name, this returns a list of the values found for the
-header. Each occurrence of the header is returned as a separate value.
+Given a header name, this returns a list of the L<Courriel::Header> objects
+found for the header. Each occurrence of the header is returned as a separate
+object.
+
+=head2 $headers->get_values($name)
+
+Given a header name, this returns a list of the string values found for the
+header. Each occurrence of the header is returned as a separate string.
 
 =head2 $headers->add( $name => $value )
 
