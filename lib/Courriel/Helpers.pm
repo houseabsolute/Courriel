@@ -160,7 +160,7 @@ sub _decode_raw_value {
     my $raw     = shift;
     my $charset = shift;
 
-    $raw =~ s/%([\da-fA_F]{2})/chr(hex($1))/eg;
+    $raw =~ s/%([\da-fA-F]{2})/chr(hex($1))/eg;
 
     return $raw unless defined $charset;
 
