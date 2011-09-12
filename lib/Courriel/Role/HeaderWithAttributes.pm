@@ -7,7 +7,7 @@ use namespace::autoclean;
 use Courriel::HeaderAttribute;
 use Courriel::Helpers qw( parse_header_with_attributes );
 use Courriel::Types qw( HashRef NonEmptyStr );
-use MooseX::Params::Validate qw( validated_list );
+use MooseX::Params::Validate qw( pos_validated_list validated_list );
 use Scalar::Util qw( blessed reftype );
 
 use MooseX::Role::Parameterized;
@@ -54,6 +54,19 @@ around BUILDARGS => sub {
 
     return $p;
 };
+
+{
+    my @spec = ( { isa => NonEmptyStr } );
+
+    sub attribute_value {
+        my $self = shift;
+        my ($name) = pos_validated_list( \@_, @spec );
+
+        my $attr = $self->attribute($name);
+
+        return $attr ? $attr->value() : undef;
+    }
+}
 
 sub _attributes_as_string {
     my $self = shift;

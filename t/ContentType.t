@@ -22,4 +22,23 @@ use Courriel::Header::ContentType;
     is( $ct->mime_type(), 'text/plain', 'got expected mime_type' );
 }
 
+{
+    my $ct = Courriel::Header::ContentType->new_from_value(
+        name  => 'content-type',
+        value => 'text/plain; charset=ISO-8859-2',
+    );
+
+    is(
+        $ct->attribute_value('charset'),
+        'ISO-8859-2',
+        'got charset attribute value'
+    );
+
+    is(
+        $ct->attribute_value('nonexistent'),
+        undef,
+        'got nonexistent attribute value as undef'
+    );
+}
+
 done_testing();
