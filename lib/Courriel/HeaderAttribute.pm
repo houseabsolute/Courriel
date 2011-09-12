@@ -201,6 +201,8 @@ always be "UTF-8", otherwise the default is "us-ascii".
 The language for the attribute's value. It should be a valid ISO language code
 like "en-us" or "zh". This is optional.
 
+=back
+
 =head2 $attribute->name()
 
 The attribute name as passed to the constructor.

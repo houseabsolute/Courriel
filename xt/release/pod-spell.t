@@ -38,3 +38,4 @@ inline
 multipart
 utf
 UTF
+zh

@@ -141,10 +141,11 @@ A string like "text/plain" or "multipart/alternative". This is required.
 =item * attributes
 
 A hash reference of attributes from the header, such as a boundary, charset,
-etc. The keys are attribute names and the values are
-L<Courriel::HeaderAttribute> objcets.
+etc. The keys are attribute names and the values can either be strings or
+L<Courriel::HeaderAttribute> objects. Values which are strings will be
+inflated into objects by the constructor.
 
-This is optional, and can be empty.
+This is optional, and can be an empty hash reference or omitted entirely.
 
 =back
 

@@ -167,7 +167,11 @@ In theory, the RFCs allow other values.
 =item * attributes
 
 A hash reference of attributes from the header, such as a filename, creation
-date, size, etc. This is optional, and can be empty.
+date, size, etc. The keys are attribute names and the values can either be
+strings or L<Courriel::HeaderAttribute> objects. Values which are strings will
+be inflated into objects by the constructor.
+
+This is optional, and can be an empty hash reference or omitted entirely.
 
 =back
 
