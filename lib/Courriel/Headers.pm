@@ -521,6 +521,22 @@ Any sub part of an email can have its own headers, so every part has an
 associated object representing its headers. This class makes no distinction
 between top-level headers and headers for a sub part.
 
+Each individual header name/value pair is represented internally by a
+L<Courriel::Header> object. Some headers have their own special
+subclass. These are:
+
+=over 4
+
+=item * Content-Type
+
+This is stored as a L<Courriel::Header::ContentType> object.
+
+=item * Content-Disposition
+
+This is stored as a L<Courriel::Header::Disposition> object.
+
+=back
+
 =head1 API
 
 This class supports the following methods:
@@ -545,8 +561,9 @@ output with RFC-compliant line endings.
 
 =back
 
-Header parsing unfolds folded headers, and decodes any MIME-encoded values (as
-described in RFC 2047).
+Header parsing unfolds folded headers, and decodes any MIME-encoded values as
+described in RFC 2047. Parsing also decodes header attributes encoded as
+described in RFC 2231.
 
 =head2 Courriel::Headers->new( headers => [ ... ] )
 
@@ -577,11 +594,15 @@ Given a header name and value, this adds the headers to the object. If any of
 the headers already have values in the object, then new values are added after
 the existing values, rather than at the end of headers.
 
+The value can be provided as a string or a L<Courriel::Header> object.
+
 =head2 $headers->unshift( $name => $value )
 
 This is like C<add()>, but this pushes the headers onto the front of the
 internal headers array. This is useful if you are adding "Received" headers,
 which per RFC 5322, should always be added at the I<top> of the headers.
+
+The value can be provided as a string or a L<Courriel::Header> object.
 
 =head2 $headers->remove($name)
 
@@ -590,6 +611,8 @@ Given a header name, this removes all instances of that header from the object.
 =head2 $headers->replace( $name => $value )
 
 A shortcut for calling C<remove()> and C<add()>.
+
+The value can be provided as a string or a L<Courriel::Header> object.
 
 =head2 $headers->as_string( charset => ... )
 
