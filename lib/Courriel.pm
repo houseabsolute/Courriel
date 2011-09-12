@@ -665,6 +665,21 @@ Returns the L<Courriel::Headers> object for this email.
 Returns the email as a string, along with its headers. Lines will be
 terminated with "\r\n".
 
+=head1 ROBUSTNESS PRINCIPLE
+
+Courriel aims to respect the common Internet robustness principle (aka
+Postel's law). Courriel is conservative in the output it generates, and
+liberal in what it accepts.
+
+When parsing, the goal is to never die and always return as much information
+as possible. Any input that causes the C<< Courriel->parse() >> to die means
+there's a bug in the parser. Please report these bugs.
+
+Conversely, Courriel aims to respect all relevant RFCs in its output, except
+when it preserves the original data in a parsed email. If you're using
+L<Courriel::Builder> to create emails from scratch, any output that isn't
+RFC-compliant is a bug.
+
 =head1 FUTURE PLANS
 
 This release is still rough, and I have some plans for additional features:
