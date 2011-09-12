@@ -4,21 +4,26 @@ use strict;
 use warnings;
 use namespace::autoclean;
 
-use Courriel::Helpers qw( parse_header_with_attributes );
 use Courriel::Types qw( Maybe NonEmptyStr );
-use MooseX::Params::Validate qw( validated_list );
 
 use Moose;
 use MooseX::StrictConstructor;
 
 extends 'Courriel::Header';
 
-with 'Courriel::Role::HeaderWithAttributes';
+with 'Courriel::Role::HeaderWithAttributes' => {
+    main_value_key    => 'mime_type',
+    main_value_method => '_original_mime_type',
+};
 
 has '+value' => (
     required => 0,
     lazy     => 1,
     builder  => 'as_header_value',
+);
+
+has '+name' => (
+    default => 'Content-Type',
 );
 
 has mime_type => (
@@ -56,40 +61,6 @@ around BUILDARGS => sub {
 
     return $p;
 };
-
-{
-    my @spec = (
-        name  => { isa => NonEmptyStr },
-        value => { isa => NonEmptyStr },
-    );
-
-    sub new_from_value {
-        my $class = shift;
-        my ( $name, $value ) = validated_list( \@_, @spec );
-
-        my ( $mime_type, $attributes ) = parse_header_with_attributes($value);
-
-        return $class->new(
-            name       => $name,
-            value      => $value,
-            mime_type  => $mime_type,
-            attributes => $attributes,
-        );
-    }
-}
-
-sub as_header_value {
-    my $self = shift;
-
-    my $string = $self->_original_mime_type();
-
-    if ( $self->_has_attributes() ) {
-        $string .= '; ';
-        $string .= $self->_attributes_as_string();
-    }
-
-    return $string;
-}
 
 sub _build_charset {
     my $self = shift;
@@ -142,11 +113,26 @@ Here are some typical headers:
 
 This class supports the following methods:
 
+=head2 Courriel::Header::ContentType->new_from_value( ... )
+
+This takes two parameters, "name" and "value". The "name" is optional, and
+defaults to "Content-Type".
+
+The "value" is parsed and split up into the mime type and attributes.
+
 =head2 Courriel::Header::ContentType->new( ... )
 
 This method creates a new object. It accepts the following parameters:
 
 =over 4
+
+=item * name
+
+This defaults to 'Content-Type'.
+
+=item * value
+
+This is the full header value.
 
 =item * mime_type
 
@@ -155,9 +141,20 @@ A string like "text/plain" or "multipart/alternative". This is required.
 =item * attributes
 
 A hash reference of attributes from the header, such as a boundary, charset,
-etc. This is optional, and can be empty.
+etc. The keys are attribute names and the values are
+L<Courriel::HeaderAttribute> objcets.
+
+This is optional, and can be empty.
 
 =back
+
+=head2 $ct->name()
+
+The header name, usually "Content-Type".
+
+=head2 $ct->value()
+
+The raw header value.
 
 =head2 $ct->mime_type()
 
@@ -174,6 +171,8 @@ C<attributes>, if one exists.
 
 Returns a hash (not a reference) of the attributes passed to the constructor.
 
+Attributes are L<Courriel::HeaderAttribute> objects.
+
 =head2 $ct->is_binary()
 
 Returns true unless the attachment looks like text data. Currently, this means
@@ -183,6 +182,8 @@ that is has a charset defined and the charset is not "binary".
 
 Given a key, returns the value of the named attribute. Obviously, this value
 can be C<undef> if the attribute doesn't exist.
+
+The attribute is a L<Courriel::HeaderAttribute> object.
 
 =head2 $ct->as_header_value()
 

@@ -4,7 +4,6 @@ use strict;
 use warnings;
 use namespace::autoclean;
 
-use Courriel::Helpers qw( parse_header_with_attributes );
 use Courriel::Types qw( Bool Maybe NonEmptyStr );
 use DateTime;
 use DateTime::Format::Mail;
@@ -15,7 +14,7 @@ use MooseX::StrictConstructor;
 
 extends 'Courriel::Header';
 
-with 'Courriel::Role::HeaderWithAttributes';
+with 'Courriel::Role::HeaderWithAttributes' => { main_value_key => 'disposition' };
 
 has '+value' => (
     required => 0,
@@ -95,40 +94,6 @@ around BUILDARGS => sub {
     return $p;
 };
 
-{
-    my @spec = (
-        name  => { isa => NonEmptyStr },
-        value => { isa => NonEmptyStr },
-    );
-
-    sub new_from_value {
-        my $class = shift;
-        my ( $name, $value ) = validated_list( \@_, @spec );
-
-        my ( $disposition, $attributes ) = parse_header_with_attributes($value);
-
-        return $class->new(
-            name        => $name,
-            value       => $value,
-            disposition => $disposition,
-            attributes  => $attributes,
-        );
-    }
-}
-
-sub as_header_value {
-    my $self = shift;
-
-    my $string = $self->disposition();
-
-    if ( $self->_has_attributes() ) {
-        $string .= '; ';
-        $string .= $self->_attributes_as_string();
-    }
-
-    return $string;
-}
-
 __PACKAGE__->meta()->make_immutable();
 
 1;
@@ -172,11 +137,26 @@ Here are some typical headers:
 
 This class supports the following methods:
 
+=head2 Courriel::Header::Disposition->new_from_value( ... )
+
+This takes two parameters, "name" and "value". The "name" is optional, and
+defaults to "Content-Disposition".
+
+The "value" is parsed and split up into the disposition and attributes.
+
 =head2 Courriel::Header::Disposition->new( ... )
 
 This method creates a new object. It accepts the following parameters:
 
 =over 4
+
+=item * name
+
+This defaults to 'Content-Type'.
+
+=item * value
+
+This is the full header value.
 
 =item * disposition
 
@@ -190,6 +170,14 @@ A hash reference of attributes from the header, such as a filename, creation
 date, size, etc. This is optional, and can be empty.
 
 =back
+
+=head2 $ct->name()
+
+The header name, usually "Content-Disposition".
+
+=head2 $ct->value()
+
+The raw header value.
 
 =head2 $disp->disposition()
 
@@ -216,10 +204,14 @@ return a L<DateTime> object representing that attribute's value, if it exists.
 
 Returns a hash (not a reference) of the attributes passed to the constructor.
 
+Attributes are L<Courriel::HeaderAttribute> objects.
+
 =head2 $disp->get_attribute($key)
 
 Given a key, returns the value of the named attribute. Obviously, this value
 can be C<undef> if the attribute doesn't exist.
+
+The attribute is a L<Courriel::HeaderAttribute> object.
 
 =head2 $disp->as_header_value()
 

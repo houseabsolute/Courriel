@@ -5,10 +5,21 @@ use warnings;
 use namespace::autoclean;
 
 use Courriel::HeaderAttribute;
-use Courriel::Types qw( HashRef );
+use Courriel::Helpers qw( parse_header_with_attributes );
+use Courriel::Types qw( HashRef NonEmptyStr );
+use MooseX::Params::Validate qw( validated_list );
 use Scalar::Util qw( blessed reftype );
 
-use Moose::Role;
+use MooseX::Role::Parameterized;
+
+parameter main_value_key => (
+    isa      => NonEmptyStr,
+    required => 1,
+);
+
+parameter main_value_method => (
+    isa => NonEmptyStr,
+);
 
 has _attributes => (
     traits   => ['Hash'],
@@ -50,6 +61,52 @@ sub _attributes_as_string {
     my $attr = $self->_attributes();
 
     return join '; ', map { $attr->{$_}->as_string() } sort keys %{$attr};
+}
+
+{
+    my @spec = (
+        name  => { isa => NonEmptyStr, optional => 1 },
+        value => { isa => NonEmptyStr },
+    );
+
+    role {
+        my $p = shift;
+
+        my $main_value_key = $p->main_value_key();
+
+        method new_from_value => sub {
+            my $class = shift;
+            my ( $name, $value ) = validated_list( \@_, @spec );
+
+            my ( $main_value, $attributes )
+                = parse_header_with_attributes($value);
+
+            my %p = (
+                value           => $value,
+                $main_value_key => $main_value,
+                attributes      => $attributes,
+            );
+
+            $p{name} = $name if defined $name;
+
+            return $class->new(%p);
+        };
+
+        my $main_value_meth = $p->main_value_method() || $p->main_value_key();
+
+        method as_header_value => sub {
+            my $self = shift;
+
+            my $string = $self->$main_value_meth();
+
+            if ( $self->_has_attributes() ) {
+                $string .= '; ';
+                $string .= $self->_attributes_as_string();
+            }
+
+            return $string;
+        };
+    }
 }
 
 1;
