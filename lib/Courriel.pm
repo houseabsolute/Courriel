@@ -16,6 +16,7 @@ use DateTime;
 use DateTime::Format::Mail;
 use DateTime::Format::Natural;
 use Email::Address;
+use Encode qw( encode );
 use List::AllUtils qw( uniq );
 use MooseX::Params::Validate qw( validated_list );
 
@@ -369,22 +370,29 @@ sub all_parts_matching {
 }
 
 {
-    my @spec = ( text => { isa => StringRef, coerce => 1 } );
+    my @spec = (
+        text      => { isa => StringRef, coerce  => 1 },
+        is_binary => { isa => Bool,      default => 1 },
+    );
 
     sub parse {
         my $class = shift;
-        my ($text) = validated_list(
+        my ( $text, $is_binary ) = validated_list(
             \@_,
             @spec,
         );
+
+        if ( !$is_binary ) {
+            ${$text} = encode( 'utf-8', ${$text} );
+        }
 
         return $class->new( part => $class->_parse($text) );
     }
 }
 
 sub _parse {
-    my $class = shift;
-    my $text  = shift;
+    my $class     = shift;
+    my $text      = shift;
 
     my ( $line_sep, $sep_idx, $headers ) = $class->_parse_headers($text);
 

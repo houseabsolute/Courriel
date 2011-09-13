@@ -8,7 +8,12 @@ use Test::More 0.88;
 use Courriel;
 use Courriel::Builder;
 use Courriel::Helpers;
+use Encode qw( encode is_utf8 );
 use Scalar::Util qw( blessed );
+
+binmode $_, ':utf8'
+    for map { Test::Builder->new()->$_() }
+    qw( output failure_output todo_output );
 
 my $crlf = $Courriel::Helpers::CRLF;
 
@@ -739,6 +744,60 @@ EOF
         $email->part_count(),
         1,
         'email has one part'
+    );
+}
+
+{
+    my $text = <<"EOF";
+Subject: Foo
+Content-Type: text/plain; format=flowed; delsp=yes; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+Vel\x{00E1}zquez
+EOF
+
+    my $email = Courriel->parse( text => \$text, is_binary => 0 );
+
+    my $content = $email->plain_body_part()->content();
+    $content =~ s/[\r\n]//g;
+
+    is(
+        $content,
+        "Vel\x{00E1}zquez",
+        '8bit encoded body (marked as utf8) ends up decoded properly'
+    );
+
+    ok(
+        is_utf8($content),
+        'content ends up marked as is_utf8'
+    );
+}
+
+{
+    my $text = <<"EOF";
+Subject: Foo
+Content-Type: text/plain; format=flowed; delsp=yes; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+Vel\x{00E1}zquez
+EOF
+
+    $text = encode( 'utf-8', $text );
+
+    my $email = Courriel->parse( text => \$text, is_binary => 1 );
+
+    my $content = $email->plain_body_part()->content();
+    $content =~ s/[\r\n]//g;
+
+    is(
+        $content,
+        "Vel\x{00E1}zquez",
+        '8bit encoded body (marked as binary) ends up decoded properly'
+    );
+
+    ok(
+        is_utf8($content),
+        'content ends up marked as is_utf8'
     );
 }
 
