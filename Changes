@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+[BUG FIXES]
+
+- Require List::MoreUtils 0.28+, as tests fail with earlier versions.
+
+- Added missing prereq on File::Slurp.
+
+
 0.21     2011-09-12
 
 [BACKWARDS INCOMPATIBILITIES]
