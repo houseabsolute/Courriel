@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.22     2011-09-13
+
 [BUG FIXES]
 
 - Require List::MoreUtils 0.28+, as tests fail with earlier versions.
