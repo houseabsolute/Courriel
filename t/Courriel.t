@@ -756,7 +756,7 @@ Content-Transfer-Encoding: 8bit
 Vel\x{00E1}zquez
 EOF
 
-    my $email = Courriel->parse( text => \$text, is_binary => 0 );
+    my $email = Courriel->parse( text => \$text, is_character => 1 );
 
     my $content = $email->plain_body_part()->content();
     $content =~ s/[\r\n]//g;
@@ -784,7 +784,7 @@ EOF
 
     $text = encode( 'utf-8', $text );
 
-    my $email = Courriel->parse( text => \$text, is_binary => 1 );
+    my $email = Courriel->parse( text => \$text, is_character => 0 );
 
     my $content = $email->plain_body_part()->content();
     $content =~ s/[\r\n]//g;
