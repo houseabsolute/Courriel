@@ -139,10 +139,10 @@ This class supports the following methods:
 
 =head2 Courriel::Header::Disposition->new_from_value( ... )
 
-This takes two parameters, "name" and "value". The "name" is optional, and
+This takes two parameters, C<name> and C<value>. The C<name> is optional, and
 defaults to "Content-Disposition".
 
-The "value" is parsed and split up into the disposition and attributes.
+The C<value> is parsed and split up into the disposition and attributes.
 
 =head2 Courriel::Header::Disposition->new( ... )
 
