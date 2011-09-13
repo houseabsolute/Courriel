@@ -546,7 +546,7 @@ This class exists to provide a high level API for working with emails,
 particular for processing incoming email. It is primarily a wrapper around the
 other classes in the Courriel distro, especially L<Courriel::Headers>,
 L<Courriel::Part::Single>, and L<Courriel::Part::Multipart>. If you need lower
-level information about an email, it should be available from one of this
+level information about an email, it should be available from one of these
 classes.
 
 =head1 API
