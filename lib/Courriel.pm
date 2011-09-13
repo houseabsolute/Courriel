@@ -553,13 +553,28 @@ classes.
 
 This class provides the following methods:
 
-=head2 Courriel->parse( text => $raw_email )
+=head2 Courriel->parse( text => $raw_email, is_binary => 0|1 )
 
 This parses the given text and returns a new Courriel object. The text can be
 provided as a string or a reference to a string.
 
 If you pass a reference, then the scalar underlying the reference I<will> be
 modified, so don't pass in something you don't want modified.
+
+By default, Courriel expects that content passed in text is binary data. This
+means that it has not been decoded into utf-8 with L<Encode::decode()> or by
+using a C<:utf8> IO layer.
+
+In practice, this doesn't matter for most emails, since they either contain
+only ASCII data or they actually do contain binary (non-character)
+data. However, if an email is using the 8bit Content-Transfer-Encoding, then
+this does matter.
+
+If you the email has already been decoded, you must set C<is_binary> to a
+false value.
+
+It's probably safest to simply pass binary data to Courriel and let it handle
+decoding internally.
 
 =head2 $email->parts()
 
