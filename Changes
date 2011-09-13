@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.23     2011-09-13
+
 [IMPROVEMENTS]
 
 - Courriel->parse now accepts an is_binary flag so you can pass decoded
