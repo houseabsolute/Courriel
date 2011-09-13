@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.24     2011-09-13
+
 [IMPROVEMENTS]
 
 - The is_binary flag has been replaced with an is_character flag. This flag
