@@ -1,5 +1,13 @@
 {{$NEXT}}
 
+[IMPROVEMENTS]
+
+- Courriel->parse now accepts an is_binary flag so you can pass decoded
+  (utf-8) data as the email text. However, it's probably smarter to simply
+  pass binary data to Courriel and let it do the decoding. The issue was
+  brought up by zby.
+
+
 0.22     2011-09-13
 
 [BUG FIXES]
