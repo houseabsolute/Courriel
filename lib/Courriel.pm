@@ -562,7 +562,7 @@ If you pass a reference, then the scalar underlying the reference I<will> be
 modified, so don't pass in something you don't want modified.
 
 By default, Courriel expects that content passed in text is binary data. This
-means that it has not been decoded into utf-8 with L<Encode::decode()> or by
+means that it has not been decoded into utf-8 with C<Encode::decode()> or by
 using a C<:utf8> IO layer.
 
 In practice, this doesn't matter for most emails, since they either contain
