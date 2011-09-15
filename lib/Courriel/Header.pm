@@ -164,3 +164,8 @@ The header name as passed to the constructor.
 =head2 $header->value()
 
 The header value as passed to the constructor.
+
+=head2 $header->as_header_string()
+
+Returns the header name and value with any necessary MIME encoding and folding.
+
