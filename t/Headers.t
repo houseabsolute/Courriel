@@ -1,10 +1,12 @@
 use strict;
 use warnings;
 
+use utf8;
 use Test::Differences;
 use Test::Fatal;
 use Test::More 0.88;
 
+use Courriel::Builder;
 use Courriel::Headers;
 use Courriel::Helpers;
 use Scalar::Util qw( blessed );
@@ -593,6 +595,24 @@ EOF
         $h->as_string(),
         qr/\QSubject: has   three spaces/,
         'original spacing in header value is preserved when stringified'
+    );
+}
+
+{
+    my $header = Courriel::Header->new(
+        name  => 'To',
+        value => q{"Ďāᶌȩ ȒȯƖŝķẏ" <autarch@urth.org>},
+    );
+
+    like(
+        $header->as_header_string(),
+        qr/
+              \Q?UTF-8?B?\E
+              \S+
+              \s+
+              \Q<autarch\E\@\Qurth.org>\E
+          /x,
+        'email address is not encoded but unicode content before it is'
     );
 }
 
