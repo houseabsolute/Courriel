@@ -87,13 +87,16 @@ has value => (
                     : $chunks[$i]{non_ascii};
 
                 push @values, $self->_mime_encode( $to_encode, $charset );
+                push @values, q{ }
+                    if $chunks[ $i + 1 ]
+                        && defined $chunks[ $i + 1 ]{non_ascii};
             }
             else {
-                push @values, $chunks[$i]{ascii};
+                push @values, $chunks[$i]{ascii} . ( $chunks[$i]{ws} // q{} );
             }
         }
 
-        return join q{ }, @values;
+        return join q{}, @values;
     }
 }
 

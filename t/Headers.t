@@ -583,6 +583,20 @@ EOF
 }
 
 {
+    my $headers = <<'EOF';
+Subject: has   three spaces
+EOF
+
+    my $h = Courriel::Headers->parse( text => \$headers, line_sep => "\n" );
+
+    like(
+        $h->as_string(),
+        qr/\QSubject: has   three spaces/,
+        'original spacing in header value is preserved when stringified'
+    );
+}
+
+{
     my $real = <<'EOF';
 Return-Path: <rtcpan@cpan.rt.develooper.com>
 X-Spam-Checker-Version: SpamAssassin 3.3.1 (2010-03-16) on urth.org
