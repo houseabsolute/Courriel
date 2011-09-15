@@ -7,11 +7,10 @@ use namespace::autoclean;
 use Courriel::Header;
 use Courriel::Header::ContentType;
 use Courriel::Header::Disposition;
-use Courriel::Helpers qw( fold_header );
 use Courriel::Types
     qw( ArrayRef Defined HashRef HeaderArray NonEmptyStr Str StringRef );
-use Encode qw( decode encode find_encoding );
-use MIME::Base64 qw( decode_base64 encode_base64 );
+use Encode qw( decode );
+use MIME::Base64 qw( decode_base64 );
 use MIME::QuotedPrint qw( decode_qp );
 use MooseX::Params::Validate qw( pos_validated_list validated_list );
 use Scalar::Util qw( blessed reftype );
@@ -371,17 +370,10 @@ sub _maybe_fix_broken_headers {
 
         my $string = q{};
 
-        my $headers = $self->_headers();
+        for my $header ( grep { blessed($_) } @{$self->_headers()} ) {
+            next if $skip{ lc $header->name() };
 
-        for ( my $i = 0; $i < @{$headers}; $i += 2 ) {
-            next if $skip{ lc $headers->[$i] };
-
-            my $value = $headers->[ $i + 1 ]->value();
-
-            $value = $self->_mime_encode( $value, $charset )
-                unless $value =~ /^[\x20-\x7e]+$/;
-
-            $string .= fold_header( $headers->[$i] . ': ' . $value );
+            $string .= $header->as_header_string( charset => $charset );
         }
 
         return $string;
@@ -463,39 +455,6 @@ sub _decode_one_word {
         $content =~ tr/_/ /;
         return decode( $charset, decode_qp($content) );
     }
-}
-
-sub _mime_encode {
-    my $self    = shift;
-    my $text    = shift;
-    my $charset = find_encoding(shift)->mime_name();
-
-    my $head = '=?' . $charset . '?B?';
-    my $tail = '?=';
-
-    my $base_length = 75 - ( length($head) + length($tail) );
-
-    # This code is copied from Mail::Message::Field::Full in the Mail-Box
-    # distro.
-    my $real_length = int( $base_length / 4 ) * 3;
-
-    my @result;
-    my $chunk = q{};
-    while ( length( my $chr = substr( $text, 0, 1, '' ) ) ) {
-        my $chr = encode( $charset, $chr, 0 );
-
-        if ( length($chunk) + length($chr) > $real_length ) {
-            push @result, $head . encode_base64( $chunk, q{} ) . $tail;
-            $chunk = q{};
-        }
-
-        $chunk .= $chr;
-    }
-
-    push @result, $head . encode_base64( $chunk, q{} ) . $tail
-        if length $chunk;
-
-    return join q{ }, @result;
 }
 
 __PACKAGE__->meta()->make_immutable();

@@ -448,7 +448,7 @@ EOF
     );
 
     my $string = <<'EOF';
-Subject: =?UTF-8?B?wqFIb2xhLCBzZcOxb3Ih?=
+Subject: =?UTF-8?B?wqFIb2xhLCA=?= =?UTF-8?B?c2XDsW9yIQ==?=
 Bar: 2
 Baz: 3
 EOF
@@ -459,6 +459,13 @@ EOF
         $h->as_string(),
         $string,
         'got expected header string (encoded utf8 values)'
+    );
+
+    my $h2 = Courriel::Headers->parse( text => $h->as_string() );
+    is(
+        $h2->get_values('Subject'),
+        $h->get_values('Subject'),
+        'round trip encoding of header with utf8 value'
     );
 }
 
