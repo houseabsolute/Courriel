@@ -1,5 +1,13 @@
 {{$NEXT}}
 
+[BUG FIXES]
+
+- When a header value contained any non-ASCII content, Courriel would
+  mistakenly MIME encode the whole value. In some cases, this is okay, but for
+  some header fields it is wrong. For example, when a field contains an email
+  address the actual address portion must be unencoded.
+
+
 0.24     2011-09-13
 
 [ENHANCEMENTS]
