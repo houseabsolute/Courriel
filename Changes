@@ -2,7 +2,7 @@
 
 0.24     2011-09-13
 
-[IMPROVEMENTS]
+[ENHANCEMENTS]
 
 - The is_binary flag has been replaced with an is_character flag. This flag
   defaults to false. Suggested by zby.
@@ -10,7 +10,7 @@
 
 0.23     2011-09-13
 
-[IMPROVEMENTS]
+[ENHANCEMENTS]
 
 - Courriel->parse now accepts an is_binary flag so you can pass decoded
   (utf-8) data as the email text. However, it's probably smarter to simply
@@ -29,12 +29,12 @@
 
 0.21     2011-09-12
 
-[BACKWARDS INCOMPATIBILITIES]
+[API CHANGES]
 
 - The ->get_attribute() method for Courriel::ContentType and ::Disposition
   objects was replaced by ->attribute in 0.20.
 
-[IMPROVEMENTS]
+[ENHANCEMENTS]
 
 - Added a new ->get_values() method to Courriel::Headers. This lets you get
   the header string values directly.
@@ -52,7 +52,7 @@
 
 0.20     2011-09-11
 
-[BACKWARDS INCOMPATIBILITIES]
+[API CHANGES]
 
 - The way headers are represented has been changed quite a bit
   internally. Read on for details.
@@ -82,7 +82,7 @@
   because these attributes may contain information about their character set
   and language, per RFC2231.
 
-[IMPROVEMENTS]
+[ENHANCEMENTS]
 
 - Header attributes with character set and language data per RFC2231 are now
   parsed properly. Reported by zby. RT #70801.
