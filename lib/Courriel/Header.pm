@@ -87,9 +87,7 @@ has value => (
                     : $chunks[$i]{non_ascii};
 
                 push @values, $self->_mime_encode( $to_encode, $charset );
-                push @values, q{ }
-                    if $chunks[ $i + 1 ]
-                        && defined $chunks[ $i + 1 ]{non_ascii};
+                push @values, q{ } if $chunks[ $i + 1 ];
             }
             else {
                 push @values, $chunks[$i]{ascii} . ( $chunks[$i]{ws} // q{} );
