@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+[BUG FIXES]
+
+- Add missing prereq for MooseX::Role::Parameterized. Reported by zby.
+
+
 0.25     2011-09-15
 
 [BUG FIXES]
