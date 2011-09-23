@@ -416,7 +416,7 @@ sub _parse_headers {
     # Some broken emails may split the From line in an arbitrary spot
     ${$text} =~ s/^[^:]+$Courriel::Helpers::LINE_SEP_RE//g;
 
-    if ( ${$text} =~ /(.+?)($Courriel::Helpers::LINE_SEP_RE)\2/s ) {
+    if ( ${$text} =~ /^(.+?)($Courriel::Helpers::LINE_SEP_RE)\g{2}/s ) {
         $header_text = $1 . $2;
         $sep_idx     = ( length $header_text ) + ( length $2 );
         $line_sep    = $2;
