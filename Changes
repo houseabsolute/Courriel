@@ -7,7 +7,6 @@
   with a ->print() method. If you are dealing with large emails, this API may
   be more efficient than generating a single string in memory.
 
-
 [API CHANGES]
 
 - Renamed the Header->as_header_string and HeaderAttribute->as_header_string
