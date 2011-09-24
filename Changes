@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.27     2011-09-24
+
 [ENHANCEMENTS]
 
 - All objects which can stringify now support a ->stream_to API as well. This
