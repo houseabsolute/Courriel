@@ -6,12 +6,13 @@ use namespace::autoclean;
 
 use Courriel::Header::ContentType;
 use Courriel::Header::Disposition;
-
 use Courriel::Types qw( NonEmptyStr );
 
 use Moose::Role;
 
-requires qw( _default_mime_type _content_as_string );
+with 'Courriel::Role::Streams';
+
+requires qw( _default_mime_type _stream_content );
 
 has headers => (
     is       => 'rw',
@@ -60,13 +61,15 @@ sub _maybe_set_content_type_in_headers {
     $self->headers()->replace( 'Content-Type' => $self->content_type() );
 }
 
-sub as_string {
-    my $self = shift;
+sub _stream_to {
+    my $self   = shift;
+    my $output = shift;
 
-    return
-          $self->headers()->as_string()
-        . $Courriel::Helpers::CRLF
-        . $self->_content_as_string();
+    $self->headers()->stream_to( output => $output );
+    $output->($Courriel::Helpers::CRLF);
+    $self->_stream_content($output);
+
+    return;
 }
 
 {

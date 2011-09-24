@@ -5,13 +5,15 @@ use warnings;
 use namespace::autoclean;
 
 use Courriel::Helpers qw( fold_header );
-use Courriel::Types qw( NonEmptyStr Str );
+use Courriel::Types qw( NonEmptyStr Str Streamable );
 use Encode qw( encode find_encoding );
 use MIME::Base64 qw( encode_base64 );
 use MooseX::Params::Validate qw( validated_list );
 
 use Moose;
 use MooseX::StrictConstructor;
+
+with 'Courriel::Role::Streams' => { -exclude => ['stream_to'] };
 
 has name => (
     is       => 'ro',
@@ -28,11 +30,12 @@ has value => (
 {
     my @spec = (
         charset => { isa => NonEmptyStr, default => 'utf8' },
+        output  => { isa => Streamable,  coerce  => 1 },
     );
 
-    sub as_string {
+    sub stream_to {
         my $self = shift;
-        my ($charset) = validated_list(
+        my ( $charset, $output ) = validated_list(
             \@_,
             @spec
         );
@@ -42,8 +45,20 @@ has value => (
 
         $string .= $self->_maybe_encoded_value($charset);
 
-        return fold_header($string);
+        $output->( fold_header($string) );
+
+        return;
     }
+}
+
+sub as_string {
+    my $self = shift;
+
+    my $string = q{};
+
+    $self->stream_to( output => $self->_string_output( \$string ), @_ );
+
+    return $string;
 }
 
 {
@@ -165,7 +180,23 @@ The header name as passed to the constructor.
 
 The header value as passed to the constructor.
 
-=head2 $header->as_string()
+=head2 $header->as_string( charset => $charset )
 
 Returns the header name and value with any necessary MIME encoding and folding.
 
+The C<charset> parameter specifies what character set to use for MIME-encoding
+non-ASCII values. This defaults to "utf8". The charset name must be one
+recognized by the L<Encode> module.
+
+=head2 $header->stream_to( output => $output, charset => ... )
+
+This method will send the stringified attribute to the specified output. The
+output can be a subroutine reference, a filehandle, or an object with a
+C<print()> method. The output may be sent as a single string, as a list of
+strings, or via multiple calls to the output.
+
+See the C<as_string()> method for documentation on the C<charset> parameter.
+
+=head1 ROLES
+
+This class does the C<Courriel::Role::Streams> role.

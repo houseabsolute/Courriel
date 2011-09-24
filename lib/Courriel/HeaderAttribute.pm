@@ -12,6 +12,8 @@ use Encode qw( encode );
 use Moose;
 use MooseX::StrictConstructor;
 
+with 'Courriel::Role::Streams';
+
 has name => (
     is       => 'ro',
     isa      => NonEmptyStr,
@@ -48,6 +50,13 @@ override BUILDARGS => sub {
     return $p;
 };
 
+sub _stream_to {
+    my $self   = shift;
+    my $output = shift;
+
+    $output->( $self->_as_string() );
+}
+
 {
     my $non_attribute_char = qr{
                                    $Courriel::Helpers::TSPECIALS
@@ -59,7 +68,7 @@ override BUILDARGS => sub {
                                    [\x00-\x1f\x7f]   # ctrl chars
                            }x;
 
-    sub as_string {
+    sub _as_string {
         my $self = shift;
 
         my $value = $self->value();
@@ -227,3 +236,14 @@ value.
 
 If the value needs to be split across continuations, each name/value pair is
 returned separate by a space, but not folded across multiple lines.
+
+=head2 $attribute->stream_to( output => $output )
+
+This method will send the stringified attribute to the specified output. The
+output can be a subroutine reference, a filehandle, or an object with a
+C<print()> method. The output may be sent as a single string, as a list of
+strings, or via multiple calls to the output.
+
+=head1 ROLES
+
+This class does the C<Courriel::Role::Streams> role.

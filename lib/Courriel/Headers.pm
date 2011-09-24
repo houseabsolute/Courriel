@@ -8,7 +8,7 @@ use Courriel::Header;
 use Courriel::Header::ContentType;
 use Courriel::Header::Disposition;
 use Courriel::Types
-    qw( ArrayRef Defined HashRef HeaderArray NonEmptyStr Str StringRef );
+    qw( ArrayRef Defined HashRef HeaderArray NonEmptyStr Str Streamable StringRef );
 use Encode qw( decode );
 use MIME::Base64 qw( decode_base64 );
 use MIME::QuotedPrint qw( decode_qp );
@@ -17,6 +17,8 @@ use Scalar::Util qw( blessed reftype );
 
 use Moose;
 use MooseX::StrictConstructor;
+
+with 'Courriel::Role::Streams' => { -exclude => ['stream_to'] };
 
 has _headers => (
     traits   => ['Array'],
@@ -355,29 +357,38 @@ sub _maybe_fix_broken_headers {
 
 {
     my @spec = (
+        output => { isa => Streamable, coerce => 1 },
         skip => { isa => ArrayRef [NonEmptyStr], default => [] },
         charset => { isa => NonEmptyStr, default => 'utf8' },
     );
 
-    sub as_string {
+    sub stream_to {
         my $self = shift;
-        my ( $skip, $charset ) = validated_list(
+        my ( $output, $skip, $charset ) = validated_list(
             \@_,
             @spec
         );
 
         my %skip = map { lc $_ => 1 } @{$skip};
 
-        my $string = q{};
-
         for my $header ( grep { blessed($_) } @{$self->_headers()} ) {
             next if $skip{ lc $header->name() };
 
-            $string .= $header->as_string( charset => $charset );
+            $header->stream_to( charset => $charset, output => $output );
         }
 
-        return $string;
+        return;
     }
+}
+
+sub as_string {
+    my $self = shift;
+
+    my $string = q{};
+
+    $self->stream_to( output => $self->_string_output( \$string ), @_ );
+
+    return $string;
 }
 
 {
@@ -573,10 +584,14 @@ A shortcut for calling C<remove()> and C<add()>.
 
 The value can be provided as a string or a L<Courriel::Header> object.
 
-=head2 $headers->as_string( charset => ... )
+=head2 $headers->as_string( skip => ...., charset => ... )
 
 This returns a string representing the headers in the object. The values will
 be folded and/or MIME-encoded as needed.
+
+The C<skip> parameter should be an array reference containing the name of
+headers that should be skipped. This parameter is optional, and the default is
+to include all headers.
 
 The C<charset> parameter specifies what character set to use for MIME-encoding
 non-ASCII values. This defaults to "utf8". The charset name must be one
@@ -584,3 +599,14 @@ recognized by the L<Encode> module.
 
 MIME encoding is always done using the "B" (Base64) encoding, never the "Q"
 encoding.
+
+=head2 $headers->stream_to( output => $output, skip => ...., charset => ... )
+
+This method will send the stringified headers to the specified output.
+
+See the C<as_string()> method for documentation on the C<skip> and C<charset>
+parameters.
+
+=head1 ROLES
+
+This class does the C<Courriel::Role::Streams> role.

@@ -801,6 +801,60 @@ EOF
     );
 }
 
+{
+    my $email = build_email(
+        subject('Test Subject'),
+        from('autarch@urth.org'),
+        to( 'autarch@urth.org', Email::Address->parse('bob@example.com') ),
+        cc( 'jane@example.com', Email::Address->parse('joe@example.com') ),
+        bcc( 'alice@example.com', Email::Address->parse('adam@example.com') ),
+        header( 'X-Foo' => 42 ),
+        header( 'X-Bar' => 84 ),
+        plain_body('The body of the message')
+    );
+
+    my $string = q{};
+    my $output = sub { $string .= $_ for @_ };
+
+    $email->stream_to( output => $output );
+
+    like(
+        $string, qr/Subject: Test Subject/,
+        'stream_to coderef - Subject is correct'
+    );
+    like(
+        $string, qr/\r\n\r\nVGhlIGJvZHkgb2YgdGhlIG1lc3NhZ2U=/,
+        'stream_to coderef - body is correct'
+    );
+
+    $string = q{};
+    open my $fh, '>', \$string;
+
+    $email->stream_to( output => $fh );
+
+    like(
+        $string, qr/Subject: Test Subject/,
+        'stream_to filehandle - Subject is correct'
+    );
+    like(
+        $string, qr/\r\n\r\nVGhlIGJvZHkgb2YgdGhlIG1lc3NhZ2U=/,
+        'stream_to filehandle - body is correct'
+    );
+
+    $string = q{};
+
+    $email->stream_to( output => Printable->new( \$string ) );
+
+    like(
+        $string, qr/Subject: Test Subject/,
+        'stream_to object - Subject is correct'
+    );
+    like(
+        $string, qr/\r\n\r\nVGhlIGJvZHkgb2YgdGhlIG1lc3NhZ2U=/,
+        'stream_to object - body is correct'
+    );
+}
+
 done_testing();
 
 sub _headers_as_arrayref {
@@ -822,4 +876,20 @@ sub _compare_text {
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
     eq_or_diff( $got, $expect, $desc );
+}
+
+{
+    package Printable;
+
+    sub new {
+        my $stringref = $_[1];
+
+        return bless $stringref, $_[0];
+    }
+
+    sub print {
+        my $self = shift;
+
+        ${$self} .= $_ for @_;
+    }
 }

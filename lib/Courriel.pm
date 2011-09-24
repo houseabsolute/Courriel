@@ -35,6 +35,7 @@ has top_level_part => (
             content_type
             headers
             is_multipart
+            stream_to
             )
     ]
 );

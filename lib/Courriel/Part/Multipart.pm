@@ -76,29 +76,36 @@ sub _default_mime_type {
     return 'multipart/mixed';
 }
 
-sub _content_as_string {
-    my $self = shift;
+sub _stream_content {
+    my $self   = shift;
+    my $output = shift;
 
-    my $content;
-    $content .= $self->preamble() . $Courriel::Helpers::CRLF
+    $output->( $self->preamble(), $Courriel::Helpers::CRLF )
         if $self->has_preamble();
 
-    $content
-        .= $Courriel::Helpers::CRLF . '--'
-        . $self->boundary()
-        . $Courriel::Helpers::CRLF
-        . $_->as_string()
-        for $self->parts();
+    for my $part ( $self->parts() ) {
+        $output->(
+            $Courriel::Helpers::CRLF,
+            '--',
+            $self->boundary(),
+            $Courriel::Helpers::CRLF,
+        );
 
-    $content
-        .= $Courriel::Helpers::CRLF . '--'
-        . $self->boundary() . '--'
-        . $Courriel::Helpers::CRLF;
+        $part->stream_to( output => $output );
+    }
 
-    $content .= $self->epilogue() . $Courriel::Helpers::CRLF
+    $output->(
+        $Courriel::Helpers::CRLF,
+        '--',
+        $self->boundary(),
+        '--',
+        $Courriel::Helpers::CRLF
+    );
+
+    $output->( $self->epilogue(), $Courriel::Helpers::CRLF )
         if $self->has_epilogue();
 
-    return $content;
+    return;
 }
 
 sub _build_boundary {
@@ -232,6 +239,15 @@ The epilogue as passed to the constructor.
 Returns the L<Courriel> or L<Courriel::Part::Multipart> object to which this
 part belongs, if any. This is set when the part is added to another object.
 
+=head2 $part->stream_to( output => $output )
+
+This method will send the stringified attribute to the specified output. The
+output can be a subroutine reference, a filehandle, or an object with a
+C<print()> method. The output may be sent as a single string, as a list of
+strings, or via multiple calls to the output.
+
+See the C<as_string()> method for documentation on the C<charset> parameter.
+
 =head2 $part->as_string()
 
 Returns the part as a string, along with its headers. Lines will be terminated
@@ -239,4 +255,5 @@ with "\r\n".
 
 =head1 ROLES
 
-This class does the C<Courriel::Role::Part> role.
+This class does the C<Courriel::Role::Part> and L<Courriel::Role::Streams>
+roles.

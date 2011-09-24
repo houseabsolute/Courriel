@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 
+use Test::Differences;
 use Test::Fatal;
 use Test::More 0.88;
 
