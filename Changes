@@ -1,5 +1,13 @@
 {{$NEXT}}
 
+[ENHANCEMENTS]
+
+- All objects which can stringify now support a ->stream_to API as well. This
+  lets you stream their string output to a sub ref, filehandle, or an object
+  with a ->print() method. If you are dealing with large emails, this API may
+  be more efficient than generating a single string in memory.
+
+
 [API CHANGES]
 
 - Renamed the Header->as_header_string and HeaderAttribute->as_header_string
