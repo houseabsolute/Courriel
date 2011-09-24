@@ -684,6 +684,16 @@ Returns the L<Courriel::Header::ContentType> object associated with the email.
 
 Returns the L<Courriel::Headers> object for this email.
 
+=head2 $email->stream_to( output => $output )
+
+This method will send the stringified email to the specified output. The
+output can be a subroutine reference, a filehandle, or an object with a
+C<print()> method. The output may be sent as a single string, as a list of
+strings, or via multiple calls to the output.
+
+For large emails, streaming can be much more memory efficient than generating
+a single string in memory.
+
 =head2 $part->as_string()
 
 Returns the email as a string, along with its headers. Lines will be
