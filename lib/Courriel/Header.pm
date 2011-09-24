@@ -190,7 +190,7 @@ recognized by the L<Encode> module.
 
 =head2 $header->stream_to( output => $output, charset => ... )
 
-This method will send the stringified attribute to the specified output. The
+This method will send the stringified header to the specified output. The
 output can be a subroutine reference, a filehandle, or an object with a
 C<print()> method. The output may be sent as a single string, as a list of
 strings, or via multiple calls to the output.

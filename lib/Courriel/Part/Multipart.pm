@@ -241,7 +241,7 @@ part belongs, if any. This is set when the part is added to another object.
 
 =head2 $part->stream_to( output => $output )
 
-This method will send the stringified attribute to the specified output. The
+This method will send the stringified part to the specified output. The
 output can be a subroutine reference, a filehandle, or an object with a
 C<print()> method. The output may be sent as a single string, as a list of
 strings, or via multiple calls to the output.
