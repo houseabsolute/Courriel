@@ -59,7 +59,7 @@ override BUILDARGS => sub {
                                    [\x00-\x1f\x7f]   # ctrl chars
                            }x;
 
-    sub as_header_string {
+    sub as_string {
         my $self = shift;
 
         my $value = $self->value();
@@ -219,7 +219,7 @@ The attribute's charset.
 
 The attribute's language.
 
-=head2 $attribute->as_header_string()
+=head2 $attribute->as_string()
 
 This returns the attribute in a form suitable for putting in an email. This
 may involve escaping, quoting, splitting up, and otherwise messing with the

@@ -605,7 +605,7 @@ EOF
     );
 
     like(
-        $header->as_header_string(),
+        $header->as_string(),
         qr/
               \Q?UTF-8?B?\E
               \S+

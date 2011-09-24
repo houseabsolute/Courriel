@@ -30,7 +30,7 @@ has value => (
         charset => { isa => NonEmptyStr, default => 'utf8' },
     );
 
-    sub as_header_string {
+    sub as_string {
         my $self = shift;
         my ($charset) = validated_list(
             \@_,
@@ -165,7 +165,7 @@ The header name as passed to the constructor.
 
 The header value as passed to the constructor.
 
-=head2 $header->as_header_string()
+=head2 $header->as_string()
 
 Returns the header name and value with any necessary MIME encoding and folding.
 

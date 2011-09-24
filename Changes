@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+[API CHANGES]
+
+- Renamed the Header->as_header_string and HeaderAttribute->as_header_string
+  methods to as_string, so that all objects have the same stringification API.
+
+
 0.26     2011-09-19
 
 [BUG FIXES]

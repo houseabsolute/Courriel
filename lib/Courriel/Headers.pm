@@ -373,7 +373,7 @@ sub _maybe_fix_broken_headers {
         for my $header ( grep { blessed($_) } @{$self->_headers()} ) {
             next if $skip{ lc $header->name() };
 
-            $string .= $header->as_header_string( charset => $charset );
+            $string .= $header->as_string( charset => $charset );
         }
 
         return $string;
