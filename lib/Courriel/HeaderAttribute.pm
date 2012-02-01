@@ -166,6 +166,8 @@ sub _encoded_parameter {
     return $param;
 }
 
+__PACKAGE__->meta()->make_immutable();
+
 1;
 
 # ABSTRACT: A single attribute belonging to a header
