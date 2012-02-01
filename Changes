@@ -1,5 +1,13 @@
 {{$NEXT}}
 
+[BUG FIXES]
+
+- Header attribute names need to be looked up case-insensitively, according to
+  the spec. The original casing is preserved in the Courriel::HeaderAttribute
+  object's name(), method, but looking up an attribute by name on a
+  Courriel::Header object now accepts any casing for the name.
+
+
 0.27     2011-09-24
 
 [ENHANCEMENTS]

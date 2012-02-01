@@ -802,6 +802,56 @@ EOF
 }
 
 {
+    my $text = <<'EOF';
+From autarch@gmail.com Sun May 29 11:22:29 2011
+MIME-Version: 1.0
+Date: Sun, 29 May 2011 11:22:22 -0500
+Message-ID: <BANLkTimjF2BDbOKO_2jFJsp6t+0KvqxCwQ@mail.gmail.com>
+Subject: Testing
+From: Dave Rolsky <autarch@gmail.com>
+To: Dave Rolsky <autarch@urth.org>
+Content-Type: MULTIPART/ALTERNATIVE; BOUNDARY=20cf3071cfd06272ae04a46c9306
+
+
+--20cf3071cfd06272ae04a46c9306
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Disposition: inline
+
+This is a test email.
+
+It has some *bold* text.
+
+--20cf3071cfd06272ae04a46c9306
+Content-Type: text/html; charset=ISO-8859-1
+Content-Disposition: inline
+
+This is a test email.<br><br>It has some <b>bold</b> text.<br><br>
+
+--20cf3071cfd06272ae04a46c9306--
+EOF
+
+    my $email = Courriel->parse( text => \$text );
+
+    is(
+        $email->content_type->attribute_value('boundary'),
+        '20cf3071cfd06272ae04a46c9306',
+        'attribute name is case insensitive on lookup'
+    );
+
+    is(
+        $email->content_type->attribute_value('BOUNDARY'),
+        '20cf3071cfd06272ae04a46c9306',
+        'attribute name is case insensitive on lookup'
+    );
+
+    is(
+        $email->content_type->attribute('boundary')->name(),
+        'BOUNDARY',
+        'HeaderAttribute object name preserves original casing'
+    );
+}
+
+{
     my $email = build_email(
         subject('Test Subject'),
         from('autarch@urth.org'),

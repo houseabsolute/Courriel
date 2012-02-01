@@ -174,6 +174,10 @@ Returns a hash (not a reference) of the attributes passed to the constructor.
 
 Attributes are L<Courriel::HeaderAttribute> objects.
 
+The keys of the hash are all lower case, though the original casing is
+preserved in the C<name()> returned by the L<Courriel::HeaderAttribute>
+object.
+
 =head2 $ct->is_binary()
 
 Returns true unless the attachment looks like text data. Currently, this means
@@ -181,13 +185,17 @@ that is has a charset defined and the charset is not "binary".
 
 =head2 $ct->attribute($key)
 
-Given a key, returns the named L<Courriel::HeaderAttribute>
-object. Obviously, this value can be C<undef> if the attribute doesn't exist.
+Given a key, returns the named L<Courriel::HeaderAttribute> object. Obviously,
+this value can be C<undef> if the attribute doesn't exist. Name lookup is
+case-insensitive.
 
 =head2 $ct->attribute_value($key)
 
 Given a key, returns the named attribute's value as a string. Obviously, this
-value can be C<undef> if the attribute doesn't exist.
+value can be C<undef> if the attribute doesn't exist. Name lookup is
+case-insensitive.
+
+The attribute is a L<Courriel::HeaderAttribute> object.
 
 =head2 $ct->as_header_value()
 

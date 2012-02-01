@@ -29,7 +29,8 @@ has _attributes => (
     default  => sub { {} },
     handles  => {
         attributes      => 'elements',
-        attribute       => 'get',
+        _attribute      => 'get',
+        _set_attribute  => 'set',
         _has_attributes => 'count',
     },
 );
@@ -44,9 +45,12 @@ around BUILDARGS => sub {
         unless $p->{attributes} && reftype( $p->{attributes} ) eq 'HASH';
 
     for my $name ( keys %{ $p->{attributes} } ) {
-        next if blessed( $p->{attributes}{$name} );
+        my $lc_name = lc $name;
+        $p->{attributes}{$lc_name} = delete $p->{attributes}{$name};
 
-        $p->{attributes}{$name} = Courriel::HeaderAttribute->new(
+        next if blessed( $p->{attributes}{$lc_name} );
+
+        $p->{attributes}{$lc_name} = Courriel::HeaderAttribute->new(
             name  => $name,
             value => $p->{attributes}{$name},
         );
@@ -54,6 +58,15 @@ around BUILDARGS => sub {
 
     return $p;
 };
+
+sub attribute {
+    my $self = shift;
+    my $key  = shift;
+
+    return unless defined $key;
+
+    return $self->_attribute( lc $key );
+}
 
 {
     my @spec = ( { isa => NonEmptyStr } );

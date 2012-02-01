@@ -14,14 +14,6 @@ use MooseX::StrictConstructor;
 
 with 'Courriel::Role::Part';
 
-has boundary => (
-    is        => 'ro',
-    isa       => NonEmptyStr,
-    lazy      => 1,
-    builder   => '_build_boundary',
-    predicate => '_has_boundary',
-);
-
 has preamble => (
     is        => 'ro',
     isa       => NonEmptyStr,
@@ -47,21 +39,17 @@ has _parts => (
 
 sub BUILD {
     my $self = shift;
+    my $p = shift;
 
-    # XXX - this is a nasty hack but I'm not sure if it can better. We want
-    # the boundary in the ContentType object to match the one in this part.
-    if ( $self->_has_boundary() ) {
-        $self->content_type()->_attributes()->{boundary}
-            = Courriel::HeaderAttribute->new(
-            name  => 'boundary',
-            value => $self->boundary(),
-            );
-    }
-    else {
+    my $boundary = delete $p->{boundary} // unique_boundary();
+    my $existing = $self->content_type()->attribute('boundary');
 
-        # This is being called to force the builder to run.
-        $self->boundary();
-    }
+    $self->content_type()->_set_attribute(
+        boundary => Courriel::HeaderAttribute->new(
+            name => ( $existing ? $existing->name() : 'boundary' ),
+            value => $boundary,
+        )
+    );
 
     $_->_set_container($self) for $self->parts();
 
@@ -108,31 +96,11 @@ sub _stream_content {
     return;
 }
 
-sub _build_boundary {
+sub boundary {
     my $self = shift;
 
-    my $attr = $self->content_type()->_attributes();
-
-    $attr->{boundary} //= Courriel::HeaderAttribute->new(
-        name  => 'boundary',
-        value => unique_boundary(),
-    );
-
-    return $attr->{boundary}->value();
+    return $self->content_type()->attribute_value('boundary');
 }
-
-around _build_content_type => sub {
-    my $orig = shift;
-    my $self = shift;
-
-    my $ct = $self->$orig(@_);
-
-    return $ct unless $self->_has_boundary();
-
-    $ct->_attributes()->{boundary} = $self->boundary();
-
-    return $ct;
-};
 
 __PACKAGE__->meta()->make_immutable();
 

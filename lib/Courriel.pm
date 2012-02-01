@@ -471,14 +471,12 @@ sub _parse_multipart {
     my $headers = shift;
     my $ct      = shift;
 
-    my $boundary_attr = $ct->attribute('boundary');
+    my $boundary = $ct->attribute_value('boundary');
 
     die q{The message's mime type claims this is a multipart message (}
         . $ct->mime_type()
         . q{) but it does not specify a boundary.}
-        unless $boundary_attr && length $boundary_attr->value();
-
-    my $boundary = $boundary_attr->value();
+        unless defined $boundary && length $boundary;
 
     my ( $preamble, $all_parts, $epilogue ) = ${$text} =~ /
                 (.*?)                   # preamble
