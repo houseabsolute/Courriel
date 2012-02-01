@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.28     2012-02-01
+
 [BUG FIXES]
 
 - Header attribute names need to be looked up case-insensitively, according to
