@@ -384,7 +384,7 @@ sub all_parts_matching {
         );
 
         if ($is_character) {
-            ${$text} = encode( 'utf-8', ${$text} );
+            ${$text} = encode( 'UTF-8', ${$text} );
         }
 
         return $class->new( part => $class->_parse($text) );
@@ -562,7 +562,7 @@ modified, so don't pass in something you don't want modified.
 
 By default, Courriel expects that content passed in text is binary data. This
 means that it has not been decoded into utf-8 with C<Encode::decode()> or by
-using a C<:utf8> IO layer.
+using a C<:encoding(UTF-8)> IO layer.
 
 In practice, this doesn't matter for most emails, since they either contain
 only ASCII data or they actually do contain binary (non-character)

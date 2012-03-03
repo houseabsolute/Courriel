@@ -11,7 +11,7 @@ use Courriel::Headers;
 use Courriel::Helpers;
 use Scalar::Util qw( blessed );
 
-binmode $_, ':utf8'
+binmode $_, ':encoding(UTF-8)'
     for map { Test::Builder->new()->$_() }
     qw( output failure_output todo_output );
 
