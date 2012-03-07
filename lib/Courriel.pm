@@ -11,7 +11,7 @@ use Courriel::Helpers qw( unique_boundary );
 use Courriel::Part::Multipart;
 use Courriel::Part::Single;
 use Courriel::Types
-    qw( ArrayRef Bool Headers Maybe NonEmptyStr Part StringRef );
+    qw( ArrayRef Bool Headers Maybe Part Str StringRef );
 use DateTime;
 use DateTime::Format::Mail;
 use DateTime::Format::Natural;
@@ -42,7 +42,7 @@ has top_level_part => (
 
 has subject => (
     is       => 'ro',
-    isa      => Maybe ['Str'],
+    isa      => Maybe [Str],
     init_arg => undef,
     lazy     => 1,
     builder  => '_build_subject',

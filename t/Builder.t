@@ -79,6 +79,21 @@ use List::AllUtils qw( all );
 }
 
 {
+    my $email = build_email(
+        subject(q{}),
+        plain_body(
+            content => 'Foo',
+        ),
+    );
+
+    is_deeply(
+        [ map { $_->value() } $email->headers()->get('Subject') ],
+        [q{}],
+        'got an empty string for the Subject header',
+    );
+}
+
+{
     my $dt = DateTime->new( year => 1980, time_zone => 'UTC' );
 
     my $email = build_email(
