@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.29     2012-03-07
+
 [BUG FIXES]
 
 - Courriel now allows an email to have an empty subject when parsing, as does
