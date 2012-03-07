@@ -19,6 +19,17 @@ my $crlf = $Courriel::Helpers::CRLF;
 
 {
     my $text = <<'EOF';
+Subject:
+
+This is the body
+EOF
+
+    my $email = Courriel->parse( text => \$text );
+    ok( defined $email->subject );
+}
+
+{
+    my $text = <<'EOF';
 Subject: Foo
 
 This is the body
