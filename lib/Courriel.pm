@@ -42,7 +42,7 @@ has top_level_part => (
 
 has subject => (
     is       => 'ro',
-    isa      => Maybe [NonEmptyStr],
+    isa      => Maybe ['Str'],
     init_arg => undef,
     lazy     => 1,
     builder  => '_build_subject',
