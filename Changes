@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+[BUG FIXES]
+
+- Courriel now allows an email to have an empty subject when parsing, as does
+  Courriel::Builder. Based on a patch from Zbigniew Łukasiak.
+
+
 0.28     2012-02-01
 
 [BUG FIXES]
