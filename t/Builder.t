@@ -15,7 +15,6 @@ use List::AllUtils qw( all );
         from('autarch@urth.org'),
         to( 'autarch@urth.org', Email::Address->parse('bob@example.com') ),
         cc( 'jane@example.com', Email::Address->parse('joe@example.com') ),
-        bcc( 'alice@example.com', Email::Address->parse('adam@example.com') ),
         header( 'X-Foo' => 42 ),
         header( 'X-Bar' => 84 ),
         plain_body('The body of the message')
@@ -28,7 +27,6 @@ use List::AllUtils qw( all );
         From           => 'autarch@urth.org',
         To             => 'autarch@urth.org, bob@example.com',
         Cc             => 'jane@example.com, joe@example.com',
-        Bcc            => 'alice@example.com, adam@example.com',
         'X-Foo'        => '42',
         'X-Bar'        => 84,
         'Content-Type' => 'text/plain; charset=UTF-8',

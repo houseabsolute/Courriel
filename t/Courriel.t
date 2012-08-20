@@ -868,7 +868,6 @@ EOF
         from('autarch@urth.org'),
         to( 'autarch@urth.org', Email::Address->parse('bob@example.com') ),
         cc( 'jane@example.com', Email::Address->parse('joe@example.com') ),
-        bcc( 'alice@example.com', Email::Address->parse('adam@example.com') ),
         header( 'X-Foo' => 42 ),
         header( 'X-Bar' => 84 ),
         plain_body('The body of the message')
