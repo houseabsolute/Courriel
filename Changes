@@ -1,5 +1,13 @@
 {{$NEXT}}
 
+[API CHANGES]
+
+- Courriel::Builder no longer exports a bcc() subroutine. Creating Bcc headers
+  in emails does not make any sense whatsoever. See
+  https://metacpan.org/module/Email::Sender::Manual::QuickStart#Hey-wheres-my-Bcc-support-
+  for an explanation of why there is no such thing as a Bcc header.
+
+
 0.29     2012-03-07
 
 [BUG FIXES]
