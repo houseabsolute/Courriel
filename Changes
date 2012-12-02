@@ -178,8 +178,8 @@
 
 - Email parsing is now much more flexible, and throws fewer
   exceptions. Ultimately, it's likely that Courriel will never throw an
-  exception from parsing, since email in the wild is often broken, and some
-  it's better to return something than just give up. Thanks to jwang of
+  exception from parsing, since email in the wild is often broken, and it's
+  better to return something than just give up. Thanks to jwang of
   grokbase.com for providing a corpus of broken messages to test against.
 
 - The Courriel->plain_body_part() and ->html_body_part() methods ignore the case
