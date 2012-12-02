@@ -426,8 +426,6 @@ sub _parse_headers {
         return ( q{}, 0, Courriel::Headers::->new() );
     }
 
-    # Need to quote class name or else this perl sees this as
-    # Courriel::Headers() because of the Headers type constraint.
     my $headers = Courriel::Headers::->parse(
         text     => \$header_text,
         line_sep => $line_sep,
