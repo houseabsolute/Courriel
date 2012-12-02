@@ -649,12 +649,12 @@ This creates an email with this structure:
         html_body(
             $html_text,
             attach(
-                file => 'path/to/image1.jpg',
-                cid  => 'image1',
+                file       => 'path/to/image1.jpg',
+                content_id => 'image1',
             ),
             attach(
-                file => 'path/to/image2.jpg',
-                cid  => 'image2',
+                file       => 'path/to/image2.jpg',
+                content_id => 'image2',
             ),
         ),
     );
@@ -683,6 +683,8 @@ This creates an email with this structure:
         attach('path/to/spreadsheet.xls'),
         attach( content => \$png_image_content ),
     );
+
+This creates an email with this structure:
 
     multipart/mixed
       |
