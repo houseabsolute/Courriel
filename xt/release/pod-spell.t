@@ -29,6 +29,7 @@ Postel's
 Rolsky
 UTC
 UTF
+Zbigniew
 ascii
 attribute's
 cid
@@ -38,5 +39,7 @@ html
 inline
 lookup
 multipart
+ukasiak
 utf
 zh
+Łukasiak
