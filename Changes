@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.31     2013-04-03
+
 [MISC]
 
 - Removed the "this is very alpha" warning from the docs. It's really not very
