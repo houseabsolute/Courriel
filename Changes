@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+[MISC]
+
+- Removed the "this is very alpha" warning from the docs. It's really not very
+  alpha any more.
+
+
 0.30     2012-08-20
 
 [API CHANGES]

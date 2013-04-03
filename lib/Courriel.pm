@@ -536,9 +536,6 @@ __END__
 
 =head1 DESCRIPTION
 
-B<This software is still very alpha, and the API may change without warning in
-future versions.>
-
 This class exists to provide a high level API for working with emails,
 particular for processing incoming email. It is primarily a wrapper around the
 other classes in the Courriel distro, especially L<Courriel::Headers>,
