@@ -525,7 +525,7 @@ scalar. If you pass a reference, the underlying scalar may be modified.
 
 =item * line_sep
 
-The line separator. This default to a "\r\n", but you can change it if
+The line separator. This defaults to a "\r\n", but you can change it if
 necessary. Note that this only affects parsing, header objects are always
 output with RFC-compliant line endings.
 
