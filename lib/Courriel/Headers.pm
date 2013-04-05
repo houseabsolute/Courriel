@@ -312,11 +312,11 @@ sub _key_indices_for {
 
                 $headers[-1] //= q{};
 
-                # Looking at RFC 5322 it really seems like the whitespace on
-                # the continuation line should be part of the header value,
-                # but looking at emails in real use suggests that all the
-                # leading whitespace should be compressed down to a single
-                # space, so that's what we do.
+                # RFC 5322 says:
+                #
+                #   Runs of FWS, comment, or CFWS that occur between lexical tokens in a
+                #   structured header field are semantically interpreted as a single
+                #   space character.
                 $headers[-1] .= q{ } if length $headers[-1];
                 $headers[-1] .= $3 if defined $3;
             }
