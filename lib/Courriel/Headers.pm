@@ -94,18 +94,18 @@ override BUILDARGS => sub {
 sub _inflate_header {
     my $class = shift;
     my $name  = shift;
-    my $value = shift;
+    my $raw = shift;
 
-    my ( $header_class, $method )
+    my ( $header_class )
         = lc $name eq 'content-type'
-        ? ( 'Courriel::Header::ContentType', 'new_from_value' )
+        ? ( 'Courriel::Header::ContentType' )
         : lc $name eq 'content-disposition'
-        ? ( 'Courriel::Header::Disposition', 'new_from_value' )
-        : ( 'Courriel::Header', 'new' );
+        ? ( 'Courriel::Header::Disposition' )
+        : ( 'Courriel::Header' );
 
-    return $header_class->$method(
-        name  => $name,
-        value => $value,
+    return $header_class->new(
+        name       => $name,
+        raw_header => $raw,
     );
 }
 
@@ -272,14 +272,14 @@ sub _key_indices_for {
 {
     my $horiz_ws = qr/[ \t]/;
     my $line_re  = qr/
-                      (?:
-                          ([^\s:][^:\n\r]*)  # a header name
-                          :                  # followed by a colon
-                          $horiz_ws*
-                          (.*)               # header value - can be empty
+                      (
+                        ([^\s:][^:\n\r]*)     # a header name
+                        :                     # followed by a colon
+                        $horiz_ws*
+                        .*                    # header value - can be empty
                       )
                       |
-                      $horiz_ws+(\S.*)?      # continuation line
+                      ($horiz_ws+(?:\S.*?))   # continuation line
                      /x;
 
     my @spec = (
@@ -302,8 +302,8 @@ sub _key_indices_for {
         $class->_maybe_fix_broken_headers( $text, $sep_re );
 
         while ( ${$text} =~ /\G${line_re}${sep_re}/gc ) {
-            if ( defined $1 ) {
-                push @headers, $1, $2;
+            if ( defined $2 ) {
+                push @headers, $2, $1;
             }
             else {
                 die
@@ -311,14 +311,7 @@ sub _key_indices_for {
                     unless @headers;
 
                 $headers[-1] //= q{};
-
-                # RFC 5322 says:
-                #
-                #   Runs of FWS, comment, or CFWS that occur between lexical tokens in a
-                #   structured header field are semantically interpreted as a single
-                #   space character.
-                $headers[-1] .= q{ } if length $headers[-1];
-                $headers[-1] .= $3 if defined $3;
+                $headers[-1] .= $3;
             }
         }
 
@@ -332,10 +325,6 @@ sub _key_indices_for {
             die defined $line
                 ? "Found an unparseable chunk in the header text starting at line $count:\n  $line"
                 : 'Could not parse headers at all';
-        }
-
-        for ( my $i = 1 ; $i < @headers ; $i += 2 ) {
-            $headers[$i] = $class->_mime_decode( $headers[$i] );
         }
 
         return $class->new( headers => \@headers );
@@ -389,68 +378,6 @@ sub as_string {
     $self->stream_to( output => $self->_string_output( \$string ), @_ );
 
     return $string;
-}
-
-{
-    my $mime_word = qr/
-                      (?:
-                          =\?                         # begin encoded word
-                          (?<charset>[-0-9A-Za-z_]+)  # charset (encoding)
-                          (?:\*[A-Za-z]{1,8}(?:-[A-Za-z]{1,8})*)? # language (RFC 2231)
-                          \?
-                          (?<encoding>[QqBb])         # encoding type
-                          \?
-                          (?<content>.*?)             # Base64-encoded contents
-                          \?=                         # end encoded word
-                          |
-                          (?<unencoded>\S+)
-                      )
-                      (?<ws>[ \t]+)?
-                      /x;
-
-    sub _mime_decode {
-        my $self = shift;
-        my $text = shift;
-
-        return $text unless $text =~ /=\?[\w-]+\?[BQ]\?/i;
-
-        my @chunks;
-
-        # If a MIME encoded word is followed by _another_ such word, we ignore any
-        # intervening whitespace, otherwise we preserve the whitespace between a
-        # MIME encoded word and an unencoded word. See RFC 2047 for details on
-        # this.
-        while ( $text =~ /\G$mime_word/g ) {
-            if ( defined $+{charset} ) {
-                push @chunks, {
-                    content => $self->_decode_one_word(
-                        @+{ 'charset', 'encoding', 'content' }
-                    ),
-                    ws      => $+{ws},
-                    is_mime => 1,
-                    };
-            }
-            else {
-                push @chunks, {
-                    content => $+{unencoded},
-                    ws      => $+{ws},
-                    is_mime => 0,
-                    };
-            }
-        }
-
-        my $result = q{};
-
-        for my $i ( 0 .. $#chunks ) {
-            $result .= $chunks[$i]{content};
-            $result .= ( $chunks[$i]{ws} // q{} )
-                unless $chunks[$i]{is_mime}
-                    && $chunks[ $i + 1 ]
-                    && $chunks[ $i + 1 ]{is_mime};
-        }
-
-        return $result;
-    }
 }
 
 sub _decode_one_word {
@@ -526,8 +453,7 @@ scalar. If you pass a reference, the underlying scalar may be modified.
 =item * line_sep
 
 The line separator. This defaults to a "\r\n", but you can change it if
-necessary. Note that this only affects parsing, header objects are always
-output with RFC-compliant line endings.
+necessary.
 
 =back
 
@@ -538,10 +464,12 @@ described in RFC 2231.
 =head2 Courriel::Headers->new( headers => [ ... ] )
 
 This method creates a new object. It accepts one parameter, C<headers>, which
-should be an array reference of header names and values.
+should be an array reference of header names and raw values.
+
+The raw value for each header should include the entire header (name, colon,
+whitespace, value, continuation lines).
 
 A given header key can appear multiple times.
-
 This object does not (yet, perhaps) enforce RFC restrictions on repetition of
 certain headers.
 

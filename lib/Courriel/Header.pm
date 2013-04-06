@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use namespace::autoclean;
 
+use Carp qw( confess );
 use Courriel::Helpers qw( fold_header );
 use Courriel::Types qw( NonEmptyStr Str Streamable );
 use Encode qw( encode find_encoding );
@@ -22,30 +23,43 @@ has name => (
 );
 
 has value => (
-    is       => 'ro',
-    isa      => Str,
-    required => 1,
+    is      => 'ro',
+    isa     => Str,
+    lazy    => 1,
+    builder => '_build_value',
 );
+
+has raw_header => (
+    is      => 'ro',
+    isa     => Str,
+    lazy    => 1,
+    builder => '_build_raw_header',
+);
+
+sub BUILD {
+    my $self = shift;
+    my $p    = shift;
+
+    confess
+        'You must provide a value or raw_header parameter when creating a header'
+        unless defined $p->{value} || defined $p->{raw_header};
+
+    return;
+}
 
 {
     my @spec = (
-        charset => { isa => NonEmptyStr, default => 'utf8' },
-        output  => { isa => Streamable,  coerce  => 1 },
+        output => { isa => Streamable, coerce => 1 },
     );
 
     sub stream_to {
         my $self = shift;
-        my ( $charset, $output ) = validated_list(
+        my ($output) = validated_list(
             \@_,
             @spec
         );
 
-        my $string = $self->name();
-        $string .= ': ';
-
-        $string .= $self->_maybe_encoded_value($charset);
-
-        $output->( fold_header($string) );
+        $output->( $self->raw_header() );
 
         return;
     }
@@ -59,6 +73,105 @@ sub as_string {
     $self->stream_to( output => $self->_string_output( \$string ), @_ );
 
     return $string;
+}
+
+sub _build_value {
+    my $self = shift;
+
+    my $raw = $self->raw_header();
+
+    my ( $first, @rest ) = split /\r\n|\r|\n/, $raw;
+
+    $first =~ /^[^\s:][^:\n\r]*:\s*(.+)$/;
+
+    my $value = $1;
+
+    # RFC 5322 says:
+    #
+    #   Runs of FWS, comment, or CFWS that occur between lexical tokens in a
+    #   structured header field are semantically interpreted as a single
+    #   space character.
+    for my $line (@rest) {
+        $line =~ s/^\s+/ /;
+        $value .= $line;
+    }
+
+    return $self->_mime_decode($value);
+}
+
+{
+    my $mime_word = qr/
+                      (?:
+                          =\?                         # begin encoded word
+                          (?<charset>[-0-9A-Za-z_]+)  # charset (encoding)
+                          (?:\*[A-Za-z]{1,8}(?:-[A-Za-z]{1,8})*)? # language (RFC 2231)
+                          \?
+                          (?<encoding>[QqBb])         # encoding type
+                          \?
+                          (?<content>.*?)             # Base64-encoded contents
+                          \?=                         # end encoded word
+                          |
+                          (?<unencoded>\S+)
+                      )
+                      (?<ws>[ \t]+)?
+                      /x;
+
+    sub _mime_decode {
+        my $self = shift;
+        my $text = shift;
+
+        return $text unless $text =~ /=\?[\w-]+\?[BQ]\?/i;
+
+        my @chunks;
+
+        # If a MIME encoded word is followed by _another_ such word, we ignore any
+        # intervening whitespace, otherwise we preserve the whitespace between a
+        # MIME encoded word and an unencoded word. See RFC 2047 for details on
+        # this.
+        while ( $text =~ /\G$mime_word/g ) {
+            if ( defined $+{charset} ) {
+                push @chunks,
+                    {
+                    content => $self->_decode_one_word(
+                        @+{ 'charset', 'encoding', 'content' }
+                    ),
+                    ws      => $+{ws},
+                    is_mime => 1,
+                    };
+            }
+            else {
+                push @chunks,
+                    {
+                    content => $+{unencoded},
+                    ws      => $+{ws},
+                    is_mime => 0,
+                    };
+            }
+        }
+
+        my $result = q{};
+
+        for my $i ( 0 .. $#chunks ) {
+            $result .= $chunks[$i]{content};
+            $result .= ( $chunks[$i]{ws} // q{} )
+                unless $chunks[$i]{is_mime}
+                && $chunks[ $i + 1 ]
+                && $chunks[ $i + 1 ]{is_mime};
+        }
+
+        return $result;
+    }
+}
+
+sub _build_raw_header {
+    my $self = shift;
+
+    my $raw = $self->name();
+    $raw .= ': ';
+
+    $raw .= $self->_maybe_encoded_value();
+
+    return fold_header($raw);
 }
 
 {
@@ -82,8 +195,7 @@ sub as_string {
     # Courriel::Builder to ensure that people don't try to create an email with
     # non-ASCII in certain parts of fields (like in email addresses).
     sub _maybe_encoded_value {
-        my $self    = shift;
-        my $charset = shift;
+        my $self = shift;
 
         my $value = $self->value();
         my @chunks;
@@ -101,7 +213,7 @@ sub as_string {
                     ? $chunks[$i]{non_ascii} . ( $chunks[$i]{ws} // q{} )
                     : $chunks[$i]{non_ascii};
 
-                push @values, $self->_mime_encode( $to_encode, $charset );
+                push @values, $self->_mime_encode($to_encode);
                 push @values, q{ } if $chunks[ $i + 1 ];
             }
             else {
@@ -114,11 +226,10 @@ sub as_string {
 }
 
 sub _mime_encode {
-    my $self    = shift;
-    my $text    = shift;
-    my $charset = find_encoding(shift)->mime_name();
+    my $self = shift;
+    my $text = shift;
 
-    my $head = '=?' . $charset . '?B?';
+    my $head = '=?UTF-8?B?';
     my $tail = '?=';
 
     my $base_length = 75 - ( length($head) + length($tail) );
@@ -130,7 +241,7 @@ sub _mime_encode {
     my @result;
     my $chunk = q{};
     while ( length( my $chr = substr( $text, 0, 1, '' ) ) ) {
-        my $chr = encode( $charset, $chr, 0 );
+        my $chr = encode( 'UTF-8', $chr, 0 );
 
         if ( length($chunk) + length($chr) > $real_length ) {
             push @result, $head . encode_base64( $chunk, q{} ) . $tail;
@@ -180,15 +291,21 @@ The header name as passed to the constructor.
 
 The header value as passed to the constructor.
 
-=head2 $header->as_string( charset => $charset )
+=head2 $header->raw_header()
 
-Returns the header name and value with any necessary MIME encoding and folding.
+The full header, encoded and folded as needed. If this header was created by
+parsing an email, this will return the header as it was in the original, byte
+for byte.
 
-The C<charset> parameter specifies what character set to use for MIME-encoding
-non-ASCII values. This defaults to "utf8". The charset name must be one
-recognized by the L<Encode> module.
+=head2 $header->as_string()
 
-=head2 $header->stream_to( output => $output, charset => ... )
+Returns the header name and value with any necessary MIME encoding and
+folding. If MIME encoding is needed it will be done with the C<utf8> encoding.
+
+If this header was created with a raw header, then that will be returned as
+is.
+
+=head2 $header->stream_to( output => $output )
 
 This method will send the stringified header to the specified output. The
 output can be a subroutine reference, a filehandle, or an object with a
