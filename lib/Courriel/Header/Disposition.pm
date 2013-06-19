@@ -14,7 +14,10 @@ use MooseX::StrictConstructor;
 
 extends 'Courriel::Header';
 
-with 'Courriel::Role::HeaderWithAttributes' => { main_value_key => 'disposition' };
+with 'Courriel::Role::HeaderWithAttributes' => {
+    default_header_name => 'Content-Disposition',
+    main_value_key      => 'disposition',
+};
 
 has '+value' => (
     required => 0,
@@ -82,17 +85,6 @@ has filename => (
         );
     }
 }
-
-around BUILDARGS => sub {
-    my $orig  = shift;
-    my $class = shift;
-
-    my $p = $class->$orig(@_);
-
-    $p->{name} = 'Content-Disposition' unless exists $p->{name};
-
-    return $p;
-};
 
 __PACKAGE__->meta()->make_immutable();
 

@@ -79,14 +79,6 @@ override BUILDARGS => sub {
             $headers->[$i] = $class->_inflate_header( $name, $headers->[$i] );
         }
     }
-    elsif ( reftype( $p->{headers} ) eq 'HASH' ) {
-        for my $name ( keys %{ $p->{headers} } ) {
-            next if blessed( $p->{headers}{$name} );
-
-            $p->{headers}{$name}
-                = $class->_inflate_header( $name, $p->{headers}{$name} );
-        }
-    }
 
     return $p;
 };
@@ -94,18 +86,16 @@ override BUILDARGS => sub {
 sub _inflate_header {
     my $class = shift;
     my $name  = shift;
-    my $raw = shift;
+    my $value = shift;
 
-    my ( $header_class )
-        = lc $name eq 'content-type'
-        ? ( 'Courriel::Header::ContentType' )
-        : lc $name eq 'content-disposition'
-        ? ( 'Courriel::Header::Disposition' )
-        : ( 'Courriel::Header' );
+    my ($header_class)
+        = lc $name eq 'content-type'        ? 'Courriel::Header::ContentType'
+        : lc $name eq 'content-disposition' ? 'Courriel::Header::Disposition'
+        :                                     'Courriel::Header';
 
     return $header_class->new(
-        name       => $name,
-        raw_header => $raw,
+        name  => $name,
+        value => $value,
     );
 }
 
@@ -273,7 +263,7 @@ sub _key_indices_for {
     my $horiz_ws = qr/[ \t]/;
     my $line_re  = qr/
                       (
-                        ([^\s:][^:\n\r]*)     # a header name
+                        [^\s:][^:\n\r]*       # a header name
                         :                     # followed by a colon
                         $horiz_ws*
                         .*                    # header value - can be empty
@@ -295,23 +285,23 @@ sub _key_indices_for {
             @spec,
         );
 
-        my @headers;
+        my @raw_lines;
 
         my $sep_re = qr/\Q$sep/;
 
         $class->_maybe_fix_broken_headers( $text, $sep_re );
 
         while ( ${$text} =~ /\G${line_re}${sep_re}/gc ) {
-            if ( defined $2 ) {
-                push @headers, $2, $1;
+            if ( defined $1 ) {
+                push @raw_lines, $1;
             }
             else {
                 die
                     'Header text contains a continuation line before a header name has been seen.'
-                    unless @headers;
+                    unless @raw_lines;
 
-                $headers[-1] //= q{};
-                $headers[-1] .= $3;
+                $raw_lines[-1] //= q{};
+                $raw_lines[-1] .= $2;
             }
         }
 
@@ -327,7 +317,11 @@ sub _key_indices_for {
                 : 'Could not parse headers at all';
         }
 
-        return $class->new( headers => \@headers );
+        my @inflated
+            = map { Courriel::Header->new_from_raw_line($_) } @raw_lines;
+
+        return $class->new(
+            headers => [ map { $_->name() => $_ } @inflated ] );
     }
 }
 

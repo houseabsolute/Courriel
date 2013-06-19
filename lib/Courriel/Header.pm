@@ -9,7 +9,7 @@ use Courriel::Helpers qw( fold_header );
 use Courriel::Types qw( NonEmptyStr Str Streamable );
 use Encode qw( encode find_encoding );
 use MIME::Base64 qw( encode_base64 );
-use MooseX::Params::Validate qw( validated_list );
+use MooseX::Params::Validate qw( pos_validated_list validated_list );
 
 use Moose;
 use MooseX::StrictConstructor;
@@ -29,22 +29,21 @@ has value => (
     builder => '_build_value',
 );
 
-has raw_header => (
+has raw_value => (
     is      => 'ro',
     isa     => Str,
     lazy    => 1,
-    builder => '_build_raw_header',
+    builder => '_build_raw_value',
 );
 
-sub BUILD {
-    my $self = shift;
-    my $p    = shift;
+sub new_from_raw_line {
+    my $class = shift;
+    my ($raw) = pos_validated_list(
+        \@_,
+        { isa => NonEmptyStr },
+    );
 
-    confess
-        'You must provide a value or raw_header parameter when creating a header'
-        unless defined $p->{value} || defined $p->{raw_header};
-
-    return;
+    return $class->new( $class->_parse_header($raw) );
 }
 
 {
@@ -59,7 +58,7 @@ sub BUILD {
             @spec
         );
 
-        $output->( $self->raw_header() );
+        $output->( $self->raw_value() );
 
         return;
     }
@@ -75,16 +74,16 @@ sub as_string {
     return $string;
 }
 
-sub _build_value {
-    my $self = shift;
-
-    my $raw = $self->raw_header();
+sub _parse_header {
+    my $class = shift;
+    my $raw   = shift;
 
     my ( $first, @rest ) = split /\r\n|\r|\n/, $raw;
 
-    $first =~ /^[^\s:][^:\n\r]*:\s*(.+)$/;
+    $first =~ /^([^\s:][^:\n\r])*:\s*(.+)$/;
 
-    my $value = $1;
+    my $name  = $1;
+    my $value = $2;
 
     # RFC 5322 says:
     #
@@ -96,7 +95,10 @@ sub _build_value {
         $value .= $line;
     }
 
-    return $self->_mime_decode($value);
+    return (
+        name  => $name,
+        value => $class->_mime_decode($value),
+    );
 }
 
 {
@@ -117,8 +119,8 @@ sub _build_value {
                       /x;
 
     sub _mime_decode {
-        my $self = shift;
-        my $text = shift;
+        my $class = shift;
+        my $text  = shift;
 
         return $text unless $text =~ /=\?[\w-]+\?[BQ]\?/i;
 
@@ -132,7 +134,7 @@ sub _build_value {
             if ( defined $+{charset} ) {
                 push @chunks,
                     {
-                    content => $self->_decode_one_word(
+                    content => $class->_decode_one_word(
                         @+{ 'charset', 'encoding', 'content' }
                     ),
                     ws      => $+{ws},
@@ -163,7 +165,7 @@ sub _build_value {
     }
 }
 
-sub _build_raw_header {
+sub _build_raw_value {
     my $self = shift;
 
     my $raw = $self->name();
@@ -291,7 +293,7 @@ The header name as passed to the constructor.
 
 The header value as passed to the constructor.
 
-=head2 $header->raw_header()
+=head2 $header->raw_value()
 
 The full header, encoded and folded as needed. If this header was created by
 parsing an email, this will return the header as it was in the original, byte

@@ -12,8 +12,9 @@ use MooseX::StrictConstructor;
 extends 'Courriel::Header';
 
 with 'Courriel::Role::HeaderWithAttributes' => {
-    main_value_key    => 'mime_type',
-    main_value_method => '_original_mime_type',
+    default_header_name => 'Content-Type',
+    main_value_key      => 'mime_type',
+    main_value_method   => '_original_mime_type',
 };
 
 has '+value' => (
@@ -51,8 +52,6 @@ around BUILDARGS => sub {
     my $class = shift;
 
     my $p = $class->$orig(@_);
-
-    $p->{name} = 'Content-Type' unless exists $p->{name};
 
     return unless defined $p->{mime_type};
 

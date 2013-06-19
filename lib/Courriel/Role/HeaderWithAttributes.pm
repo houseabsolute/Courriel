@@ -12,6 +12,11 @@ use Scalar::Util qw( blessed reftype );
 
 use MooseX::Role::Parameterized;
 
+parameter default_header_name => (
+    isa      => NonEmptyStr,
+    required => 1,
+);
+
 parameter main_value_key => (
     isa      => NonEmptyStr,
     required => 1,
@@ -34,30 +39,6 @@ has _attributes => (
         _has_attributes => 'count',
     },
 );
-
-around BUILDARGS => sub {
-    my $orig  = shift;
-    my $class = shift;
-
-    my $p = $class->$orig(@_);
-
-    return $p
-        unless $p->{attributes} && reftype( $p->{attributes} ) eq 'HASH';
-
-    for my $name ( keys %{ $p->{attributes} } ) {
-        my $lc_name = lc $name;
-        $p->{attributes}{$lc_name} = delete $p->{attributes}{$name};
-
-        next if blessed( $p->{attributes}{$lc_name} );
-
-        $p->{attributes}{$lc_name} = Courriel::HeaderAttribute->new(
-            name  => $name,
-            value => $p->{attributes}{$name},
-        );
-    }
-
-    return $p;
-};
 
 sub attribute {
     my $self = shift;
@@ -89,50 +70,78 @@ sub _attributes_as_string {
     return join '; ', map { $attr->{$_}->as_string() } sort keys %{$attr};
 }
 
-{
-    my @spec = (
-        name  => { isa => NonEmptyStr, optional => 1 },
-        value => { isa => NonEmptyStr },
-    );
+role {
+    my $p = shift;
 
-    role {
-        my $p = shift;
+    my $main_value_key = $p->main_value_key();
 
-        my $main_value_key = $p->main_value_key();
+    method _parse_header => sub {
+        my $self  = shift;
+        my $value = shift;
 
-        method new_from_value => sub {
-            my $class = shift;
-            my ( $name, $value ) = validated_list( \@_, @spec );
+        my ( $main_value, $attributes )
+            = parse_header_with_attributes($value);
 
-            my ( $main_value, $attributes )
-                = parse_header_with_attributes($value);
+        return (
+            value           => $value,
+            $main_value_key => $main_value,
+            attributes      => $attributes,
+        );
+    };
 
-            my %p = (
-                value           => $value,
-                $main_value_key => $main_value,
-                attributes      => $attributes,
+    my $main_value_meth = $p->main_value_method() || $p->main_value_key();
+
+    method as_header_value => sub {
+        my $self = shift;
+
+        my $string = $self->$main_value_meth();
+
+        if ( $self->_has_attributes() ) {
+            $string .= '; ';
+            $string .= $self->_attributes_as_string();
+        }
+
+        return $string;
+    };
+
+    my $name = $p->default_header_name();
+
+    around BUILDARGS => sub {
+        my $orig  = shift;
+        my $class = shift;
+
+        my $p = $class->$orig(@_);
+
+        $p->{name} = $name unless exists $p->{name};
+
+        return $p
+            unless $p->{attributes} && reftype( $p->{attributes} ) eq 'HASH';
+
+        for my $name ( keys %{ $p->{attributes} } ) {
+            my $lc_name = lc $name;
+            $p->{attributes}{$lc_name} = delete $p->{attributes}{$name};
+
+            next if blessed( $p->{attributes}{$lc_name} );
+
+            $p->{attributes}{$lc_name} = Courriel::HeaderAttribute->new(
+                name  => $name,
+                value => $p->{attributes}{$name},
             );
+        }
 
-            $p{name} = $name if defined $name;
+        return $p;
+    };
 
-            return $class->new(%p);
-        };
+    # Deprecated
+    method new_from_value => sub {
+        my $class = shift;
+        my %p     = @_;
 
-        my $main_value_meth = $p->main_value_method() || $p->main_value_key();
+        $p{name} //= $name;
+        $p{raw_value} = delete $p{value};
 
-        method as_header_value => sub {
-            my $self = shift;
-
-            my $string = $self->$main_value_meth();
-
-            if ( $self->_has_attributes() ) {
-                $string .= '; ';
-                $string .= $self->_attributes_as_string();
-            }
-
-            return $string;
-        };
-    }
-}
+        return $class->new_from_raw_value(%p);
+    };
+};
 
 1;
