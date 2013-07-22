@@ -73,9 +73,9 @@ sub _stream_to {
 }
 
 {
-    my $fake_ct = Courriel::Header::ContentType->new_from_value(
-        name  => 'Content-Type',
-        value => 'text/plain'
+    my $fake_ct = Courriel::Header::ContentType->new(
+        name      => 'Content-Type',
+        mime_type => 'text/plain'
     );
 
     sub _build_content_type {

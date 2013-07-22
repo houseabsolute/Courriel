@@ -104,9 +104,9 @@ sub _maybe_set_disposition_in_headers {
 }
 
 {
-    my $fake_disp = Courriel::Header::Disposition->new_from_value(
-        name  => 'Content-Disposition',
-        value => 'inline',
+    my $fake_disp = Courriel::Header::Disposition->new(
+        name        => 'Content-Disposition',
+        disposition => 'inline',
     );
 
     sub _build_disposition {

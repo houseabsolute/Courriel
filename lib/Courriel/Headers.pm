@@ -76,7 +76,8 @@ override BUILDARGS => sub {
 
             next unless defined $name;
 
-            $headers->[$i] = $class->_inflate_header( $name, $headers->[$i] );
+            $headers->[$i] = $class->_inflate_header( $name, $headers->[$i] )
+                unless blessed $headers->[$i];
         }
     }
 

@@ -140,7 +140,7 @@ role {
         $p{name} //= $name;
         $p{raw_value} = delete $p{value};
 
-        return $class->new_from_raw_value(%p);
+        return $class->new(%p);
     };
 };
 

@@ -23,17 +23,16 @@ has name => (
 );
 
 has value => (
-    is      => 'ro',
-    isa     => Str,
-    lazy    => 1,
-    builder => '_build_value',
+    is       => 'ro',
+    isa      => Str,
+    required => 1,
 );
 
-has raw_value => (
+has raw_header => (
     is      => 'ro',
     isa     => Str,
     lazy    => 1,
-    builder => '_build_raw_value',
+    builder => '_build_raw_header',
 );
 
 sub new_from_raw_line {
@@ -44,34 +43,6 @@ sub new_from_raw_line {
     );
 
     return $class->new( $class->_parse_header($raw) );
-}
-
-{
-    my @spec = (
-        output => { isa => Streamable, coerce => 1 },
-    );
-
-    sub stream_to {
-        my $self = shift;
-        my ($output) = validated_list(
-            \@_,
-            @spec
-        );
-
-        $output->( $self->raw_value() );
-
-        return;
-    }
-}
-
-sub as_string {
-    my $self = shift;
-
-    my $string = q{};
-
-    $self->stream_to( output => $self->_string_output( \$string ), @_ );
-
-    return $string;
 }
 
 sub _parse_header {
@@ -96,8 +67,9 @@ sub _parse_header {
     }
 
     return (
-        name  => $name,
-        value => $class->_mime_decode($value),
+        name      => $name,
+        value     => $value,
+        raw_header => $raw,
     );
 }
 
@@ -165,7 +137,7 @@ sub _parse_header {
     }
 }
 
-sub _build_raw_value {
+sub _build_raw_header {
     my $self = shift;
 
     my $raw = $self->name();
@@ -259,6 +231,34 @@ sub _mime_encode {
     return join q{ }, @result;
 }
 
+{
+    my @spec = (
+        output => { isa => Streamable, coerce => 1 },
+    );
+
+    sub stream_to {
+        my $self = shift;
+        my ($output) = validated_list(
+            \@_,
+            @spec
+        );
+
+        $output->( $self->raw_header() );
+
+        return;
+    }
+}
+
+sub as_string {
+    my $self = shift;
+
+    my $string = q{};
+
+    $self->stream_to( output => $self->_string_output( \$string ), @_ );
+
+    return $string;
+}
+
 __PACKAGE__->meta()->make_immutable();
 
 1;
@@ -293,11 +293,11 @@ The header name as passed to the constructor.
 
 The header value as passed to the constructor.
 
-=head2 $header->raw_value()
+=head2 $header->raw_header()
 
-The full header, encoded and folded as needed. If this header was created by
-parsing an email, this will return the header as it was in the original, byte
-for byte.
+The full header (with a name and value), encoded and folded as needed. If this
+header was created by parsing an email, this will return the header as it was
+in the original, byte for byte.
 
 =head2 $header->as_string()
 
