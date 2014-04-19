@@ -128,7 +128,7 @@ EOF
 
     $headers =~ s/\n/$crlf/g;
 
-    my $h = Courriel::Headers->parse( text => \$headers, line_sep => $crlf );
+    my $h = Courriel::Headers->parse( text => \$headers );
 
     is_deeply(
         _headers_as_arrayref($h),
@@ -144,8 +144,7 @@ EOF
 {
     my ( $val, $attrs )
         = Courriel::Helpers::parse_header_with_attributes(
-        q{foo/bar; test1=simple; test2="quoted string"}
-        );
+        q{foo/bar; test1=simple; test2="quoted string"});
 
     is( $val, 'foo/bar', 'got correct value for header with attributes' );
     is_deeply(
@@ -161,8 +160,7 @@ EOF
 {
     my ( $val, $attrs )
         = Courriel::Helpers::parse_header_with_attributes(
-        q{foo/bar; test1='single'; test2="double"}
-        );
+        q{foo/bar; test1='single'; test2="double"});
 
     is( $val, 'foo/bar', 'got correct value for header with attributes' );
     is_deeply(
@@ -255,7 +253,6 @@ EOF
         'parsed encoded attribute correctly'
     );
 }
-
 
 {
     my ( undef, $attrs )
@@ -380,7 +377,7 @@ EOF
 
     $headers =~ s/\n/$crlf/g;
 
-    my $h = Courriel::Headers->parse( text => \$headers, line_sep => $crlf );
+    my $h = Courriel::Headers->parse( text => \$headers );
 
     is_deeply(
         _headers_as_arrayref($h),
@@ -417,7 +414,7 @@ EOF
 
     $headers =~ s/\n/$crlf/g;
 
-    my $h = Courriel::Headers->parse( text => \$headers, line_sep => $crlf );
+    my $h = Courriel::Headers->parse( text => \$headers );
 
     is_deeply(
         _headers_as_arrayref($h),
@@ -437,7 +434,7 @@ Bar: 2
 Baz: 3
 EOF
 
-    my $h = Courriel::Headers->parse( text => \$headers, line_sep => "\n" );
+    my $h = Courriel::Headers->parse( text => \$headers );
 
     is_deeply(
         _headers_as_arrayref($h),
@@ -476,7 +473,7 @@ EOF
 Subject: =?iso-8859-1?Q?=A1Hola,_se=F1or!?= =?utf-8?Q?=c2=a1Hola=2c_se=c3=b1or!?=
 EOF
 
-    my $h = Courriel::Headers->parse( text => \$headers, line_sep => "\n" );
+    my $h = Courriel::Headers->parse( text => \$headers );
 
     is_deeply(
         _headers_as_arrayref($h),
@@ -492,7 +489,7 @@ EOF
 Subject: =?iso-8859-1?Q?=A1Hola,_se=F1or!?= not encoded
 EOF
 
-    my $h = Courriel::Headers->parse( text => \$headers, line_sep => "\n" );
+    my $h = Courriel::Headers->parse( text => \$headers );
 
     is_deeply(
         _headers_as_arrayref($h),
@@ -508,7 +505,7 @@ EOF
 Subject: =?iso-8859-1?Q?=A1Hola,_se=F1or!?=   not encoded
 EOF
 
-    my $h = Courriel::Headers->parse( text => \$headers, line_sep => "\n" );
+    my $h = Courriel::Headers->parse( text => \$headers );
 
     is_deeply(
         _headers_as_arrayref($h),
@@ -524,7 +521,7 @@ EOF
 Subject: not encoded =?iso-8859-1?Q?=A1Hola,_se=F1or!?=
 EOF
 
-    my $h = Courriel::Headers->parse( text => \$headers, line_sep => "\n" );
+    my $h = Courriel::Headers->parse( text => \$headers );
 
     is_deeply(
         _headers_as_arrayref($h),
@@ -540,7 +537,7 @@ EOF
 Subject: not encoded   =?iso-8859-1?Q?=A1Hola,_se=F1or!?=
 EOF
 
-    my $h = Courriel::Headers->parse( text => \$headers, line_sep => "\n" );
+    my $h = Courriel::Headers->parse( text => \$headers );
 
     is_deeply(
         _headers_as_arrayref($h),
@@ -589,7 +586,7 @@ EOF
 Subject: has   three spaces
 EOF
 
-    my $h = Courriel::Headers->parse( text => \$headers, line_sep => "\n" );
+    my $h = Courriel::Headers->parse( text => \$headers );
 
     like(
         $h->as_string(),
@@ -666,7 +663,7 @@ EOF
 
     $real =~ s/\n/$crlf/g;
 
-    my $h = Courriel::Headers->parse( text => \$real, line_sep => $crlf );
+    my $h = Courriel::Headers->parse( text => \$real );
 
     is_deeply(
         [ map { $_->value() } $h->get('Precedence') ],
@@ -761,8 +758,7 @@ EOF
     like(
         exception {
             Courriel::Headers->parse(
-                text     => \$bad,
-                line_sep => "\n",
+                text => \$bad,
             );
         },
         qr/Found an unparseable .+ at line 2/,
@@ -780,8 +776,7 @@ EOF
 
     like(
         Courriel::Headers->parse(
-            text     => \$bad,
-            line_sep => "\n",
+            text => \$bad,
             )->as_string(),
         qr/Ok: 2Not ok/,
         'handle arbitrary newline without an exception'
@@ -798,8 +793,7 @@ EOF
 
     like(
         Courriel::Headers->parse(
-            text     => \$bad,
-            line_sep => "\n",
+            text => \$bad,
             )->as_string(),
         qr/Ok: 1/,
         'handle empty continuation line without an exception'

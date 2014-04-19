@@ -395,7 +395,7 @@ sub _parse {
     my $class     = shift;
     my $text      = shift;
 
-    my ( $line_sep, $sep_idx, $headers ) = $class->_parse_headers($text);
+    my ( $sep_idx, $headers ) = $class->_parse_headers($text);
 
     substr( ${$text}, 0, $sep_idx ) = q{};
 
@@ -408,7 +408,6 @@ sub _parse_headers {
 
     my $header_text;
     my $sep_idx;
-    my $line_sep;
 
     # We want to ignore mbox message separators - this is a pretty lax parser,
     # but we may find broken lines. The key is that it starts with From
@@ -420,18 +419,16 @@ sub _parse_headers {
     if ( ${$text} =~ /^(.+?)($Courriel::Helpers::LINE_SEP_RE)\g{2}/s ) {
         $header_text = $1 . $2;
         $sep_idx     = ( length $header_text ) + ( length $2 );
-        $line_sep    = $2;
     }
     else {
-        return ( q{}, 0, Courriel::Headers::->new() );
+        return ( 0, Courriel::Headers::->new() );
     }
 
     my $headers = Courriel::Headers::->parse(
-        text     => \$header_text,
-        line_sep => $line_sep,
+        text => \$header_text,
     );
 
-    return ( $line_sep, $sep_idx, $headers );
+    return ( $sep_idx, $headers );
 }
 
 {

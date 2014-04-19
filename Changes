@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+- Courriel parsing is now more liberal and will accept an email with mixed
+  line endings (some newline, some CRLF, etc.). Apparently this happens in the
+  wild (of course it does). Reported by Joseph Crotty. RT #94837.
+
+
 0.31     2013-04-03
 
 [MISC]

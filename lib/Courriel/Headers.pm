@@ -270,38 +270,35 @@ sub _key_indices_for {
 }
 
 {
+    my $horiz_text = qr/[^\x0a\x0d]/;
     my $horiz_ws = qr/[ \t]/;
     my $line_re  = qr/
                       (?:
                           ([^\s:][^:\n\r]*)  # a header name
                           :                  # followed by a colon
                           $horiz_ws*
-                          (.*)               # header value - can be empty
+                          ($horiz_text*)     # header value - can be empty
                       )
                       |
-                      $horiz_ws+(\S.*)?      # continuation line
+                      $horiz_ws+(\S$horiz_text*)?      # continuation line
                      /x;
 
     my @spec = (
         text => { isa => StringRef, coerce => 1 },
-        line_sep =>
-            { isa => NonEmptyStr, default => $Courriel::Helpers::CRLF },
     );
 
     sub parse {
         my $class = shift;
-        my ( $text, $sep ) = validated_list(
+        my ( $text ) = validated_list(
             \@_,
             @spec,
         );
 
         my @headers;
 
-        my $sep_re = qr/\Q$sep/;
+        $class->_maybe_fix_broken_headers($text);
 
-        $class->_maybe_fix_broken_headers( $text, $sep_re );
-
-        while ( ${$text} =~ /\G${line_re}${sep_re}/gc ) {
+        while ( ${$text} =~ /\G${line_re}$Courriel::Helpers::LINE_SEP_RE/gc ) {
             if ( defined $1 ) {
                 push @headers, $1, $2;
             }
@@ -324,10 +321,10 @@ sub _key_indices_for {
 
         my $pos = pos ${$text} // 0;
         if ( $pos != length ${$text} ) {
-            my @lines = split $sep_re, substr( ${$text}, 0, $pos );
+            my @lines = split $Courriel::Helpers::LINE_SEP_RE, substr( ${$text}, 0, $pos );
             my $count = ( scalar @lines ) + 1;
 
-            my $line = ( split $sep_re, ${$text} )[ $count - 1 ];
+            my $line = ( split $Courriel::Helpers::LINE_SEP_RE, ${$text} )[ $count - 1 ];
 
             die defined $line
                 ? "Found an unparseable chunk in the header text starting at line $count:\n  $line"
@@ -343,14 +340,13 @@ sub _key_indices_for {
 }
 
 sub _maybe_fix_broken_headers {
-    my $class  = shift;
-    my $text   = shift;
-    my $sep_re = shift;
+    my $class = shift;
+    my $text  = shift;
 
     # Some broken email messages have a newline in the headers that isn't
     # acting as a continuation, it's just an arbitrary line break. See
     # t/data/stress-test/mbox_mime_applemail_1xb.txt
-    ${$text} =~ s/$sep_re([^\s:][^:]+$sep_re)/$1/g;
+    ${$text} =~ s/$Courriel::Helpers::LINE_SEP_RE([^\s:][^:]+$Courriel::Helpers::LINE_SEP_RE)/$1/g;
 
     return;
 }
@@ -522,12 +518,6 @@ parameters:
 
 The text to parse. This can either be a plain scalar or a reference to a
 scalar. If you pass a reference, the underlying scalar may be modified.
-
-=item * line_sep
-
-The line separator. This defaults to a "\r\n", but you can change it if
-necessary. Note that this only affects parsing, header objects are always
-output with RFC-compliant line endings.
 
 =back
 
