@@ -47,6 +47,8 @@ sub as_string {
 
 __END__
 
+=encoding utf-8
+
 =head1 DESCRIPTION
 
 This module wraps the Courriel mail handling library with an abstract

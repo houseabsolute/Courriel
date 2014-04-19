@@ -174,6 +174,8 @@ __PACKAGE__->meta()->make_immutable();
 
 __END__
 
+=encoding utf-8
+
 =head1 SYNOPSIS
 
   my $ct = $headers->get('Content-Type');
