@@ -45,7 +45,7 @@ use List::AllUtils qw( all );
     is( scalar @date, 1, 'found one Date header' );
     like(
         $date[0]->value(),
-        qr/\w\w\w, \d\d \w\w\w \d\d\d\d \d\d:\d\d:\d\d [-+]\d\d\d\d/,
+        qr/\w\w\w, \d\d? \w\w\w \d\d\d\d \d\d:\d\d:\d\d [-+]\d\d\d\d/,
         'Date header looks like a proper date'
     );
 
@@ -92,7 +92,12 @@ use List::AllUtils qw( all );
 }
 
 {
-    my $dt = DateTime->new( year => 1980, time_zone => 'UTC' );
+    my $dt = DateTime->new(
+        year      => 1980,
+        month     => 1,
+        day       => 13,
+        time_zone => '-0500'
+    );
 
     my $email = build_email(
         subject('Test Subject'),
@@ -104,7 +109,7 @@ use List::AllUtils qw( all );
     is( scalar @date, 1, 'found one Date header' );
     is(
         $date[0]->value(),
-        'Tue, 01 Jan 1980 00:00:00 -0000',
+        'Sun, 13 Jan 1980 00:00:00 -0500',
         'explicit Date header is not overwritten'
     );
 }
