@@ -45,7 +45,7 @@ use List::AllUtils qw( all );
     is( scalar @date, 1, 'found one Date header' );
     like(
         $date[0]->value(),
-        qr/\w\w\w, \d\d? \w\w\w \d\d\d\d \d\d:\d\d:\d\d [-+]\d\d\d\d/,
+        qr/\w\w\w, +\d{1,2} \w\w\w \d\d\d\d \d\d:\d\d:\d\d [-+]\d\d\d\d/,
         'Date header looks like a proper date'
     );
 
