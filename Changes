@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.35     2014-05-12
+
 - Replaced all uses of File::Slurp with File::Slurp::Tiny. See RT #95479 for
   the initial bug report and discussion on why File::Slurp should not be used.
 
