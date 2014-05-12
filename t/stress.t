@@ -8,7 +8,7 @@ use Test::Requires (
     'Path::Class' => '0',
 );
 
-use File::Slurp qw( read_file );
+use File::Slurp::Tiny qw( read_file );
 use Path::Class qw( dir );
 
 use Courriel;

@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+- Replaced all uses of File::Slurp with File::Slurp::Tiny. See RT #95479 for
+  the initial bug report and discussion on why File::Slurp should not be used.
+
+
 0.34     2014-05-02
 
 - More test fixes - relax the date parsing more.
