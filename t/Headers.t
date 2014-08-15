@@ -142,6 +142,18 @@ EOF
 }
 
 {
+    my $h = Courriel::Headers->new();
+
+    $h->add( Subject => ' test' );
+
+    is(
+        $h->as_string,
+        "Subject:  test\r\n",
+        'Headers prefixed by whitespace are not blank'
+    );
+}
+
+{
     my ( $val, $attrs )
         = Courriel::Helpers::parse_header_with_attributes(
         q{foo/bar; test1=simple; test2="quoted string"});

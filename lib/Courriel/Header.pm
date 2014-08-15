@@ -64,6 +64,8 @@ sub as_string {
 {
     my $header_chunk = qr/
                              (?:
+                                 ^
+                             |
                                  (?<ascii>[\x21-\x7e]+)   # printable ASCII (excluding space, \x20)
                              |
                                  (?<non_ascii>\S+)        # anything that's not space
