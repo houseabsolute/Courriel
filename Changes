@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.36     2014-08-15
+
 - Trying to build an email with a header that started with a space caused the
   header value to be dropped entirely from the generated email. Patch by Greg
   Oschwald. PR #2.
