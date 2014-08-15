@@ -225,5 +225,5 @@ with "\r\n".
 
 =head1 ROLES
 
-This class does the C<Courriel::Role::Part> and L<Courriel::Role::Streams>
+This class does the C<Courriel::Role::Part> and C<Courriel::Role::Streams>
 roles.
