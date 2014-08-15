@@ -211,4 +211,4 @@ This class extends L<Courriel::Header>.
 
 =head1 ROLES
 
-This class does the L<Courriel::Role::HeaderWithAttributes> role.
+This class does the C<Courriel::Role::HeaderWithAttributes> role.
