@@ -107,7 +107,9 @@ sub as_string {
                 push @values, q{ } if $chunks[ $i + 1 ];
             }
             else {
-                push @values, $chunks[$i]{ascii} . ( $chunks[$i]{ws} // q{} );
+                push @values,
+                    ( $chunks[$i]{ascii} // q{} )
+                    . ( $chunks[$i]{ws}  // q{} );
             }
         }
 
