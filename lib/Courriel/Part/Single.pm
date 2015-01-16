@@ -228,8 +228,8 @@ This method creates a new part object. It accepts the following parameters:
 
 =item * content
 
-This can either be a string or a reference to a scalar. It should be in Perl's
-native utf-8 encoding and I<not> a byte string.
+This can either be a string or a reference to a scalar. It should be a character
+string, I<not> a byte string.
 
 If you pass a reference, then the scalar underlying the reference may be
 modified, so don't pass in something you don't want modified.
