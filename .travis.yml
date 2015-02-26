@@ -22,6 +22,8 @@ before_install:
   - cd $BUILD_DIR
 
 install:
+  - sudo apt-get update
+  - sudo apt-get install libmagic1 libmagic-dev
   - cpan-install ExtUtils::MakeMaker~6.68 --deps
 
 script:
