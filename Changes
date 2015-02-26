@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+- Fixed a test failure when MooseX::Params::Validate 0.21+ is
+  installed. Reported by Slaven Rezic. RT #102382.
+
+
 0.36     2014-08-15
 
 - Trying to build an email with a header that started with a space caused the
