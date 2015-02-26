@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use namespace::autoclean;
 
+our $VERSION = '0.37';
+
 use Courriel::Helpers qw( fold_header );
 use Courriel::Types qw( NonEmptyStr Str Streamable );
 use Encode qw( encode find_encoding );

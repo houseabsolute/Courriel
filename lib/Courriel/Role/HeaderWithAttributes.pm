@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use namespace::autoclean;
 
+our $VERSION = '0.37';
+
 use Courriel::HeaderAttribute;
 use Courriel::Helpers qw( parse_header_with_attributes );
 use Courriel::Types qw( HashRef NonEmptyStr );

@@ -3,6 +3,8 @@ package Courriel::Builder;
 use strict;
 use warnings;
 
+our $VERSION = '0.37';
+
 use Carp qw( croak );
 use Courriel;
 use Courriel::Header::ContentType;
