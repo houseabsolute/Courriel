@@ -60,6 +60,7 @@ sub parse_header_with_attributes {
 
     my ($val) = $text =~ /([^\s;]+)(?:\s*;\s*(.*))?\z/s;
 
+    ## no critic (RegularExpressions::ProhibitCaptureWithoutTest)
     return (
         $val,
         _parse_attributes($2),
@@ -122,7 +123,7 @@ sub _parse_attributes {
         my $charset;
         my $language;
 
-        my $order = $+{order} || 0 ;
+        my $order = $+{order} || 0;
 
         if ( $+{is_encoded} ) {
             if ($order) {
@@ -145,7 +146,7 @@ sub _parse_attributes {
             $value = $+{value};
         }
 
-        $attrs->{$name}[ $order] = {
+        $attrs->{$name}[$order] = {
             value    => $value,
             charset  => $charset,
             language => $language,
@@ -173,7 +174,7 @@ sub _inflate_attribute {
     my $name     = shift;
     my $raw_data = shift;
 
-    my $value = join q{}, grep { defined } map { $_->{value} } @{$raw_data};
+    my $value = join q{}, grep {defined} map { $_->{value} } @{$raw_data};
 
     my %p = (
         name  => $_,

@@ -22,7 +22,8 @@ use MooseX::Types -declare => [
         )
 ];
 use MooseX::Types::Common::String qw( NonEmptyStr );
-use MooseX::Types::Moose qw( ArrayRef CodeRef FileHandle HashRef Object ScalarRef Str );
+use MooseX::Types::Moose
+    qw( ArrayRef CodeRef FileHandle HashRef Object ScalarRef Str );
 
 #<<<
 subtype Body,
@@ -51,7 +52,9 @@ my $_check_header_array = sub {
         }
     }
 
+    ## no critic (ControlStructures::ProhibitNegativeExpressionsInUnlessAndUntilConditions)
     return 0 unless all { defined $_ && length $_ && !ref $_ } @{$_}[@even];
+    ## use critic;
     return 0
         unless all { blessed($_) && $_->isa('Courriel::Header') } @{$_}[@odd];
 
@@ -78,7 +81,7 @@ coerce Streamable,
     from FileHandle,
     via sub {
         my $fh = $_;
-        return sub { print {$fh} @_ };
+        return sub { print {$fh} @_ or die $! };
     };
 
 coerce Streamable,

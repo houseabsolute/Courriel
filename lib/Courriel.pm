@@ -12,8 +12,7 @@ use Courriel::Headers;
 use Courriel::Helpers qw( unique_boundary );
 use Courriel::Part::Multipart;
 use Courriel::Part::Single;
-use Courriel::Types
-    qw( ArrayRef Bool Headers Maybe Part Str StringRef );
+use Courriel::Types qw( ArrayRef Bool Headers Maybe Part Str StringRef );
 use DateTime;
 use DateTime::Format::Mail;
 use DateTime::Format::Natural;
@@ -39,7 +38,7 @@ has top_level_part => (
             is_multipart
             stream_to
             )
-    ]
+    ],
 );
 
 has subject => (
@@ -185,7 +184,7 @@ sub clone_without_attachments {
         );
     }
 
-    die "Cannot find a text or html body in this email!";
+    die 'Cannot find a text or html body in this email!';
 }
 
 sub _build_subject {
@@ -324,6 +323,7 @@ sub first_part_matching {
 
     my @parts = $self->top_level_part();
 
+    ## no critic (ControlStructures::ProhibitCStyleForLoops)
     for ( my $part = shift @parts; $part; $part = shift @parts ) {
         return $part if $match->($part);
 
@@ -338,6 +338,7 @@ sub all_parts_matching {
     my @parts = $self->top_level_part();
 
     my @match;
+    ## no critic (ControlStructures::ProhibitCStyleForLoops)
     for ( my $part = shift @parts; $part; $part = shift @parts ) {
         push @match, $part if $match->($part);
 
@@ -394,12 +395,12 @@ sub all_parts_matching {
 }
 
 sub _parse {
-    my $class     = shift;
-    my $text      = shift;
+    my $class = shift;
+    my $text  = shift;
 
     my ( $sep_idx, $headers ) = $class->_parse_headers($text);
 
-    substr( ${$text}, 0, $sep_idx ) = q{};
+    substr( ${$text}, 0, $sep_idx, q{} );
 
     return $class->_parse_parts( $text, $headers );
 }
@@ -415,12 +416,13 @@ sub _parse_headers {
     # but we may find broken lines. The key is that it starts with From
     # followed by space, not a colon.
     ${$text} =~ s/^From\s+.+$Courriel::Helpers::LINE_SEP_RE//;
+
     # Some broken emails may split the From line in an arbitrary spot
     ${$text} =~ s/^[^:]+$Courriel::Helpers::LINE_SEP_RE//g;
 
     if ( ${$text} =~ /^(.+?)($Courriel::Helpers::LINE_SEP_RE)\g{2}/s ) {
         $header_text = $1 . $2;
-        $sep_idx     = ( length $header_text ) + ( length $2 );
+        $sep_idx = ( length $header_text ) + ( length $2 );
     }
     else {
         return ( 0, Courriel::Headers::->new() );
@@ -507,7 +509,7 @@ sub _parse_multipart {
                 && $epilogue =~ /\S/ ? ( epilogue => $epilogue ) : ()
         ),
         boundary => $boundary,
-        parts    => [ map { $class->_parse( \$_ ) } @part_text ],
+        parts => [ map { $class->_parse( \$_ ) } @part_text ],
     );
 }
 

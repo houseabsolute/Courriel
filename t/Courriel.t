@@ -11,9 +11,11 @@ use Courriel::Helpers;
 use Encode qw( encode is_utf8 );
 use Scalar::Util qw( blessed );
 
+## no critic (InputOutput::RequireCheckedSyscalls)
 binmode $_, ':encoding(UTF-8)'
     for map { Test::Builder->new()->$_() }
     qw( output failure_output todo_output );
+## use critic
 
 my $crlf = $Courriel::Helpers::CRLF;
 
@@ -25,7 +27,7 @@ This is the body
 EOF
 
     my $email = Courriel->parse( text => \$text );
-    ok( defined $email->subject );
+    ok( defined $email->subject, 'empty subject is defined' );
 }
 
 {
@@ -475,8 +477,8 @@ EOF
             month     => 5,
             day       => 29,
             hour      => 11,
-            minute    => 01,
-            second    => 02,
+            minute    => 1,
+            second    => 2,
             time_zone => '-0500',
             )->set_time_zone('UTC')->strftime('%{datetime} %Z'),
         'got creation_datetime from content disposition'
@@ -490,8 +492,8 @@ EOF
             month     => 5,
             day       => 29,
             hour      => 11,
-            minute    => 01,
-            second    => 03,
+            minute    => 1,
+            second    => 3,
             time_zone => '-0500',
             )->set_time_zone('UTC')->strftime('%{datetime} %Z'),
         'got modification_datetime from content disposition'
@@ -505,8 +507,8 @@ EOF
             month     => 5,
             day       => 29,
             hour      => 11,
-            minute    => 01,
-            second    => 04,
+            minute    => 1,
+            second    => 4,
             time_zone => '-0500',
             )->set_time_zone('UTC')->strftime('%{datetime} %Z'),
         'got read_datetime from content disposition'
@@ -526,7 +528,7 @@ EOF
         'email is multipart/mixed'
     );
 
-    my @parts = $email->all_parts_matching( sub { 1 } );
+    my @parts = $email->all_parts_matching( sub {1} );
 
     is(
         scalar @parts, 4,
@@ -541,7 +543,7 @@ EOF
         'after clone type is text/plain'
     );
 
-    @parts = $clone->all_parts_matching( sub { 1 } );
+    @parts = $clone->all_parts_matching( sub {1} );
 
     is(
         scalar @parts, 1,
@@ -577,7 +579,7 @@ EOF
         'email is multipart/mixed'
     );
 
-    my @parts = $email->all_parts_matching( sub { 1 } );
+    my @parts = $email->all_parts_matching( sub {1} );
 
     is(
         scalar @parts, 6,
@@ -592,7 +594,7 @@ EOF
         'after clone type is multipart/alternative'
     );
 
-    @parts = $clone->all_parts_matching( sub { 1 } );
+    @parts = $clone->all_parts_matching( sub {1} );
 
     is(
         scalar @parts, 3,
@@ -888,6 +890,8 @@ EOF
     );
 
     $string = q{};
+
+    ## no critic (InputOutput::RequireCheckedOpen, InputOutput::RequireCheckedSyscalls, InputOutput::RequireBriefOpen)
     open my $fh, '>', \$string;
 
     $email->stream_to( output => $fh );
@@ -920,7 +924,8 @@ done_testing();
 sub _headers_as_arrayref {
     my $email = shift;
 
-    return [ map { blessed($_) ? $_->value() : $_ } $email->headers()->headers() ];
+    return [ map { blessed($_) ? $_->value() : $_ }
+            $email->headers()->headers() ];
 }
 
 sub _compare_text {
@@ -947,6 +952,7 @@ sub _compare_text {
         return bless $stringref, $_[0];
     }
 
+    ## no critic (Subroutines::ProhibitBuiltinHomonyms)
     sub print {
         my $self = shift;
 

@@ -41,11 +41,11 @@ has _original_mime_type => (
 );
 
 has charset => (
-    is        => 'ro',
-    isa       => Maybe[NonEmptyStr],
-    init_arg  => undef,
-    lazy      => 1,
-    builder   => '_build_charset',
+    is       => 'ro',
+    isa      => Maybe [NonEmptyStr],
+    init_arg => undef,
+    lazy     => 1,
+    builder  => '_build_charset',
 );
 
 around BUILDARGS => sub {

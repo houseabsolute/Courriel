@@ -64,6 +64,7 @@ use Sub::Exporter -setup => {
         my @attachments;
 
         for my $p (@_) {
+            ## no critic (ControlStructures::ProhibitCascadingIfElse)
             if ( $p->{header} ) {
                 push @headers, @{ $p->{header} };
             }
@@ -96,7 +97,7 @@ use Sub::Exporter -setup => {
         else {
             $body_part = first {defined} $plain_body, $html_body;
 
-            croak "Cannot call build_email without a plain or html body"
+            croak 'Cannot call build_email without a plain or html body'
                 unless $body_part;
         }
 
@@ -127,7 +128,7 @@ use Sub::Exporter -setup => {
 }
 
 sub _bad_value {
-    croak "A weird value was passed to build_email: "
+    croak 'A weird value was passed to build_email: '
         . Devel::PartialDump->new()->dump( $_[0] );
 }
 
@@ -138,9 +139,8 @@ sub _add_required_headers {
 
     unless ( $keys{date} ) {
         push @{$headers},
-            (
-            Date => DateTime::Format::Mail->format_datetime( DateTime->now() )
-            );
+            ( Date =>
+                DateTime::Format::Mail->format_datetime( DateTime->now() ) );
     }
 
     unless ( $keys{'message-id'} ) {
@@ -333,7 +333,8 @@ sub attach {
         : @_;
 
     return {
-        attachment => $p{file} ? _part_for_file(%p) : _part_for_content(%p) };
+        attachment => $p{file} ? _part_for_file(%p) : _part_for_content(%p)
+    };
 }
 
 my $flm = File::LibMagic->new();
@@ -404,12 +405,14 @@ my $flm = File::LibMagic->new();
 sub _content_type {
     my $type = shift;
 
-    return Courriel::Header::ContentType->new( mime_type => 'application/unknown' )
+    return Courriel::Header::ContentType->new(
+        mime_type => 'application/unknown' )
         unless defined $type;
 
     my ( $mime_type, $attr ) = parse_header_with_attributes($type);
 
-    return Courriel::Header::ContentType->new( mime_type => 'application/unknown' )
+    return Courriel::Header::ContentType->new(
+        mime_type => 'application/unknown' )
         unless defined $mime_type && length $mime_type;
 
     return Courriel::Header::ContentType->new(

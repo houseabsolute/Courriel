@@ -135,7 +135,7 @@ sub _mime_encode {
 
     my @result;
     my $chunk = q{};
-    while ( length( my $chr = substr( $text, 0, 1, '' ) ) ) {
+    while ( length( my $chr = substr( $text, 0, 1, q{} ) ) ) {
         my $chr = encode( $charset, $chr, 0 );
 
         if ( length($chunk) + length($chr) > $real_length ) {

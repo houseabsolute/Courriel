@@ -10,6 +10,7 @@ use Test::More 0.88;
 
 use Courriel::Builder;
 
+## no critic (Variables::RequireLocalizedPunctuationVars)
 BEGIN { $ENV{EMAIL_SENDER_TRANSPORT} = 'Test' }
 use Email::Sender::Simple qw( sendmail );
 

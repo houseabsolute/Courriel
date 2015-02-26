@@ -41,7 +41,7 @@ has _parts => (
 
 sub BUILD {
     my $self = shift;
-    my $p = shift;
+    my $p    = shift;
 
     my $boundary = delete $p->{boundary} // unique_boundary();
     my $existing = $self->content_type()->attribute('boundary');
@@ -62,10 +62,7 @@ sub is_attachment {0}
 sub is_inline     {0}
 sub is_multipart  {1}
 
-sub _default_mime_type {
-    return 'multipart/mixed';
-}
-
+## no critic (Subroutines::ProhibitUnusedPrivateSubroutines)
 sub _stream_content {
     my $self   = shift;
     my $output = shift;
@@ -97,6 +94,7 @@ sub _stream_content {
 
     return;
 }
+## use critic
 
 sub boundary {
     my $self = shift;
