@@ -40,7 +40,6 @@ use Courriel::HeaderAttribute;
         value => 'has space',
     );
 
-
     is(
         $attr->as_string(),
         q{foo="has space"},
@@ -53,7 +52,6 @@ use Courriel::HeaderAttribute;
         name  => 'foo',
         value => q{has space and double quote (")},
     );
-
 
     is(
         $attr->as_string(),
