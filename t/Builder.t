@@ -8,6 +8,7 @@ use Test::More 0.88;
 use Courriel::Builder;
 use Courriel::Helpers;
 use List::AllUtils qw( all );
+use Sys::Hostname qw( hostname );
 
 {
     my $email = build_email(
@@ -196,7 +197,8 @@ EOF
 SKIP:
     {
         skip 'These tests rely on my local magic definitions', 2
-            unless $ENV{RELEASE_TESTING};
+            unless $ENV{RELEASE_TESTING}
+            && hostname() eq 'houseabsolute.urth.org';
 
         like(
             $attachment->mime_type(),
