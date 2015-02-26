@@ -396,7 +396,7 @@ EOF
 {
     like(
         exception { build_email( ['wtf'] ); },
-        qr/checking type constraint for HashRef/,
+        qr/\QValidation failed for 'HashRef' with value [ "wtf" ]/,
         'got error when passing invalid value to build_email'
     );
 }

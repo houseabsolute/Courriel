@@ -18,7 +18,7 @@ use DateTime::Format::Natural;
 use Email::Address;
 use Encode qw( encode );
 use List::AllUtils qw( uniq );
-use MooseX::Params::Validate qw( validated_list );
+use MooseX::Params::Validate 0.21 qw( validated_list );
 
 use Moose;
 use MooseX::StrictConstructor;
