@@ -6,6 +6,8 @@ use namespace::autoclean;
 
 use parent 'MooseX::Types::Combine';
 
+our $VERSION = '0.37';
+
 __PACKAGE__->provide_types_from(
     qw(
         MooseX::Types::Common::String

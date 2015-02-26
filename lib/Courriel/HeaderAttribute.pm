@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use namespace::autoclean;
 
+our $VERSION = '0.37';
+
 use Courriel::HeaderAttribute;
 use Courriel::Helpers qw( quote_and_escape_attribute_value );
 use Courriel::Types qw( Maybe NonEmptyStr Str );

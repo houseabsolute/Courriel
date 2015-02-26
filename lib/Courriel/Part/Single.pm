@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use namespace::autoclean;
 
+our $VERSION = '0.37';
+
 use Courriel::Header::Disposition;
 use Courriel::Types qw( NonEmptyStr StringRef );
 use Email::MIME::Encodings;
