@@ -16,7 +16,8 @@ use MooseX::StrictConstructor;
 
 extends 'Courriel::Header';
 
-with 'Courriel::Role::HeaderWithAttributes' => { main_value_key => 'disposition' };
+with 'Courriel::Role::HeaderWithAttributes' =>
+    { main_value_key => 'disposition' };
 
 has '+value' => (
     required => 0,
@@ -55,7 +56,7 @@ has filename => (
         exists $_[0]->_attributes()->{filename}
             ? $_[0]->_attributes()->{filename}->value()
             : undef;
-    }
+    },
 );
 
 {

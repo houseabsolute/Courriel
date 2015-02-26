@@ -14,7 +14,7 @@ use Moose::Role;
 
 with 'Courriel::Role::Streams';
 
-requires qw( _default_mime_type _stream_content );
+requires qw( _stream_content );
 
 has headers => (
     is       => 'rw',
@@ -63,6 +63,7 @@ sub _maybe_set_content_type_in_headers {
     $self->headers()->replace( 'Content-Type' => $self->content_type() );
 }
 
+## no critic (Subroutines::ProhibitUnusedPrivateSubroutines)
 sub _stream_to {
     my $self   = shift;
     my $output = shift;
@@ -73,6 +74,7 @@ sub _stream_to {
 
     return;
 }
+## use critic;
 
 {
     my $fake_ct = Courriel::Header::ContentType->new_from_value(

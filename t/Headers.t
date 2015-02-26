@@ -11,9 +11,11 @@ use Courriel::Headers;
 use Courriel::Helpers;
 use Scalar::Util qw( blessed );
 
+## no critic (InputOutput::RequireCheckedSyscalls)
 binmode $_, ':encoding(UTF-8)'
     for map { Test::Builder->new()->$_() }
     qw( output failure_output todo_output );
+## use critic
 
 my $crlf = $Courriel::Helpers::CRLF;
 
@@ -160,8 +162,7 @@ EOF
 
     is( $val, 'foo/bar', 'got correct value for header with attributes' );
     is_deeply(
-        _attributes_as_hashref($attrs),
-        {
+        _attributes_as_hashref($attrs), {
             test1 => 'simple',
             test2 => 'quoted string',
         },
@@ -176,8 +177,7 @@ EOF
 
     is( $val, 'foo/bar', 'got correct value for header with attributes' );
     is_deeply(
-        _attributes_as_hashref($attrs),
-        {
+        _attributes_as_hashref($attrs), {
             test1 => 'single',
             test2 => 'double',
         },
@@ -193,8 +193,7 @@ EOF
 
     is( $val, 'foo/bar', 'got correct value for header with attributes' );
     is_deeply(
-        _attributes_as_hashref($attrs),
-        {
+        _attributes_as_hashref($attrs), {
             test1 => q{has "escaped vals},
             test2 => q{contains ' single quote},
         },
@@ -208,8 +207,7 @@ EOF
         q{foo/bar; val*0=foo; val*1=bar});
 
     is_deeply(
-        _attributes_as_hashref($attrs),
-        {
+        _attributes_as_hashref($attrs), {
             val => 'foobar',
         },
         'parsed attribute continuation correctly'
@@ -222,8 +220,7 @@ EOF
         q{foo/bar; val*0="foo bar"; val*1=" baz buz"});
 
     is_deeply(
-        _attributes_as_hashref($attrs),
-        {
+        _attributes_as_hashref($attrs), {
             val => 'foo bar baz buz',
         },
         'parsed quoted attribute continuation correctly'
@@ -236,8 +233,7 @@ EOF
         q{foo/bar; val*0=foo; val*1=" bar"});
 
     is_deeply(
-        _attributes_as_hashref($attrs),
-        {
+        _attributes_as_hashref($attrs), {
             val => 'foo bar',
         },
         'parsed partially quoted attribute continuation correctly'

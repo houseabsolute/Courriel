@@ -13,6 +13,7 @@ use Moose::Role;
 
 {
     my @spec = ( output => { isa => Streamable, coerce => 1 } );
+
     sub stream_to {
         my $self = shift;
         my ($output) = validated_list(

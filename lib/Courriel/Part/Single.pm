@@ -126,10 +126,6 @@ sub _maybe_set_disposition_in_headers {
 
 sub is_multipart {0}
 
-sub _default_mime_type {
-    return 'text/plain';
-}
-
 {
     my %unencoded = map { $_ => 1 } qw( 7bit 8bit binary );
 
@@ -148,7 +144,8 @@ sub _default_mime_type {
 
         return \$bytes if $self->content_type()->is_binary();
 
-        return \$bytes if lc $self->content_type()->charset() eq 'unknown-8bit';
+        return \$bytes
+            if lc $self->content_type()->charset() eq 'unknown-8bit';
 
         return \(
             decode(
@@ -188,12 +185,14 @@ sub encoded_content {
     return ${ $_[0]->encoded_content_ref() };
 }
 
+## no critic (Subroutines::ProhibitUnusedPrivateSubroutines)
 sub _stream_content {
     my $self   = shift;
     my $output = shift;
 
     return $output->( $self->encoded_content() );
 }
+## use critic
 
 __PACKAGE__->meta()->make_immutable();
 

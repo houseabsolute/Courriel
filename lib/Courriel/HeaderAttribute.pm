@@ -52,12 +52,14 @@ override BUILDARGS => sub {
     return $p;
 };
 
+## no critic (Subroutines::ProhibitUnusedPrivateSubroutines)
 sub _stream_to {
     my $self   = shift;
     my $output = shift;
 
     $output->( $self->_as_string() );
 }
+## use critic
 
 {
     my $non_attribute_char = qr{
@@ -118,6 +120,7 @@ sub _stream_to {
     }
 }
 
+## no critic (Subroutines::ProhibitUnusedPrivateSubroutines)
 sub _simple_parameter {
     my $self  = shift;
     my $order = shift;
@@ -159,14 +162,14 @@ sub _encoded_parameter {
     # XXX (1) - does it makes sense to just say everything is utf-8? in theory
     # someone could pass through binary data in another encoding.
     unless ($order) {
-        $param .= 'UTF-8' . q{'}
-            . ( $self->language() // q{} ) . q{'};
+        $param .= 'UTF-8' . q{'} . ( $self->language() // q{} ) . q{'};
     }
 
     $param .= $value;
 
     return $param;
 }
+## use critic;
 
 __PACKAGE__->meta()->make_immutable();
 

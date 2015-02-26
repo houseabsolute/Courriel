@@ -71,7 +71,8 @@ override BUILDARGS => sub {
     if ( reftype( $p->{headers} ) eq 'ARRAY' ) {
         my $headers = $p->{headers};
 
-        for ( my $i = 1 ; $i < @{$headers} ; $i += 2 ) {
+        ## no critic (ControlStructures::ProhibitCStyleForLoops)
+        for ( my $i = 1; $i < @{$headers}; $i += 2 ) {
             next if blessed( $headers->[ $i - 1 ] );
 
             my $name = $headers->[ $i - 1 ];
@@ -117,6 +118,7 @@ sub _build_key_indices {
     my $headers = $self->_headers();
 
     my %indices;
+    ## no critic (ControlStructures::ProhibitCStyleForLoops)
     for ( my $i = 0; $i < @{$headers}; $i += 2 ) {
         push @{ $indices{ lc $headers->[$i] } }, $i + 1;
     }
@@ -204,6 +206,8 @@ sub _key_indices_for {
     );
 
     # Used to add things like Resent or Received headers
+
+    ## no critic (Subroutines::ProhibitBuiltinHomonyms)
     sub unshift {
         my $self = shift;
         my ( $name, $value ) = pos_validated_list(
@@ -273,8 +277,8 @@ sub _key_indices_for {
 
 {
     my $horiz_text = qr/[^\x0a\x0d]/;
-    my $horiz_ws = qr/[ \t]/;
-    my $line_re  = qr/
+    my $horiz_ws   = qr/[ \t]/;
+    my $line_re    = qr/
                       (?:
                           ([^\s:][^:\n\r]*)  # a header name
                           :                  # followed by a colon
@@ -291,7 +295,7 @@ sub _key_indices_for {
 
     sub parse {
         my $class = shift;
-        my ( $text ) = validated_list(
+        my ($text) = validated_list(
             \@_,
             @spec,
         );
@@ -300,7 +304,8 @@ sub _key_indices_for {
 
         $class->_maybe_fix_broken_headers($text);
 
-        while ( ${$text} =~ /\G${line_re}$Courriel::Helpers::LINE_SEP_RE/gc ) {
+        while ( ${$text} =~ /\G${line_re}$Courriel::Helpers::LINE_SEP_RE/gc )
+        {
             if ( defined $1 ) {
                 push @headers, $1, $2;
             }
@@ -317,23 +322,26 @@ sub _key_indices_for {
                 #   structured header field are semantically interpreted as a single
                 #   space character.
                 $headers[-1] .= q{ } if length $headers[-1];
-                $headers[-1] .= $3 if defined $3;
+                $headers[-1] .= $3   if defined $3;
             }
         }
 
         my $pos = pos ${$text} // 0;
         if ( $pos != length ${$text} ) {
-            my @lines = split $Courriel::Helpers::LINE_SEP_RE, substr( ${$text}, 0, $pos );
+            my @lines = split $Courriel::Helpers::LINE_SEP_RE,
+                substr( ${$text}, 0, $pos );
             my $count = ( scalar @lines ) + 1;
 
-            my $line = ( split $Courriel::Helpers::LINE_SEP_RE, ${$text} )[ $count - 1 ];
+            my $line = ( split $Courriel::Helpers::LINE_SEP_RE, ${$text} )
+                [ $count - 1 ];
 
             die defined $line
                 ? "Found an unparseable chunk in the header text starting at line $count:\n  $line"
                 : 'Could not parse headers at all';
         }
 
-        for ( my $i = 1 ; $i < @headers ; $i += 2 ) {
+        ## no critic (ControlStructures::ProhibitCStyleForLoops)
+        for ( my $i = 1; $i < @headers; $i += 2 ) {
             $headers[$i] = $class->_mime_decode( $headers[$i] );
         }
 
@@ -348,7 +356,8 @@ sub _maybe_fix_broken_headers {
     # Some broken email messages have a newline in the headers that isn't
     # acting as a continuation, it's just an arbitrary line break. See
     # t/data/stress-test/mbox_mime_applemail_1xb.txt
-    ${$text} =~ s/$Courriel::Helpers::LINE_SEP_RE([^\s:][^:]+$Courriel::Helpers::LINE_SEP_RE)/$1/g;
+    ${$text}
+        =~ s/$Courriel::Helpers::LINE_SEP_RE([^\s:][^:]+$Courriel::Helpers::LINE_SEP_RE)/$1/g;
 
     return;
 }
@@ -369,7 +378,7 @@ sub _maybe_fix_broken_headers {
 
         my %skip = map { lc $_ => 1 } @{$skip};
 
-        for my $header ( grep { blessed($_) } @{$self->_headers()} ) {
+        for my $header ( grep { blessed($_) } @{ $self->_headers() } ) {
             next if $skip{ lc $header->name() };
 
             $header->stream_to( charset => $charset, output => $output );
@@ -443,8 +452,8 @@ sub as_string {
             $result .= $chunks[$i]{content};
             $result .= ( $chunks[$i]{ws} // q{} )
                 unless $chunks[$i]{is_mime}
-                    && $chunks[ $i + 1 ]
-                    && $chunks[ $i + 1 ]{is_mime};
+                && $chunks[ $i + 1 ]
+                && $chunks[ $i + 1 ]{is_mime};
         }
 
         return $result;

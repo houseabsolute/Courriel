@@ -281,8 +281,10 @@ EOF
 
 {
     open my $fh, '<', 't/data/office.jpg' or die $!;
+    ## no critic (Variables::RequireInitializationForLocalVars)
     my $image = do { local $/; <$fh> };
-    close $fh;
+    ## use critic
+    close $fh or die $!;
 
     my $email = build_email(
         subject('Test Subject'),
