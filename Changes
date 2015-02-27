@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.37     2015-02-26
+
 - Fixed a test failure when MooseX::Params::Validate 0.21+ is
   installed. Reported by Slaven Rezic. RT #102382.
 
