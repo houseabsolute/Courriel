@@ -4,6 +4,9 @@ addons:
   apt:
     packages:
       - aspell
+      - aspell-dictionary
+      - aspell-en
+      - aspell6a-dictionary
       - libmagic-dev
       - libmagic1
 language: perl
