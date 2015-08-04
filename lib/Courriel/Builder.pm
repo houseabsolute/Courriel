@@ -469,7 +469,7 @@ __END__
             attach('path/to/other-image.jpg'),
         ),
         attach('path/to/spreadsheet.xls'),
-        attach($file_content),
+        attach( content => $file_content ),
     );
 
 =head1 DESCRIPTION
