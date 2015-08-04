@@ -46,12 +46,14 @@ sub BUILD {
     my $boundary = delete $p->{boundary} // unique_boundary;
     my $existing = $self->content_type->attribute('boundary');
 
+    ## no critic (Subroutines::ProtectPrivateSubs)
     $self->content_type->_set_attribute(
         boundary => Courriel::HeaderAttribute->new(
             name => ( $existing ? $existing->name : 'boundary' ),
             value => $boundary,
         )
     );
+    ## use critic
 
     $_->_set_container($self) for $self->parts;
 
