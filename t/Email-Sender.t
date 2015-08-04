@@ -24,7 +24,7 @@ use Email::Sender::Simple qw( sendmail );
 
     sendmail($email);
 
-    my @sent = Email::Sender::Simple->default_transport()->deliveries();
+    my @sent = Email::Sender::Simple->default_transport->deliveries;
 
     is(
         scalar @sent, 1,
@@ -40,8 +40,8 @@ use Email::Sender::Simple qw( sendmail );
     );
 
     is(
-        $sent[0]->{email}->get_body(),
-        $email->plain_body_part()->content(),
+        $sent[0]->{email}->get_body,
+        $email->plain_body_part->content,
         'sent email had the right body'
     );
 }

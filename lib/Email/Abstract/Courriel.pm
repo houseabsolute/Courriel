@@ -18,19 +18,19 @@ sub construct {
 
 sub get_header {
     my ( $class, $obj, $header ) = @_;
-    my @values = map { $_->value() } $obj->headers()->get($header);
+    my @values = map { $_->value } $obj->headers->get($header);
     return wantarray ? @values : $values[0];
 }
 
 sub get_body {
     my ( $class, $obj ) = @_;
-    return $obj->top_level_part()->content();
+    return $obj->top_level_part->content;
 }
 
 sub set_header {
     my ( $class, $obj, $header, @data ) = @_;
-    $obj->headers()->remove($header);
-    $obj->headers()->add( $header => $_ ) for @data;
+    $obj->headers->remove($header);
+    $obj->headers->add( $header => $_ ) for @data;
 }
 
 sub set_body {
@@ -40,7 +40,7 @@ sub set_body {
 
 sub as_string {
     my ( $class, $obj ) = @_;
-    $obj->as_string();
+    $obj->as_string;
 }
 
 1;

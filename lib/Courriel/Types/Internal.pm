@@ -37,7 +37,7 @@ subtype EmailAddressStr,
 
 coerce EmailAddressStr,
     from class_type('Email::Address'),
-    via { $_->format() };
+    via { $_->format };
 
 my $_check_header_array = sub {
     return 0 unless @{$_} % 2 == 0;

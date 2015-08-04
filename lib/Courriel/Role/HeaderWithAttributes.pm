@@ -79,16 +79,16 @@ sub attribute {
 
         my $attr = $self->attribute($name);
 
-        return $attr ? $attr->value() : undef;
+        return $attr ? $attr->value : undef;
     }
 }
 
 sub _attributes_as_string {
     my $self = shift;
 
-    my $attr = $self->_attributes();
+    my $attr = $self->_attributes;
 
-    return join '; ', map { $attr->{$_}->as_string() } sort keys %{$attr};
+    return join '; ', map { $attr->{$_}->as_string } sort keys %{$attr};
 }
 
 {
@@ -100,7 +100,7 @@ sub _attributes_as_string {
     role {
         my $p = shift;
 
-        my $main_value_key = $p->main_value_key();
+        my $main_value_key = $p->main_value_key;
 
         method new_from_value => sub {
             my $class = shift;
@@ -120,16 +120,16 @@ sub _attributes_as_string {
             return $class->new(%p);
         };
 
-        my $main_value_meth = $p->main_value_method() || $p->main_value_key();
+        my $main_value_meth = $p->main_value_method || $p->main_value_key;
 
         method as_header_value => sub {
             my $self = shift;
 
-            my $string = $self->$main_value_meth();
+            my $string = $self->$main_value_meth;
 
-            if ( $self->_has_attributes() ) {
+            if ( $self->_has_attributes ) {
                 $string .= '; ';
-                $string .= $self->_attributes_as_string();
+                $string .= $self->_attributes_as_string;
             }
 
             return $string;

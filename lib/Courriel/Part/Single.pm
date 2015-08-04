@@ -59,20 +59,19 @@ has encoding => (
 sub BUILD {
     my $self = shift;
 
-    unless ( $self->_has_content_ref() || $self->_has_encoded_content_ref() )
-    {
+    unless ( $self->_has_content_ref || $self->_has_encoded_content_ref ) {
         die
             'You must provide a content or encoded_content parameter when constructing a Courriel::Part::Single object.';
     }
 
-    if ( !$self->_has_encoding() ) {
-        my @enc = $self->headers()->get('Content-Transfer-Encoding');
+    if ( !$self->_has_encoding ) {
+        my @enc = $self->headers->get('Content-Transfer-Encoding');
 
-        $self->_set_encoding( $enc[0]->value() )
+        $self->_set_encoding( $enc[0]->value )
             if @enc && $enc[0];
     }
 
-    $self->_sync_headers_with_self();
+    $self->_sync_headers_with_self;
 
     return;
 }
@@ -80,7 +79,7 @@ sub BUILD {
 after _set_headers => sub {
     my $self = shift;
 
-    $self->_sync_headers_with_self();
+    $self->_sync_headers_with_self;
 
     return;
 };
@@ -88,10 +87,9 @@ after _set_headers => sub {
 sub _sync_headers_with_self {
     my $self = shift;
 
-    $self->_maybe_set_disposition_in_headers();
+    $self->_maybe_set_disposition_in_headers;
 
-    $self->headers()
-        ->replace( 'Content-Transfer-Encoding' => $self->encoding() );
+    $self->headers->replace( 'Content-Transfer-Encoding' => $self->encoding );
 
     return;
 }
@@ -99,10 +97,9 @@ sub _sync_headers_with_self {
 sub _maybe_set_disposition_in_headers {
     my $self = shift;
 
-    return unless $self->_has_disposition();
+    return unless $self->_has_disposition;
 
-    $self->headers()
-        ->replace( 'Content-Disposition' => $self->disposition() );
+    $self->headers->replace( 'Content-Disposition' => $self->disposition );
 }
 
 {
@@ -114,7 +111,7 @@ sub _maybe_set_disposition_in_headers {
     sub _build_disposition {
         my $self = shift;
 
-        my @disp = $self->headers()->get('Content-Disposition');
+        my @disp = $self->headers->get('Content-Disposition');
         if ( @disp > 1 ) {
             die
                 'This email defines more than one Content-Disposition header.';
@@ -132,24 +129,24 @@ sub is_multipart {0}
     sub _build_content_ref {
         my $self = shift;
 
-        my $encoding = $self->encoding();
+        my $encoding = $self->encoding;
 
         my $bytes
             = $unencoded{ lc $encoding }
-            ? $self->encoded_content()
+            ? $self->encoded_content
             : Email::MIME::Encodings::decode(
             $encoding,
-            $self->encoded_content(),
+            $self->encoded_content,
             );
 
-        return \$bytes if $self->content_type()->is_binary();
+        return \$bytes if $self->content_type->is_binary;
 
         return \$bytes
-            if lc $self->content_type()->charset() eq 'unknown-8bit';
+            if lc $self->content_type->charset eq 'unknown-8bit';
 
         return \(
             decode(
-                $self->content_type()->charset(),
+                $self->content_type->charset,
                 $bytes,
             )
         );
@@ -158,13 +155,12 @@ sub is_multipart {0}
     sub _build_encoded_content_ref {
         my $self = shift;
 
-        my $encoding = $self->encoding();
+        my $encoding = $self->encoding;
 
-        my $bytes
-            = $self->content_type()->is_binary() ? $self->content() : encode(
-            $self->content_type()->charset(),
-            $self->content(),
-            );
+        my $bytes = $self->content_type->is_binary ? $self->content : encode(
+            $self->content_type->charset,
+            $self->content,
+        );
 
         return \$bytes if $unencoded{ lc $encoding };
 
@@ -178,11 +174,11 @@ sub is_multipart {0}
 }
 
 sub content {
-    return ${ $_[0]->content_ref() };
+    return ${ $_[0]->content_ref };
 }
 
 sub encoded_content {
-    return ${ $_[0]->encoded_content_ref() };
+    return ${ $_[0]->encoded_content_ref };
 }
 
 ## no critic (Subroutines::ProhibitUnusedPrivateSubroutines)
@@ -190,11 +186,11 @@ sub _stream_content {
     my $self   = shift;
     my $output = shift;
 
-    return $output->( $self->encoded_content() );
+    return $output->( $self->encoded_content );
 }
 ## use critic
 
-__PACKAGE__->meta()->make_immutable();
+__PACKAGE__->meta->make_immutable;
 
 1;
 
@@ -206,10 +202,10 @@ __END__
 
 =head1 SYNOPSIS
 
-  my $headers = $part->headers();
-  my $ct = $part->content_type();
+  my $headers = $part->headers;
+  my $ct = $part->content_type;
 
-  my $content = $part->content();
+  my $content = $part->content;
   print ${$content};
 
 =head1 DESCRIPTION

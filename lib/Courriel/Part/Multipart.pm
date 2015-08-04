@@ -43,17 +43,17 @@ sub BUILD {
     my $self = shift;
     my $p    = shift;
 
-    my $boundary = delete $p->{boundary} // unique_boundary();
-    my $existing = $self->content_type()->attribute('boundary');
+    my $boundary = delete $p->{boundary} // unique_boundary;
+    my $existing = $self->content_type->attribute('boundary');
 
-    $self->content_type()->_set_attribute(
+    $self->content_type->_set_attribute(
         boundary => Courriel::HeaderAttribute->new(
-            name => ( $existing ? $existing->name() : 'boundary' ),
+            name => ( $existing ? $existing->name : 'boundary' ),
             value => $boundary,
         )
     );
 
-    $_->_set_container($self) for $self->parts();
+    $_->_set_container($self) for $self->parts;
 
     return;
 }
@@ -67,14 +67,14 @@ sub _stream_content {
     my $self   = shift;
     my $output = shift;
 
-    $output->( $self->preamble(), $Courriel::Helpers::CRLF )
-        if $self->has_preamble();
+    $output->( $self->preamble, $Courriel::Helpers::CRLF )
+        if $self->has_preamble;
 
-    for my $part ( $self->parts() ) {
+    for my $part ( $self->parts ) {
         $output->(
             $Courriel::Helpers::CRLF,
             '--',
-            $self->boundary(),
+            $self->boundary,
             $Courriel::Helpers::CRLF,
         );
 
@@ -84,13 +84,13 @@ sub _stream_content {
     $output->(
         $Courriel::Helpers::CRLF,
         '--',
-        $self->boundary(),
+        $self->boundary,
         '--',
         $Courriel::Helpers::CRLF
     );
 
-    $output->( $self->epilogue(), $Courriel::Helpers::CRLF )
-        if $self->has_epilogue();
+    $output->( $self->epilogue, $Courriel::Helpers::CRLF )
+        if $self->has_epilogue;
 
     return;
 }
@@ -99,10 +99,10 @@ sub _stream_content {
 sub boundary {
     my $self = shift;
 
-    return $self->content_type()->attribute_value('boundary');
+    return $self->content_type->attribute_value('boundary');
 }
 
-__PACKAGE__->meta()->make_immutable();
+__PACKAGE__->meta->make_immutable;
 
 1;
 
@@ -114,8 +114,8 @@ __END__
 
 =head1 SYNOPSIS
 
-  my $headers = $part->headers();
-  my $ct = $part->content_type();
+  my $headers = $part->headers;
+  my $ct = $part->content_type;
 
   for my $subpart ( $part->parts ) { ... }
 

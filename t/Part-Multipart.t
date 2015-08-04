@@ -19,7 +19,7 @@ my $crlf = "\x0d\x0a";
     );
 
     is_deeply(
-        _attributes_as_hashref( $part->headers()->get('Content-Type') ),
+        _attributes_as_hashref( $part->headers->get('Content-Type') ),
         { boundary => 'foo' },
         'setting a multipart boundary in the constructor also sets it in the ContentType object later'
     );
@@ -38,7 +38,7 @@ my $crlf = "\x0d\x0a";
     );
 
     is_deeply(
-        _attributes_as_hashref( $part->headers()->get('Content-Type') ),
+        _attributes_as_hashref( $part->headers->get('Content-Type') ),
         { boundary => 'foo' },
         'setting a multipart boundary in the constructor also sets it in the ContentType passed to the constructor'
     );
@@ -52,10 +52,10 @@ my $crlf = "\x0d\x0a";
         parts   => [],
     );
 
-    my $boundary = $part->boundary();
+    my $boundary = $part->boundary;
 
     is_deeply(
-        _attributes_as_hashref( $part->headers()->get('Content-Type') ),
+        _attributes_as_hashref( $part->headers->get('Content-Type') ),
         { boundary => $boundary },
         'when a boundary is built lazily, it is also set in the content type object'
     );
@@ -69,11 +69,11 @@ my $crlf = "\x0d\x0a";
         parts   => [],
     );
 
-    my $ct       = $part->content_type();
-    my $boundary = $part->boundary();
+    my $ct       = $part->content_type;
+    my $boundary = $part->boundary;
 
     is_deeply(
-        _attributes_as_hashref( $part->headers()->get('Content-Type') ),
+        _attributes_as_hashref( $part->headers->get('Content-Type') ),
         { boundary => $boundary },
         'when a content type is built lazily, it gets the boundary when that is built'
     );
@@ -84,7 +84,7 @@ done_testing();
 sub _attributes_as_hashref {
     my $header = shift;
 
-    my %attrs = $header->attributes();
+    my %attrs = $header->attributes;
 
-    return { map { $_ => $attrs{$_}->value() } keys %attrs };
+    return { map { $_ => $attrs{$_}->value } keys %attrs };
 }

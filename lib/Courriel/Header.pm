@@ -42,7 +42,7 @@ has value => (
             @spec
         );
 
-        my $string = $self->name();
+        my $string = $self->name;
         $string .= ': ';
 
         $string .= $self->_maybe_encoded_value($charset);
@@ -89,7 +89,7 @@ sub as_string {
         my $self    = shift;
         my $charset = shift;
 
-        my $value = $self->value();
+        my $value = $self->value;
         my @chunks;
 
         while ( $value =~ /\G$header_chunk/g ) {
@@ -122,7 +122,7 @@ sub as_string {
 sub _mime_encode {
     my $self    = shift;
     my $text    = shift;
-    my $charset = find_encoding(shift)->mime_name();
+    my $charset = find_encoding(shift)->mime_name;
 
     my $head = '=?' . $charset . '?B?';
     my $tail = '?=';
@@ -152,7 +152,7 @@ sub _mime_encode {
     return join q{ }, @result;
 }
 
-__PACKAGE__->meta()->make_immutable();
+__PACKAGE__->meta->make_immutable;
 
 1;
 
@@ -165,7 +165,7 @@ __END__
 =head1 SYNOPSIS
 
   my $subject = $headers->get('subject');
-  print $subject->value();
+  print $subject->value;
 
 =head1 DESCRIPTION
 

@@ -13,7 +13,7 @@ use Scalar::Util qw( blessed );
 
 ## no critic (InputOutput::RequireCheckedSyscalls)
 binmode $_, ':encoding(UTF-8)'
-    for map { Test::Builder->new()->$_() }
+    for map { Test::Builder->new->$_ }
     qw( output failure_output todo_output );
 ## use critic
 
@@ -39,9 +39,9 @@ EOF
 
     my $email = Courriel->parse( text => \$text );
 
-    is( $email->subject(), 'Foo', 'got the right subject' );
+    is( $email->subject, 'Foo', 'got the right subject' );
 
-    is( $email->part_count(), 1, 'email has one part' );
+    is( $email->part_count, 1, 'email has one part' );
 
     is_deeply(
         _headers_as_arrayref($email),
@@ -52,32 +52,32 @@ EOF
         'headers were parsed correctly'
     );
 
-    my ($part) = $email->parts();
+    my ($part) = $email->parts;
     is(
-        $part->content_type()->mime_type(),
+        $part->content_type->mime_type,
         'text/plain',
         'email with no content type defaults to text/plain'
     );
 
     is(
-        $part->content_type()->charset(),
+        $part->content_type->charset,
         undef,
         'email with no charset does not get a default charset'
     );
 
     is(
-        $part->encoding(),
+        $part->encoding,
         '8bit',
         'email with no encoding defaults to 8bit'
     );
 
     is_deeply(
-        $part->content(),
+        $part->content,
         $text,
         'content for part was parsed correctly'
     );
 
-    isa_ok( $email->datetime(), 'DateTime' );
+    isa_ok( $email->datetime, 'DateTime' );
 }
 
 {
@@ -113,7 +113,7 @@ EOF
 
     my $email = Courriel->parse( text => \$text );
 
-    is( $email->part_count(), 2, 'email has two parts' );
+    is( $email->part_count, 2, 'email has two parts' );
 
     is_deeply(
         _headers_as_arrayref($email),
@@ -131,10 +131,10 @@ EOF
         'headers were parsed correctly'
     );
 
-    my @parts = $email->parts();
+    my @parts = $email->parts;
 
     is(
-        $parts[0]->content_type()->mime_type(),
+        $parts[0]->content_type->mime_type,
         'text/plain',
         'first part is text/plain'
     );
@@ -147,13 +147,13 @@ It has some *bold* text.
 EOF
 
     _compare_text(
-        $parts[0]->content(),
+        $parts[0]->content,
         $plain,
         'plain content is as expected',
     );
 
     is(
-        $parts[1]->content_type()->mime_type(),
+        $parts[1]->content_type->mime_type,
         'text/html',
         'second part is text/html'
     );
@@ -164,25 +164,25 @@ This is a test email.<br><br>It has some <b>bold</b> text.<br><br>
 EOF
 
     _compare_text(
-        $parts[1]->content(),
+        $parts[1]->content,
         $html,
         'html content is as expected',
     );
 
     is(
-        $email->plain_body_part(),
+        $email->plain_body_part,
         $parts[0],
         'found plain body part'
     );
 
     is(
-        $email->html_body_part(),
+        $email->html_body_part,
         $parts[1],
         'found html body part'
     );
 
     is(
-        $email->datetime()->strftime('%{datetime} %Z'),
+        $email->datetime->strftime('%{datetime} %Z'),
         DateTime->new(
             year      => 2011,
             month     => 5,
@@ -196,7 +196,7 @@ EOF
     );
 
     is_deeply(
-        [ sort map { $_->address() } $email->recipients() ],
+        [ sort map { $_->address } $email->recipients ],
         ['autarch@urth.org'],
         'recipients includes all expected addresses',
     );
@@ -208,7 +208,7 @@ EOF
     $string =~ s/\n/$crlf/g;
 
     _compare_text(
-        $email->as_string(),
+        $email->as_string,
         $string,
         'as_string output matches original email'
     );
@@ -238,7 +238,7 @@ EOF
     my $email = Courriel->parse( text => \$text );
 
     is(
-        $email->datetime()->strftime('%{datetime} %Z'),
+        $email->datetime->strftime('%{datetime} %Z'),
         DateTime->new(
             year      => 2011,
             month     => 5,
@@ -269,7 +269,7 @@ EOF
     my $email = Courriel->parse( text => \$text );
 
     is(
-        $email->datetime()->strftime('%{datetime} %Z'),
+        $email->datetime->strftime('%{datetime} %Z'),
         DateTime->new(
             year      => 2011,
             month     => 5,
@@ -308,7 +308,7 @@ EOF
     my $email = Courriel->parse( text => \$text );
 
     is(
-        $email->plain_body_part()->encoding(),
+        $email->plain_body_part->encoding,
         'base64',
         'encoding is set from parsed header',
     );
@@ -332,13 +332,13 @@ EOF
     my $email = Courriel->parse( text => \$text );
 
     is(
-        $email->from()->address(),
+        $email->from->address,
         'autarch@gmail.com',
-        'from() returns the right address'
+        'from returns the right address'
     );
 
     is_deeply(
-        [ sort map { $_->address() } $email->to() ],
+        [ sort map { $_->address } $email->to ],
         [
             'autarch@urth.org',
             'foo@example.com',
@@ -347,7 +347,7 @@ EOF
     );
 
     is_deeply(
-        [ sort map { $_->address() } $email->cc() ],
+        [ sort map { $_->address } $email->cc ],
         [
             'jill@example.com',
             'what@example.com'
@@ -356,7 +356,7 @@ EOF
     );
 
     is_deeply(
-        [ sort map { $_->address() } $email->recipients() ],
+        [ sort map { $_->address } $email->recipients ],
         [
             'autarch@urth.org',
             'foo@example.com',
@@ -367,7 +367,7 @@ EOF
     );
 
     is_deeply(
-        [ sort map { $_->address() } $email->participants() ],
+        [ sort map { $_->address } $email->participants ],
         [
             'autarch@gmail.com',
             'autarch@urth.org',
@@ -394,31 +394,31 @@ EOF
     my $email = Courriel->parse( text => \$text );
 
     is(
-        $email->from(),
+        $email->from,
         undef,
-        'from() returns undef'
+        'from returns undef'
     );
 
     is_deeply(
-        [ map { $_->address() } $email->to() ],
+        [ map { $_->address } $email->to ],
         [],
         'to return an empty array ref',
     );
 
     is_deeply(
-        [ map { $_->address() } $email->cc() ],
+        [ map { $_->address } $email->cc ],
         [],
         'cc return an empty array ref',
     );
 
     is_deeply(
-        [ map { $_->address() } $email->participants() ],
+        [ map { $_->address } $email->participants ],
         [],
         'participants return an empty array ref',
     );
 
     is_deeply(
-        [ map { $_->address() } $email->recipients() ],
+        [ map { $_->address } $email->recipients ],
         [],
         'recipients return an empty array ref',
     );
@@ -459,19 +459,19 @@ EOF
     my $email = Courriel->parse( text => \$text );
 
     my $attachment
-        = $email->first_part_matching( sub { $_[0]->is_attachment() } );
+        = $email->first_part_matching( sub { $_[0]->is_attachment } );
 
     ok( $attachment, 'found attachment' );
 
     is(
-        $attachment->filename(),
+        $attachment->filename,
         'html-attachment.html',
         'got filename from content disposition'
     );
 
     is(
-        $attachment->disposition()->creation_datetime()
-            ->strftime('%{datetime} %Z'),
+        $attachment->disposition->creation_datetime->strftime(
+            '%{datetime} %Z'),
         DateTime->new(
             year      => 2011,
             month     => 5,
@@ -485,8 +485,8 @@ EOF
     );
 
     is(
-        $attachment->disposition()->modification_datetime()
-            ->strftime('%{datetime} %Z'),
+        $attachment->disposition->modification_datetime->strftime(
+            '%{datetime} %Z'),
         DateTime->new(
             year      => 2011,
             month     => 5,
@@ -500,8 +500,7 @@ EOF
     );
 
     is(
-        $attachment->disposition()->read_datetime()
-            ->strftime('%{datetime} %Z'),
+        $attachment->disposition->read_datetime->strftime('%{datetime} %Z'),
         DateTime->new(
             year      => 2011,
             month     => 5,
@@ -523,7 +522,7 @@ EOF
     );
 
     is(
-        $email->content_type()->mime_type(),
+        $email->content_type->mime_type,
         'multipart/mixed',
         'email is multipart/mixed'
     );
@@ -535,10 +534,10 @@ EOF
         'email has 4 parts'
     );
 
-    my $clone = $email->clone_without_attachments();
+    my $clone = $email->clone_without_attachments;
 
     is(
-        $clone->content_type()->mime_type(),
+        $clone->content_type->mime_type,
         'text/plain',
         'after clone type is text/plain'
     );
@@ -551,14 +550,14 @@ EOF
     );
 
     is(
-        $parts[0]->encoding(), 'base64',
+        $parts[0]->encoding, 'base64',
         'part is base64 encoded'
     );
 
     is_deeply(
         [
-            map { $_->value() }
-                $parts[0]->headers()->get('Content-Transfer-Encoding')
+            map { $_->value }
+                $parts[0]->headers->get('Content-Transfer-Encoding')
         ],
         ['base64'],
         'Content-Transfer encoding is base64'
@@ -574,7 +573,7 @@ EOF
     );
 
     is(
-        $email->content_type()->mime_type(),
+        $email->content_type->mime_type,
         'multipart/mixed',
         'email is multipart/mixed'
     );
@@ -586,10 +585,10 @@ EOF
         'email has 6 parts'
     );
 
-    my $clone = $email->clone_without_attachments();
+    my $clone = $email->clone_without_attachments;
 
     is(
-        $clone->content_type()->mime_type(),
+        $clone->content_type->mime_type,
         'multipart/alternative',
         'after clone type is multipart/alternative'
     );
@@ -601,31 +600,30 @@ EOF
         'email has 3 parts after clone'
     );
 
-    my $plain = $clone->plain_body_part();
+    my $plain = $clone->plain_body_part;
     is(
-        $plain->encoding(), 'base64',
+        $plain->encoding, 'base64',
         'plain part is base64 encoded'
     );
 
     is_deeply(
         [
-            map { $_->value() }
-                $plain->headers()->get('Content-Transfer-Encoding')
+            map { $_->value }
+                $plain->headers->get('Content-Transfer-Encoding')
         ],
         ['base64'],
         'plain part Content-Transfer encoding is base64'
     );
 
-    my $html = $clone->html_body_part();
+    my $html = $clone->html_body_part;
     is(
-        $html->encoding(), 'base64',
+        $html->encoding, 'base64',
         'html part is base64 encoded'
     );
 
     is_deeply(
         [
-            map { $_->value() }
-                $html->headers()->get('Content-Transfer-Encoding')
+            map { $_->value } $html->headers->get('Content-Transfer-Encoding')
         ],
         ['base64'],
         'html part Content-Transfer encoding is base64'
@@ -664,22 +662,22 @@ EOF
     my $email = Courriel->parse( text => \$text );
 
     ok(
-        $email->plain_body_part(),
+        $email->plain_body_part,
         'ignored case of mime type when finding plain body part'
     );
     ok(
-        $email->html_body_part(),
+        $email->html_body_part,
         'ignored case of mime type when finding html body part'
     );
 
     is(
-        $email->plain_body_part()->content_type()->mime_type(),
+        $email->plain_body_part->content_type->mime_type,
         'text/plain',
         'ContentType->mime_type method returns all lower case value'
     );
 
     is(
-        $email->plain_body_part()->content_type()->as_header_value(),
+        $email->plain_body_part->content_type->as_header_value,
         'TEXT/PLAIN; charset=ISO-8859-1',
         'header value preserves original casing of mime type'
     );
@@ -701,7 +699,7 @@ EOF
     my $email = Courriel->parse( text => \$text );
 
     is(
-        $email->headers()->get('From')->value(),
+        $email->headers->get('From')->value,
         'Dave Rolsky <autarch@gmail.com>',
         'From header at beginning of mail is not stripped by mbox separator removal',
     );
@@ -754,7 +752,7 @@ EOF
     );
 
     is(
-        $email->part_count(),
+        $email->part_count,
         1,
         'email has one part'
     );
@@ -771,7 +769,7 @@ EOF
 
     my $email = Courriel->parse( text => \$text, is_character => 1 );
 
-    my $content = $email->plain_body_part()->content();
+    my $content = $email->plain_body_part->content;
     $content =~ s/[\r\n]//g;
 
     is(
@@ -799,7 +797,7 @@ EOF
 
     my $email = Courriel->parse( text => \$text, is_character => 0 );
 
-    my $content = $email->plain_body_part()->content();
+    my $content = $email->plain_body_part->content;
     $content =~ s/[\r\n]//g;
 
     is(
@@ -858,7 +856,7 @@ EOF
     );
 
     is(
-        $email->content_type->attribute('boundary')->name(),
+        $email->content_type->attribute('boundary')->name,
         'BOUNDARY',
         'HeaderAttribute object name preserves original casing'
     );
@@ -924,8 +922,7 @@ done_testing();
 sub _headers_as_arrayref {
     my $email = shift;
 
-    return [ map { blessed($_) ? $_->value() : $_ }
-            $email->headers()->headers() ];
+    return [ map { blessed($_) ? $_->value : $_ } $email->headers->headers ];
 }
 
 sub _compare_text {

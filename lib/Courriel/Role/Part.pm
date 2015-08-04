@@ -42,7 +42,7 @@ has content_type => (
 after BUILD => sub {
     my $self = shift;
 
-    $self->_maybe_set_content_type_in_headers();
+    $self->_maybe_set_content_type_in_headers;
 
     return;
 };
@@ -50,7 +50,7 @@ after BUILD => sub {
 after _set_headers => sub {
     my $self = shift;
 
-    $self->_maybe_set_content_type_in_headers();
+    $self->_maybe_set_content_type_in_headers;
 
     return;
 };
@@ -58,9 +58,9 @@ after _set_headers => sub {
 sub _maybe_set_content_type_in_headers {
     my $self = shift;
 
-    return unless $self->_has_content_type();
+    return unless $self->_has_content_type;
 
-    $self->headers()->replace( 'Content-Type' => $self->content_type() );
+    $self->headers->replace( 'Content-Type' => $self->content_type );
 }
 
 ## no critic (Subroutines::ProhibitUnusedPrivateSubroutines)
@@ -68,7 +68,7 @@ sub _stream_to {
     my $self   = shift;
     my $output = shift;
 
-    $self->headers()->stream_to( output => $output );
+    $self->headers->stream_to( output => $output );
     $output->($Courriel::Helpers::CRLF);
     $self->_stream_content($output);
 
@@ -85,7 +85,7 @@ sub _stream_to {
     sub _build_content_type {
         my $self = shift;
 
-        my @ct = $self->headers()->get('Content-Type');
+        my @ct = $self->headers->get('Content-Type');
         if ( @ct > 1 ) {
             die 'This part defines more than one Content-Type header.';
         }

@@ -36,24 +36,24 @@ use Sys::Hostname qw( hostname );
 
     for my $key ( sort keys %expect ) {
         is_deeply(
-            [ map { $_->value() } $email->headers()->get($key) ],
+            [ map { $_->value } $email->headers->get($key) ],
             [ $expect{$key} ],
             "got expected value for $key header"
         );
     }
 
-    my @date = $email->headers()->get('Date');
+    my @date = $email->headers->get('Date');
     is( scalar @date, 1, 'found one Date header' );
     like(
-        $date[0]->value(),
+        $date[0]->value,
         qr/\w\w\w, +\d{1,2} \w\w\w \d\d\d\d \d\d:\d\d:\d\d [-+]\d\d\d\d/,
         'Date header looks like a proper date'
     );
 
-    my @id = $email->headers()->get('Message-Id');
+    my @id = $email->headers->get('Message-Id');
     is( scalar @id, 1, 'found one Message-Id header' );
     like(
-        $id[0]->value(),
+        $id[0]->value,
         qr/<[^>]+>/,
         'Message-Id is in brackets'
     );
@@ -68,10 +68,10 @@ use Sys::Hostname qw( hostname );
         ),
     );
 
-    my @ct = $email->headers()->get('Content-Type');
+    my @ct = $email->headers->get('Content-Type');
     is( scalar @ct, 1, 'found one Content-Type header' );
     is(
-        $ct[0]->value(),
+        $ct[0]->value,
         'text/plain; charset=ISO-8859-1',
         'Content-Type has the right charset'
     );
@@ -86,7 +86,7 @@ use Sys::Hostname qw( hostname );
     );
 
     is_deeply(
-        [ map { $_->value() } $email->headers()->get('Subject') ],
+        [ map { $_->value } $email->headers->get('Subject') ],
         [q{}],
         'got an empty string for the Subject header',
     );
@@ -106,10 +106,10 @@ use Sys::Hostname qw( hostname );
         plain_body( content => 'Foo' ),
     );
 
-    my @date = $email->headers()->get('Date');
+    my @date = $email->headers->get('Date');
     is( scalar @date, 1, 'found one Date header' );
     is(
-        $date[0]->value(),
+        $date[0]->value,
         'Sun, 13 Jan 1980 00:00:00 -0500',
         'explicit Date header is not overwritten'
     );
@@ -125,7 +125,7 @@ use Sys::Hostname qw( hostname );
     );
 
     is(
-        $email->plain_body_part()->encoded_content(),
+        $email->plain_body_part->encoded_content,
         'Foo =C3=B1=' . $Courriel::Helpers::CRLF,
         'body is encoded using quoted-printable'
     );
@@ -140,7 +140,7 @@ use Sys::Hostname qw( hostname );
     );
 
     is(
-        $email->plain_body_part()->content(),
+        $email->plain_body_part->content,
         $content,
         'can pass body content as a scalar ref'
     );
@@ -154,7 +154,7 @@ use Sys::Hostname qw( hostname );
     );
 
     is(
-        $email->content_type()->mime_type(),
+        $email->content_type->mime_type,
         'multipart/alternative',
         'passing a plain and html body with no attachments makes a multipart/alternative email'
     );
@@ -174,21 +174,21 @@ EOF
     );
 
     is(
-        $email->content_type()->mime_type(),
+        $email->content_type->mime_type,
         'multipart/mixed',
         'passing an attachment makes a multipart/mixed email'
     );
 
-    my @parts = $email->parts();
+    my @parts = $email->parts;
     is( scalar @parts, 2, 'email has two parts' );
 
     ok(
-        ( all { !$_->is_multipart() } @parts ),
+        ( all { !$_->is_multipart } @parts ),
         'email consists of two single parts'
     );
 
     my $attachment
-        = $email->first_part_matching( sub { $_[0]->is_attachment() } );
+        = $email->first_part_matching( sub { $_[0]->is_attachment } );
     ok(
         $attachment,
         'one of the parts returns true for is_attachment'
@@ -201,36 +201,36 @@ SKIP:
             && hostname() eq 'houseabsolute.urth.org';
 
         like(
-            $attachment->mime_type(),
+            $attachment->mime_type,
             qr{/x-perl$},
             'correct mime type detected for attachment'
         );
 
         is(
-            $attachment->charset(),
+            $attachment->charset,
             'us-ascii',
             'correct charset detected for attachment'
         );
     }
 
     is(
-        $attachment->content(),
+        $attachment->content,
         $pl_script,
         'attachment content matches the original code'
     );
 
     like(
-        $email->as_string(),
+        $email->as_string,
         qr{Content-Type:\s+multipart/mixed;\s+boundary=.+},
         'Content-Type header for multipart email includes boundary'
     );
 
-    my $parsed = Courriel->parse( text => $email->as_string() );
+    my $parsed = Courriel->parse( text => $email->as_string );
     my $parsed_attachment
-        = $parsed->first_part_matching( sub { $_[0]->is_attachment() } );
+        = $parsed->first_part_matching( sub { $_[0]->is_attachment } );
 
     is(
-        $parsed_attachment->content(),
+        $parsed_attachment->content,
         $pl_script,
         'attachment content survives round trip from string to object'
     );
@@ -251,30 +251,30 @@ EOF
     );
 
     is(
-        $email->content_type()->mime_type(),
+        $email->content_type->mime_type,
         'multipart/mixed',
         'passing a plain and html body with attachments makes a multipart/alternative email'
     );
 
     ok(
-        $email->plain_body_part(),
+        $email->plain_body_part,
         'email has a plain body'
     );
 
     ok(
-        $email->html_body_part(),
+        $email->html_body_part,
         'email has an html body'
     );
 
     ok(
         $email->first_part_matching(
-            sub { $_[0]->mime_type() eq 'multipart/alternative' }
+            sub { $_[0]->mime_type eq 'multipart/alternative' }
         ),
         'email has a multipart/alternative part'
     );
 
     my $attachment
-        = $email->first_part_matching( sub { $_[0]->is_attachment() } );
+        = $email->first_part_matching( sub { $_[0]->is_attachment } );
     ok(
         $attachment,
         'email has an attachment'
@@ -300,20 +300,20 @@ EOF
     );
 
     is(
-        $email->content_type()->mime_type(),
+        $email->content_type->mime_type,
         'multipart/related',
         'passing an html body with attached image makes a multipart/related email'
     );
 
     my $attachment
-        = $email->first_part_matching( sub { $_[0]->is_attachment() } );
+        = $email->first_part_matching( sub { $_[0]->is_attachment } );
     ok(
         $attachment,
         'email has an attachment'
     );
 
     is(
-        $attachment->mime_type(),
+        $attachment->mime_type,
         'image/jpeg',
         'got the right mime type for image attachment'
     );
@@ -327,14 +327,14 @@ EOF
     );
 
     my $attachment
-        = $email->first_part_matching( sub { $_[0]->is_attachment() } );
+        = $email->first_part_matching( sub { $_[0]->is_attachment } );
     ok(
         $attachment,
         'email has an attachment'
     );
 
     is(
-        $attachment->mime_type(),
+        $attachment->mime_type,
         'image/jpeg',
         'got the right mime type for image attachment from file'
     );
@@ -351,9 +351,9 @@ EOF
     );
 
     my $attachment
-        = $email->first_part_matching( sub { $_[0]->is_attachment() } );
+        = $email->first_part_matching( sub { $_[0]->is_attachment } );
     is_deeply(
-        [ map { $_->value() } $attachment->headers()->get('Content-ID') ],
+        [ map { $_->value } $attachment->headers->get('Content-ID') ],
         ['<abc123>'],
         'attachment has the correct Content-ID, and it is wrapped in brackets'
     );
@@ -370,9 +370,9 @@ EOF
     );
 
     my $attachment
-        = $email->first_part_matching( sub { $_[0]->is_attachment() } );
+        = $email->first_part_matching( sub { $_[0]->is_attachment } );
     is_deeply(
-        $attachment->mime_type(),
+        $attachment->mime_type,
         'w/tf',
         'attachment has explicitly set mime type'
     );
@@ -389,9 +389,9 @@ EOF
     );
 
     my $attachment
-        = $email->first_part_matching( sub { $_[0]->is_attachment() } );
+        = $email->first_part_matching( sub { $_[0]->is_attachment } );
     is_deeply(
-        $attachment->filename(),
+        $attachment->filename,
         'something-else.jpg',
         'attachment has explicitly set filename'
     );

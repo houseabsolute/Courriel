@@ -13,7 +13,7 @@ use Scalar::Util qw( blessed );
 
 ## no critic (InputOutput::RequireCheckedSyscalls)
 binmode $_, ':encoding(UTF-8)'
-    for map { Test::Builder->new()->$_() }
+    for map { Test::Builder->new->$_ }
     qw( output failure_output todo_output );
 ## use critic
 
@@ -22,7 +22,7 @@ my $crlf = $Courriel::Helpers::CRLF;
 my $hola = "\x{00A1}Hola, se\x{00F1}or!";
 
 {
-    my $h = Courriel::Headers->new();
+    my $h = Courriel::Headers->new;
     is_deeply(
         _headers_as_arrayref($h),
         [],
@@ -38,7 +38,7 @@ my $hola = "\x{00A1}Hola, se\x{00F1}or!";
     );
 
     is_deeply(
-        [ map { $_->value() } $h->get('subject') ],
+        [ map { $_->value } $h->get('subject') ],
         ['Foo bar'],
         'got subject header (name is case-insensitive)'
     );
@@ -79,7 +79,7 @@ my $hola = "\x{00A1}Hola, se\x{00F1}or!";
     );
 
     is_deeply(
-        [ map { $_->value() } $h->get('subject') ],
+        [ map { $_->value } $h->get('subject') ],
         [ 'Foo bar', 'Part 2' ],
         'got all subject headers'
     );
@@ -93,7 +93,7 @@ EOF
     $string =~ s/\n/$crlf/g;
 
     is(
-        $h->as_string(),
+        $h->as_string,
         $string,
         'got expected header string'
     );
@@ -115,7 +115,7 @@ EOF
     $string =~ s/\n/$crlf/g;
 
     is(
-        $h->as_string(),
+        $h->as_string,
         $string,
         'got expected header string'
     );
@@ -144,7 +144,7 @@ EOF
 }
 
 {
-    my $h = Courriel::Headers->new();
+    my $h = Courriel::Headers->new;
 
     $h->add( Subject => ' test' );
 
@@ -249,9 +249,9 @@ EOF
 
     is_deeply(
         [
-            $attr->value(),
-            $attr->charset(),
-            $attr->language(),
+            $attr->value,
+            $attr->charset,
+            $attr->language,
         ],
         [
             'Some text with encoding',
@@ -271,9 +271,9 @@ EOF
 
     is_deeply(
         [
-            $attr->value(),
-            $attr->charset(),
-            $attr->language(),
+            $attr->value,
+            $attr->charset,
+            $attr->language,
         ],
         [
             "\x{4E00}\x{4E00}",
@@ -293,9 +293,9 @@ EOF
 
     is_deeply(
         [
-            $attr->value(),
-            $attr->charset(),
-            $attr->language(),
+            $attr->value,
+            $attr->charset,
+            $attr->language,
         ],
         [
             "Iv\x{00E1}n F.txt",
@@ -322,9 +322,9 @@ EOF
 
     is_deeply(
         [
-            $attr->value(),
-            $attr->charset(),
-            $attr->language(),
+            $attr->value,
+            $attr->charset,
+            $attr->language,
         ],
         [
             q{Some text with encoding but now it's quoted and then simple then hex simple},
@@ -463,12 +463,12 @@ EOF
     $string =~ s/\n/$crlf/g;
 
     is(
-        $h->as_string(),
+        $h->as_string,
         $string,
         'got expected header string (encoded utf8 values)'
     );
 
-    my $h2 = Courriel::Headers->parse( text => $h->as_string() );
+    my $h2 = Courriel::Headers->parse( text => $h->as_string );
     is(
         $h2->get_values('Subject'),
         $h->get_values('Subject'),
@@ -575,14 +575,14 @@ EOF
     $string =~ s/\n/$crlf/g;
 
     is(
-        $h->as_string(),
+        $h->as_string,
         $string,
         'Chinese subject is encoded properly'
     );
 
     is_deeply(
         _headers_as_arrayref(
-            Courriel::Headers->parse( text => $h->as_string() )
+            Courriel::Headers->parse( text => $h->as_string )
         ),
         [ Subject => $chinese ],
         'Chinese subject header round trips properly'
@@ -597,7 +597,7 @@ EOF
     my $h = Courriel::Headers->parse( text => \$headers );
 
     like(
-        $h->as_string(),
+        $h->as_string,
         qr/\QSubject: has   three spaces/,
         'original spacing in header value is preserved when stringified'
     );
@@ -610,7 +610,7 @@ EOF
     );
 
     like(
-        $header->as_string(),
+        $header->as_string,
         qr/
               \Q?UTF-8?B?\E
               \S+
@@ -674,25 +674,25 @@ EOF
     my $h = Courriel::Headers->parse( text => \$real );
 
     is_deeply(
-        [ map { $_->value() } $h->get('Precedence') ],
+        [ map { $_->value } $h->get('Precedence') ],
         ['normal'],
         'Precendence header was parsed properly'
     );
 
     is_deeply(
-        [ map { $_->value() } $h->get('Message-ID') ],
+        [ map { $_->value } $h->get('Message-ID') ],
         ['<rt-3.8.HEAD-18810-1306605243-528.68527-4-0@rt.cpan.org>'],
         'Message-ID header was parsed properly'
     );
 
     is_deeply(
-        [ map { $_->value() } $h->get('X-Spam-Level') ],
+        [ map { $_->value } $h->get('X-Spam-Level') ],
         [q{}],
         'X-Spam-Level (empty header) was parsed properly',
     );
 
     is_deeply(
-        [ map { $_->value() } $h->get('X-Spam-Status') ],
+        [ map { $_->value } $h->get('X-Spam-Status') ],
         [
             'No, score=-6.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_HI, T_RP_MATCHES_RCVD autolearn=ham version=3.3.1'
         ],
@@ -751,7 +751,7 @@ EOF
     $string =~ s/\n/$crlf/g;
 
     eq_or_diff(
-        $h->as_string(),
+        $h->as_string,
         $string,
         'output for real headers matches original headers, but with more correct folding'
     );
@@ -785,7 +785,7 @@ EOF
     like(
         Courriel::Headers->parse(
             text => \$bad,
-            )->as_string(),
+            )->as_string,
         qr/Ok: 2Not ok/,
         'handle arbitrary newline without an exception'
     );
@@ -802,7 +802,7 @@ EOF
     like(
         Courriel::Headers->parse(
             text => \$bad,
-            )->as_string(),
+            )->as_string,
         qr/Ok: 1/,
         'handle empty continuation line without an exception'
     );
@@ -813,11 +813,11 @@ done_testing();
 sub _headers_as_arrayref {
     my $h = shift;
 
-    return [ map { blessed($_) ? $_->value() : $_ } $h->headers() ];
+    return [ map { blessed($_) ? $_->value : $_ } $h->headers ];
 }
 
 sub _attributes_as_hashref {
     my $attrs = shift;
 
-    return { map { $_ => $attrs->{$_}->value() } keys %{$attrs} };
+    return { map { $_ => $attrs->{$_}->value } keys %{$attrs} };
 }

@@ -89,7 +89,7 @@ use Sub::Exporter -setup => {
             );
 
             $body_part = Courriel::Part::Multipart->new(
-                headers      => Courriel::Headers->new(),
+                headers      => Courriel::Headers->new,
                 content_type => $ct,
                 parts        => [ $plain_body, $html_body ],
             );
@@ -106,7 +106,7 @@ use Sub::Exporter -setup => {
                 mime_type => 'multipart/mixed' );
 
             $body_part = Courriel::Part::Multipart->new(
-                headers      => Courriel::Headers->new(),
+                headers      => Courriel::Headers->new,
                 content_type => $ct,
                 parts        => [
                     $body_part,
@@ -129,7 +129,7 @@ use Sub::Exporter -setup => {
 
 sub _bad_value {
     croak 'A weird value was passed to build_email: '
-        . Devel::PartialDump->new()->dump( $_[0] );
+        . Devel::PartialDump->new->dump( $_[0] );
 }
 
 sub _add_required_headers {
@@ -140,12 +140,12 @@ sub _add_required_headers {
     unless ( $keys{date} ) {
         push @{$headers},
             ( Date =>
-                DateTime::Format::Mail->format_datetime( DateTime->now() ) );
+                DateTime::Format::Mail->format_datetime( DateTime->now ) );
     }
 
     unless ( $keys{'message-id'} ) {
         push @{$headers},
-            ( 'Message-Id' => Email::MessageID->new()->in_brackets() );
+            ( 'Message-Id' => Email::MessageID->new->in_brackets );
     }
 
     unless ( $keys{'mime-version'} ) {
@@ -178,7 +178,7 @@ sub _add_required_headers {
         );
 
         if ( blessed $from ) {
-            $from = $from->format();
+            $from = $from->format;
         }
 
         return { header => [ From => $from ] };
@@ -196,7 +196,7 @@ sub _add_required_headers {
             MX_PARAMS_VALIDATE_NO_CACHE => 1,
         );
 
-        @to = map { blessed($_) ? $_->format() : $_ } @to;
+        @to = map { blessed($_) ? $_->format : $_ } @to;
 
         return { header => [ To => join ', ', @to ] };
     }
@@ -213,7 +213,7 @@ sub _add_required_headers {
             MX_PARAMS_VALIDATE_NO_CACHE => 1,
         );
 
-        @cc = map { blessed($_) ? $_->format() : $_ } @cc;
+        @cc = map { blessed($_) ? $_->format : $_ } @cc;
 
         return { header => [ Cc => join ', ', @cc ] };
     }
@@ -273,7 +273,7 @@ sub html_body {
 
     if (@attachments) {
         $body = Courriel::Part::Multipart->new(
-            headers      => Courriel::Headers->new(),
+            headers      => Courriel::Headers->new,
             content_type => Courriel::Header::ContentType->new(
                 mime_type => 'multipart/related'
             ),
@@ -316,7 +316,7 @@ sub html_body {
         );
 
         my $body = Courriel::Part::Single->new(
-            headers      => Courriel::Headers->new(),
+            headers      => Courriel::Headers->new,
             content_type => $ct,
             encoding     => $encoding,
             content      => $content,
@@ -337,7 +337,7 @@ sub attach {
     };
 }
 
-my $flm = File::LibMagic->new();
+my $flm = File::LibMagic->new;
 
 {
     my @spec = (

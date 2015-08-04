@@ -190,7 +190,7 @@ sub _inflate_attribute {
 }
 
 sub unique_boundary {
-    return Email::MessageID->new()->user();
+    return Email::MessageID->new->user;
 }
 
 # Courriel::HeaderAttribute requires that $TSPECIALS be defined

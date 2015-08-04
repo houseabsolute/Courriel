@@ -115,7 +115,7 @@ sub _inflate_header {
 sub _build_key_indices {
     my $self = shift;
 
-    my $headers = $self->_headers();
+    my $headers = $self->_headers;
 
     my %indices;
     ## no critic (ControlStructures::ProhibitCStyleForLoops)
@@ -136,7 +136,7 @@ sub _build_key_indices {
             @spec,
         );
 
-        return @{ $self->_headers() }[ $self->_key_indices_for($name) ];
+        return @{ $self->_headers }[ $self->_key_indices_for($name) ];
     }
 }
 
@@ -151,8 +151,8 @@ sub _build_key_indices {
         );
 
         return
-            map { $_->value() }
-            @{ $self->_headers() }[ $self->_key_indices_for($name) ];
+            map { $_->value }
+            @{ $self->_headers }[ $self->_key_indices_for($name) ];
     }
 }
 
@@ -176,7 +176,7 @@ sub _key_indices_for {
             @spec,
         );
 
-        my $headers = $self->_headers();
+        my $headers = $self->_headers;
 
         my $last_index = ( $self->_key_indices_for($name) )[-1];
 
@@ -193,7 +193,7 @@ sub _key_indices_for {
             push @{$headers}, ( $name => $header );
         }
 
-        $self->_clear_key_indices();
+        $self->_clear_key_indices;
 
         return;
     }
@@ -217,7 +217,7 @@ sub _key_indices_for {
             MX_PARAMS_VALIDATE_NO_CACHE => 1,
         );
 
-        my $headers = $self->_headers();
+        my $headers = $self->_headers;
 
         my $header
             = blessed($value)
@@ -243,13 +243,13 @@ sub _key_indices_for {
             @spec,
         );
 
-        my $headers = $self->_headers();
+        my $headers = $self->_headers;
 
         for my $idx ( reverse $self->_key_indices_for($name) ) {
             splice @{$headers}, $idx - 1, 2;
         }
 
-        $self->_clear_key_indices();
+        $self->_clear_key_indices;
 
         return;
     }
@@ -378,8 +378,8 @@ sub _maybe_fix_broken_headers {
 
         my %skip = map { lc $_ => 1 } @{$skip};
 
-        for my $header ( grep { blessed($_) } @{ $self->_headers() } ) {
-            next if $skip{ lc $header->name() };
+        for my $header ( grep { blessed($_) } @{ $self->_headers } ) {
+            next if $skip{ lc $header->name };
 
             $header->stream_to( charset => $charset, output => $output );
         }
@@ -475,7 +475,7 @@ sub _decode_one_word {
     }
 }
 
-__PACKAGE__->meta()->make_immutable();
+__PACKAGE__->meta->make_immutable;
 
 1;
 

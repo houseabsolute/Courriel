@@ -128,31 +128,31 @@ has html_body_part => (
 sub part_count {
     my $self = shift;
 
-    return $self->is_multipart()
-        ? $self->top_level_part()->part_count()
+    return $self->is_multipart
+        ? $self->top_level_part->part_count
         : 1;
 }
 
 sub parts {
     my $self = shift;
 
-    return $self->is_multipart()
-        ? $self->top_level_part()->parts()
-        : $self->top_level_part();
+    return $self->is_multipart
+        ? $self->top_level_part->parts
+        : $self->top_level_part;
 }
 
 sub clone_without_attachments {
     my $self = shift;
 
-    my $plain_body = $self->plain_body_part();
-    my $html_body  = $self->html_body_part();
+    my $plain_body = $self->plain_body_part;
+    my $html_body  = $self->html_body_part;
 
-    my $headers = $self->headers();
+    my $headers = $self->headers;
 
     if ( $plain_body && $html_body ) {
         my $ct = Courriel::Header::ContentType->new(
             mime_type  => 'multipart/alternative',
-            attributes => { boundary => unique_boundary() },
+            attributes => { boundary => unique_boundary },
         );
 
         return Courriel->new(
@@ -166,20 +166,20 @@ sub clone_without_attachments {
     elsif ($plain_body) {
         return Courriel->new(
             part => Courriel::Part::Single->new(
-                content_type    => $plain_body->content_type(),
+                content_type    => $plain_body->content_type,
                 headers         => $headers,
-                encoding        => $plain_body->encoding(),
-                encoded_content => $plain_body->encoded_content(),
+                encoding        => $plain_body->encoding,
+                encoded_content => $plain_body->encoded_content,
             )
         );
     }
     elsif ($html_body) {
         return Courriel->new(
             part => Courriel::Part::Single->new(
-                content_type    => $html_body->content_type(),
+                content_type    => $html_body->content_type,
                 headers         => $headers,
-                encoding        => $html_body->encoding(),
-                encoded_content => $html_body->encoded_content(),
+                encoding        => $html_body->encoding,
+                encoded_content => $html_body->encoded_content,
             )
         );
     }
@@ -190,9 +190,9 @@ sub clone_without_attachments {
 sub _build_subject {
     my $self = shift;
 
-    my $subject = $self->headers()->get('Subject');
+    my $subject = $self->headers->get('Subject');
 
-    return $subject ? $subject->value() : undef;
+    return $subject ? $subject->value : undef;
 }
 
 {
@@ -203,13 +203,13 @@ sub _build_subject {
         my $self = shift;
 
         my @possible = (
-            ( map { $_->value() } $self->headers()->get('Date') ),
+            ( map { $_->value } $self->headers->get('Date') ),
             (
                 reverse
-                    map { $self->_find_date_received( $_->value() ) }
-                    $self->headers()->get('Received')
+                    map { $self->_find_date_received( $_->value ) }
+                    $self->headers->get('Received')
             ),
-            ( map { $_->value() } $self->headers()->get('Resent-Date') ),
+            ( map { $_->value } $self->headers->get('Resent-Date') ),
         );
 
         # Stolen from Email::Date and then modified
@@ -220,7 +220,7 @@ sub _build_subject {
 
             unless ($dt) {
                 $dt = $natural_parser->parse_datetime($possible);
-                next unless $natural_parser->success();
+                next unless $natural_parser->success;
             }
 
             $dt->set_time_zone('UTC');
@@ -246,8 +246,8 @@ sub _find_date_received {
 sub _build_to {
     my $self = shift;
 
-    my @addresses = map { Email::Address->parse( $_->value() ) }
-        $self->headers()->get('To');
+    my @addresses = map { Email::Address->parse( $_->value ) }
+        $self->headers->get('To');
 
     return $self->_unique_addresses( \@addresses );
 }
@@ -255,8 +255,8 @@ sub _build_to {
 sub _build_cc {
     my $self = shift;
 
-    my @addresses = map { Email::Address->parse( $_->value() ) }
-        $self->headers()->get('CC');
+    my @addresses = map { Email::Address->parse( $_->value ) }
+        $self->headers->get('CC');
 
     return $self->_unique_addresses( \@addresses );
 }
@@ -264,8 +264,8 @@ sub _build_cc {
 sub _build_from {
     my $self = shift;
 
-    my @addresses = Email::Address->parse( map { $_->value() }
-            $self->headers()->get('From') );
+    my @addresses = Email::Address->parse( map { $_->value }
+            $self->headers->get('From') );
 
     return $addresses[0];
 }
@@ -273,7 +273,7 @@ sub _build_from {
 sub _build_recipients {
     my $self = shift;
 
-    my @addresses = ( $self->to(), $self->cc() );
+    my @addresses = ( $self->to, $self->cc );
 
     return $self->_unique_addresses( \@addresses );
 }
@@ -281,8 +281,7 @@ sub _build_recipients {
 sub _build_participants {
     my $self = shift;
 
-    my @addresses
-        = grep {defined} ( $self->from(), $self->to(), $self->cc() );
+    my @addresses = grep {defined} ( $self->from, $self->to, $self->cc );
 
     return $self->_unique_addresses( \@addresses );
 }
@@ -292,7 +291,7 @@ sub _unique_addresses {
     my $addresses = shift;
 
     my %seen;
-    return [ grep { !$seen{ $_->original() }++ } @{$addresses} ];
+    return [ grep { !$seen{ $_->original }++ } @{$addresses} ];
 }
 
 sub _build_plain_body_part {
@@ -300,8 +299,8 @@ sub _build_plain_body_part {
 
     return $self->first_part_matching(
         sub {
-            $_[0]->mime_type() eq 'text/plain'
-                && $_[0]->is_inline();
+            $_[0]->mime_type eq 'text/plain'
+                && $_[0]->is_inline;
         }
     );
 }
@@ -311,8 +310,8 @@ sub _build_html_body_part {
 
     return $self->first_part_matching(
         sub {
-            $_[0]->mime_type() eq 'text/html'
-                && $_[0]->is_inline();
+            $_[0]->mime_type eq 'text/html'
+                && $_[0]->is_inline;
         }
     );
 }
@@ -321,13 +320,13 @@ sub first_part_matching {
     my $self  = shift;
     my $match = shift;
 
-    my @parts = $self->top_level_part();
+    my @parts = $self->top_level_part;
 
     ## no critic (ControlStructures::ProhibitCStyleForLoops)
     for ( my $part = shift @parts; $part; $part = shift @parts ) {
         return $part if $match->($part);
 
-        push @parts, $part->parts() if $part->is_multipart();
+        push @parts, $part->parts if $part->is_multipart;
     }
 }
 
@@ -335,14 +334,14 @@ sub all_parts_matching {
     my $self  = shift;
     my $match = shift;
 
-    my @parts = $self->top_level_part();
+    my @parts = $self->top_level_part;
 
     my @match;
     ## no critic (ControlStructures::ProhibitCStyleForLoops)
     for ( my $part = shift @parts; $part; $part = shift @parts ) {
         push @match, $part if $match->($part);
 
-        push @parts, $part->parts() if $part->is_multipart();
+        push @parts, $part->parts if $part->is_multipart;
     }
 
     return @match;
@@ -363,7 +362,7 @@ sub all_parts_matching {
         );
 
         my $part = Courriel::Part::Single->new(
-            headers         => $self->headers(),
+            headers         => $self->headers,
             encoded_content => $text,
         );
 
@@ -425,7 +424,7 @@ sub _parse_headers {
         $sep_idx = ( length $header_text ) + ( length $2 );
     }
     else {
-        return ( 0, Courriel::Headers::->new() );
+        return ( 0, Courriel::Headers::->new );
     }
 
     my $headers = Courriel::Headers::->parse(
@@ -453,7 +452,7 @@ sub _parse_headers {
 
         my $ct = $ct[0] // $fake_ct;
 
-        if ( $ct->mime_type() !~ /^multipart/i ) {
+        if ( $ct->mime_type !~ /^multipart/i ) {
             return Courriel::Part::Single->new(
                 headers         => $headers,
                 encoded_content => $text,
@@ -473,7 +472,7 @@ sub _parse_multipart {
     my $boundary = $ct->attribute_value('boundary');
 
     die q{The message's mime type claims this is a multipart message (}
-        . $ct->mime_type()
+        . $ct->mime_type
         . q{) but it does not specify a boundary.}
         unless defined $boundary && length $boundary;
 
@@ -513,7 +512,7 @@ sub _parse_multipart {
     );
 }
 
-__PACKAGE__->meta()->make_immutable();
+__PACKAGE__->meta->make_immutable;
 
 1;
 
@@ -527,14 +526,14 @@ __END__
 
     my $email = Courriel->parse( text => $raw_email );
 
-    print $email->subject();
+    print $email->subject;
 
-    print $_->address() for $email->participants();
+    print $_->address for $email->participants;
 
-    print $email->datetime()->year();
+    print $email->datetime->year;
 
-    if ( my $part = $email->plain_body_part() ) {
-        print $part->content();
+    if ( my $part = $email->plain_body_part ) {
+        print $part->content;
     }
 
 =head1 DESCRIPTION

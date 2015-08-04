@@ -57,7 +57,7 @@ sub _stream_to {
     my $self   = shift;
     my $output = shift;
 
-    $output->( $self->_as_string() );
+    $output->( $self->_as_string );
 }
 ## use critic
 
@@ -75,13 +75,13 @@ sub _stream_to {
     sub _as_string {
         my $self = shift;
 
-        my $value = $self->value();
+        my $value = $self->value;
 
         my $transport_method = '_simple_parameter';
 
         if (   $value =~ /[\x00-\x1f]|\x7f|[^\p{ASCII}]/
-            || defined $self->language()
-            || $self->charset() ne 'us-ascii' ) {
+            || defined $self->language
+            || $self->charset ne 'us-ascii' ) {
 
             $value = encode( 'utf-8', $value );
             $value
@@ -126,7 +126,7 @@ sub _simple_parameter {
     my $order = shift;
     my $value = shift;
 
-    my $param = $self->name();
+    my $param = $self->name;
     $param .= q{*} . $order if defined $order;
     $param .= q{=};
     $param .= $value;
@@ -139,7 +139,7 @@ sub _quoted_parameter {
     my $order = shift;
     my $value = shift;
 
-    my $param = $self->name();
+    my $param = $self->name;
     $param .= q{*} . $order if defined $order;
     $param .= q{=};
 
@@ -155,14 +155,14 @@ sub _encoded_parameter {
     my $order = shift;
     my $value = shift;
 
-    my $param = $self->name();
+    my $param = $self->name;
     $param .= q{*} . $order if defined $order;
     $param .= q{*=};
 
     # XXX (1) - does it makes sense to just say everything is utf-8? in theory
     # someone could pass through binary data in another encoding.
     unless ($order) {
-        $param .= 'UTF-8' . q{'} . ( $self->language() // q{} ) . q{'};
+        $param .= 'UTF-8' . q{'} . ( $self->language // q{} ) . q{'};
     }
 
     $param .= $value;
@@ -171,7 +171,7 @@ sub _encoded_parameter {
 }
 ## use critic;
 
-__PACKAGE__->meta()->make_immutable();
+__PACKAGE__->meta->make_immutable;
 
 1;
 
@@ -184,7 +184,7 @@ __END__
 =head1 SYNOPSIS
 
   my $ct = $headers->get('Content-Type');
-  print $ct->get_attribute('charset')->value();
+  print $ct->get_attribute('charset')->value;
 
 =head1 DESCRIPTION
 
