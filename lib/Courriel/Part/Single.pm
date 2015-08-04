@@ -342,8 +342,6 @@ output can be a subroutine reference, a filehandle, or an object with a
 C<print()> method. The output may be sent as a single string, as a list of
 strings, or via multiple calls to the output.
 
-See the C<as_string()> method for documentation on the C<charset> parameter.
-
 =head1 ROLES
 
 This class does the C<Courriel::Role::Part> and C<Courriel::Role::Streams>

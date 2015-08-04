@@ -218,8 +218,6 @@ output can be a subroutine reference, a filehandle, or an object with a
 C<print()> method. The output may be sent as a single string, as a list of
 strings, or via multiple calls to the output.
 
-See the C<as_string()> method for documentation on the C<charset> parameter.
-
 =head2 $part->as_string()
 
 Returns the part as a string, along with its headers. Lines will be terminated
