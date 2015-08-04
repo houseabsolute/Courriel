@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+- Change Email::Abstract::Courriel's ->get_body() method to return the entire
+  email as a string, making it equivalent to -as_string(). This is confusing,
+  but looking at the few instances of code in Email::Transport that call
+  ->get_body(), it seems like that's what this method is expected to
+  do. Reported by Greg Oschwald. RT #106176.
+
+
 0.37     2015-02-26
 
 - Fixed a test failure when MooseX::Params::Validate 0.21+ is

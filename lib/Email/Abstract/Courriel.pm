@@ -24,7 +24,7 @@ sub get_header {
 
 sub get_body {
     my ( $class, $obj ) = @_;
-    return $obj->top_level_part->content;
+    return $obj->as_string;
 }
 
 sub set_header {
