@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use namespace::autoclean;
 
-our $VERSION = '0.39';
+our $VERSION = '0.40';
 
 use Courriel::Types qw( Streamable );
 use MooseX::Params::Validate qw( validated_list );
