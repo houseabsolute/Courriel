@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use namespace::autoclean;
 
-our $VERSION = '0.38';
+our $VERSION = '0.39';
 
 use Courriel::HeaderAttribute;
 use Courriel::Helpers qw( quote_and_escape_attribute_value );

@@ -3,7 +3,7 @@ package Courriel::Builder;
 use strict;
 use warnings;
 
-our $VERSION = '0.38';
+our $VERSION = '0.39';
 
 use Carp qw( croak );
 use Courriel;

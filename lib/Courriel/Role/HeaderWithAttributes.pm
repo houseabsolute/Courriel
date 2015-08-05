@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use namespace::autoclean;
 
-our $VERSION = '0.38';
+our $VERSION = '0.39';
 
 use Courriel::HeaderAttribute;
 use Courriel::Helpers qw( parse_header_with_attributes );
