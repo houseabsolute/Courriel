@@ -1,6 +1,6 @@
 {{$NEXT}}
 
-- Change Email::Abstract::Courriel's ->get_body() method to return the entire
+- Changed Email::Abstract::Courriel's ->get_body() method to return the entire
   email as a string, making it equivalent to -as_string(). This is confusing,
   but looking at the few instances of code in Email::Transport that call
   ->get_body(), it seems like that's what this method is expected to
