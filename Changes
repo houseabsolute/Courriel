@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.38     2015-08-04
+
 0.37     2015-02-26
 
 - Fixed a test failure when MooseX::Params::Validate 0.21+ is
