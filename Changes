@@ -7,6 +7,11 @@
   do. Reported by Greg Oschwald. RT #106176.
 
 
+0.38     2015-08-04
+
+- Somewhat screwy release now deleted from PAUSE.
+
+
 0.37     2015-02-26
 
 - Fixed a test failure when MooseX::Params::Validate 0.21+ is
