@@ -44,7 +44,7 @@ BEGIN {
 
 use Sub::Exporter -setup => {
     exports => \@exports,
-    groups  => { default => \@exports },
+    groups => { default => \@exports },
 };
 
 {
@@ -290,7 +290,7 @@ sub html_body {
 {
     my @spec = (
         mime_type => { isa => NonEmptyStr },
-        charset   => {
+        charset => {
             isa     => NonEmptyStr,
             default => 'UTF-8',
         },
@@ -311,7 +311,7 @@ sub html_body {
         );
 
         my $ct = Courriel::Header::ContentType->new(
-            mime_type  => $mime_type,
+            mime_type => $mime_type,
             attributes => { charset => $charset },
         );
 

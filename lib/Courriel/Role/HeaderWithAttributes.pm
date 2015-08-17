@@ -93,7 +93,7 @@ sub _attributes_as_string {
 
 {
     my @spec = (
-        name  => { isa => NonEmptyStr, optional => 1 },
+        name => { isa => NonEmptyStr, optional => 1 },
         value => { isa => NonEmptyStr },
     );
 

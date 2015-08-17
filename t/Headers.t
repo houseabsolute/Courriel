@@ -501,9 +501,7 @@ EOF
 
     is_deeply(
         _headers_as_arrayref($h),
-        [
-            Subject => $hola . ' not encoded'
-        ],
+        [ Subject => $hola . ' not encoded' ],
         'parsed headers with MIME encoded word followed by unencoded text'
     );
 }
@@ -517,9 +515,7 @@ EOF
 
     is_deeply(
         _headers_as_arrayref($h),
-        [
-            Subject => $hola . '   not encoded'
-        ],
+        [ Subject => $hola . '   not encoded' ],
         'parsed headers with MIME encoded word followed by three spaces then unencoded text'
     );
 }
@@ -533,9 +529,7 @@ EOF
 
     is_deeply(
         _headers_as_arrayref($h),
-        [
-            Subject => 'not encoded ' . $hola
-        ],
+        [ Subject => 'not encoded ' . $hola ],
         'parsed headers with unencoded text followed by MIME encoded word'
     );
 }
@@ -549,9 +543,7 @@ EOF
 
     is_deeply(
         _headers_as_arrayref($h),
-        [
-            Subject => 'not encoded   ' . $hola
-        ],
+        [ Subject => 'not encoded   ' . $hola ],
         'parsed headers with unencoded text followed by three spaces then MIME encoded word'
     );
 }

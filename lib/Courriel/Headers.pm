@@ -435,14 +435,14 @@ sub as_string {
                     ),
                     ws      => $+{ws},
                     is_mime => 1,
-                    };
+                };
             }
             else {
                 push @chunks, {
                     content => $+{unencoded},
                     ws      => $+{ws},
                     is_mime => 0,
-                    };
+                };
             }
         }
 

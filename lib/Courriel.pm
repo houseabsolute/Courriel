@@ -151,7 +151,7 @@ sub clone_without_attachments {
 
     if ( $plain_body && $html_body ) {
         my $ct = Courriel::Header::ContentType->new(
-            mime_type  => 'multipart/alternative',
+            mime_type => 'multipart/alternative',
             attributes => { boundary => unique_boundary },
         );
 
