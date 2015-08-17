@@ -689,7 +689,7 @@ strings, or via multiple calls to the output.
 For large emails, streaming can be much more memory efficient than generating
 a single string in memory.
 
-=head2 $part->as_string()
+=head2 $email->as_string()
 
 Returns the email as a string, along with its headers. Lines will be
 terminated with "\r\n".
