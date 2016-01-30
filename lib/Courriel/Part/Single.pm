@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use namespace::autoclean;
 
-our $VERSION = '0.40';
+our $VERSION = '0.41';
 
 use Courriel::Header::Disposition;
 use Courriel::Types qw( NonEmptyStr StringRef );
