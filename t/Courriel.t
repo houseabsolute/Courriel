@@ -207,6 +207,9 @@ EOF
         =~ s/(\n\nThis is a test email)/\nContent-Transfer-Encoding: 8bit$1/g;
     $string =~ s/\n/$crlf/g;
 
+    # The header formatter adds quotes around phrases in email addresses.
+    $string =~ s/: Dave Rolsky/: "Dave Rolsky"/g;
+
     _compare_text(
         $email->as_string,
         $string,

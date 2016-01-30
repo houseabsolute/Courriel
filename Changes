@@ -1,5 +1,19 @@
 {{$NEXT}}
 
+- Fixed the stringification of some headers with regards to encoding. The
+  Received header should never be encoded (and thus should never contain
+  non-ASCII).
+
+- Fixed headers which contain email addresses (To, From, CC) so that email
+  addresses are properly encoded (I think). The phrase and comment portions of
+  the address can contain encoded-words, but the address itself should never
+  be encoded. Note that per RFC6531 addresses may contain UTF-8, but the MTA
+  must support the SMTPUTF8 extension in order for the mail to be
+  delivered. As of this release, SMTPUTF8 support does not appear to be very
+  widespread, so I would strongly discourage the use of UTF-8 in email
+  addresses!
+
+
 0.39     2015-08-04
 
 - Changed Email::Abstract::Courriel's ->get_body() method to return the entire

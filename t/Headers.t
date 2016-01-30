@@ -598,7 +598,7 @@ EOF
 {
     my $header = Courriel::Header->new(
         name  => 'To',
-        value => q{"Ďāᶌȩ ȒȯƖŝķẏ" <autarch@urth.org>},
+        value => q{Ďāᶌȩ ȒȯƖŝķẏ <autarch@urth.org>},
     );
 
     like(
@@ -609,7 +609,59 @@ EOF
               \s+
               \Q<autarch\E\@\Qurth.org>\E
           /x,
-        'email address is not encoded but unicode content before it is'
+        'email address is not encoded but unicode content before it is when address has no UTF-8'
+    );
+}
+
+{
+    my $header = Courriel::Header->new(
+        name  => 'To',
+        value => q{Ďāᶌȩ ȒȯƖŝķẏ <āutarch@urth.org>},
+    );
+
+    like(
+        $header->as_string,
+        qr/
+              \Q?UTF-8?B?\E
+              \S+
+              \s+
+              \Q<āutarch\E\@\Qurth.org>\E
+          /x,
+        'email address is not encoded but unicode content before it is even when address has UTF-8'
+    );
+}
+
+{
+    my $header = Courriel::Header->new(
+        name => 'To',
+        value =>
+            q{Ďāᶌȩ ȒȯƖŝķẏ <āutarch@urth.org>, "Joe Smith" <joe@example.com>},
+    );
+
+    like(
+        $header->as_string,
+        qr/
+              \Q?UTF-8?B?\E
+              \S+
+              \s+
+              \Q<āutarch\E\@\Qurth.org>\E
+              \Q, "Joe Smith" <joe\E\@\Qexample.com>\E
+          /x,
+        'multiple addresses in To header are handled correctly when encoding'
+    );
+}
+
+{
+    my $value  = q{from Ďāᶌȩ ȒȯƖŝķẏ};
+    my $header = Courriel::Header->new(
+        name  => 'Received',
+        value => $value,
+    );
+
+    like(
+        $header->as_string,
+        qr/\Q$value/,
+        'Received header is not encoded'
     );
 }
 
@@ -691,7 +743,7 @@ EOF
         'X-Spam-Status header was parsed properly'
     );
 
-    my $string = <<'EOF';
+    my $expect = <<'EOF';
 Return-Path: <rtcpan@cpan.rt.develooper.com>
 X-Spam-Checker-Version: SpamAssassin 3.3.1 (2010-03-16) on urth.org
 X-Spam-Level: 
@@ -740,11 +792,11 @@ Date: Sat, 28 May 2011 13:54:03 -0400
 To: undisclosed-recipients:;
 EOF
 
-    $string =~ s/\n/$crlf/g;
+    $expect =~ s/\n/$crlf/g;
 
     eq_or_diff(
         $h->as_string,
-        $string,
+        $expect,
         'output for real headers matches original headers, but with more correct folding'
     );
 }

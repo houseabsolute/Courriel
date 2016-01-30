@@ -8,6 +8,7 @@ our $VERSION = '0.40';
 
 use Courriel::Helpers qw( fold_header );
 use Courriel::Types qw( NonEmptyStr Str Streamable );
+use Email::Address::List;
 use Encode qw( encode find_encoding );
 use MIME::Base64 qw( encode_base64 );
 use MooseX::Params::Validate qw( validated_list );
@@ -64,6 +65,95 @@ sub as_string {
 }
 
 {
+    # RFC 2047 - An 'encoded-word' MUST NOT be used in a Received header
+    # field.
+    my %never_encode       = map { lc $_ => 1 } qw( Received );
+    my %contains_addresses = map { lc $_ => 1 } qw( CC From To );
+
+    # XXX - this really isn't very correct. Only certain types of values (per RFC
+    # 2047) can be encoded, not just any random text. I'm not sure how best to
+    # handle this. If we parsed an email that encoded stuff that shouldn't be
+    # encoded, what should we do? At the very least, we should add some checks to
+    # Courriel::Builder to ensure that people don't try to create an email with
+    # non-ASCII in certain parts of fields (like in email addresses).
+    sub _maybe_encoded_value {
+        my $self    = shift;
+        my $charset = shift;
+
+        return $self->value
+            if $never_encode{ lc $self->name };
+
+        return $self->_encoded_address_list($charset)
+            if $contains_addresses{ lc $self->name };
+
+        return $self->_encode_string( $self->value, $charset );
+    }
+}
+
+sub _encoded_address_list {
+    my $self    = shift;
+    my $charset = shift;
+
+    my @elements;
+    my @group;
+    for my $parsed ( Email::Address::List->parse( $self->value ) ) {
+        my $push_to = @group ? \@group : \@elements;
+        ## no critic (ControlStructures::ProhibitCascadingIfElse)
+        if ( $parsed->{type} eq 'group start' ) {
+            @group = $parsed->{value} . ':';
+        }
+        elsif ( $parsed->{type} eq 'group end' ) {
+            my $group = join ', ', @group;
+            $group .= ';';
+            push @elements, $group;
+            @group = ();
+        }
+        elsif ( $parsed->{type} eq 'unknown' ) {
+            push @{$push_to},
+                $self->_encode_string( $parsed->{value}, $charset );
+        }
+        elsif ( $parsed->{type} eq 'mailbox' ) {
+            push @{$push_to},
+                $self->_maybe_encoded_address( $parsed->{value}, $charset );
+        }
+    }
+
+    return join ', ', @elements;
+}
+
+sub _maybe_encoded_address {
+    my $self    = shift;
+    my $address = shift;
+    my $charset = shift;
+
+    my $encoded = q{};
+
+    my $phrase = $address->phrase;
+    if ( defined $phrase && length $phrase ) {
+        my $enc_phrase = $self->_encode_string( $phrase, $charset );
+
+        # If the phrase wasn't encoded then we can make it a quoted-word, if
+        # it was encoded then it cannot be wrapped in quotes per RFC 2047.
+        if ( $enc_phrase ne $phrase ) {
+            $encoded .= $enc_phrase;
+        }
+        else {
+            $encoded .= q{"} . $phrase . q{"};
+        }
+        $encoded .= q{ };
+    }
+
+    $encoded .= '<' . $address->address . '>';
+
+    my $comment = $address->comment;
+    if ( defined $comment && length $comment ) {
+        $encoded .= '(' . $self->_encode_string( $comment, $charset ) . ')';
+    }
+
+    return $encoded;
+}
+
+{
     my $header_chunk = qr/
                              (?:
                                 ^
@@ -79,24 +169,17 @@ sub as_string {
                              )
                          /x;
 
-    # XXX - this really isn't very correct. Only certain types of values (per RFC
-    # 2047) can be encoded, not just any random text. I'm not sure how best to
-    # handle this. If we parsed an email that encoded stuff that shouldn't be
-    # encoded, what should we do? At the very least, we should add some checks to
-    # Courriel::Builder to ensure that people don't try to create an email with
-    # non-ASCII in certain parts of fields (like in email addresses).
-    sub _maybe_encoded_value {
+    sub _encode_string {
         my $self    = shift;
+        my $string  = shift;
         my $charset = shift;
 
-        my $value = $self->value;
         my @chunks;
-
-        while ( $value =~ /\G$header_chunk/g ) {
+        while ( $string =~ /\G$header_chunk/g ) {
             push @chunks, {%+};
         }
 
-        my @values;
+        my @encoded;
         for my $i ( 0 .. $#chunks ) {
             if ( defined $chunks[$i]->{non_ascii} ) {
                 my $to_encode
@@ -105,17 +188,17 @@ sub as_string {
                     ? $chunks[$i]{non_ascii} . ( $chunks[$i]{ws} // q{} )
                     : $chunks[$i]{non_ascii};
 
-                push @values, $self->_mime_encode( $to_encode, $charset );
-                push @values, q{ } if $chunks[ $i + 1 ];
+                push @encoded, $self->_mime_encode( $to_encode, $charset );
+                push @encoded, q{ } if $chunks[ $i + 1 ];
             }
             else {
-                push @values,
+                push @encoded,
                     ( $chunks[$i]{ascii} // q{} )
                     . ( $chunks[$i]{ws}  // q{} );
             }
         }
 
-        return join q{}, @values;
+        return join q{}, @encoded;
     }
 }
 
