@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.40     2016-01-30
+
 - Fixed the stringification of some headers with regards to encoding. The
   Received header should never be encoded (and thus should never contain
   non-ASCII).
