@@ -19,7 +19,7 @@
 0.39     2015-08-04
 
 - Changed Email::Abstract::Courriel's ->get_body() method to return the entire
-  email as a string, making it equivalent to -as_string(). This is confusing,
+  email as a string, making it equivalent to ->as_string(). This is confusing,
   but looking at the few instances of code in Email::Transport that call
   ->get_body(), it seems like that's what this method is expected to
   do. Reported by Greg Oschwald. RT #106176.
