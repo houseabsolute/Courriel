@@ -146,7 +146,7 @@ EOF
             Courriel::Header::ContentType->new( mime_type => 'image/jpeg' ),
         disposition => Courriel::Header::Disposition->new(
             disposition => 'attachment',
-            attributes => { filename => 'foo.jpg' },
+            attributes  => { filename => 'foo.jpg' },
         ),
         encoded_content => 'foo',
     );
@@ -173,7 +173,7 @@ EOF
     my $part = Courriel::Part::Single->new(
         headers      => Courriel::Headers->new(),
         content_type => Courriel::Header::ContentType->new(
-            mime_type => 'text/plain',
+            mime_type  => 'text/plain',
             attributes => { charset => 'UTF-8' },
         ),
         encoding        => 'base64',
@@ -193,7 +193,7 @@ EOF
     my $part = Courriel::Part::Single->new(
         headers      => Courriel::Headers->new(),
         content_type => Courriel::Header::ContentType->new(
-            mime_type => 'text/plain',
+            mime_type  => 'text/plain',
             attributes => { charset => 'UTF-8' },
         ),
         encoding => 'base64',
@@ -216,7 +216,7 @@ EOF
     my $part = Courriel::Part::Single->new(
         headers      => Courriel::Headers->new(),
         content_type => Courriel::Header::ContentType->new(
-            mime_type => 'text/plain',
+            mime_type  => 'text/plain',
             attributes => { charset => 'UTF-8' },
         ),
         encoding        => '8bit',
@@ -236,7 +236,7 @@ EOF
     my $part = Courriel::Part::Single->new(
         headers      => Courriel::Headers->new(),
         content_type => Courriel::Header::ContentType->new(
-            mime_type => 'text/plain',
+            mime_type  => 'text/plain',
             attributes => { charset => 'UTF-8' },
         ),
         encoding => '8bit',
