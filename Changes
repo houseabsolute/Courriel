@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+- Fixed header folding for headers that contain non-true values like
+  '0'. Based on a patch for Email::Simple from
+  pali. https://github.com/rjbs/Email-Simple/pull/11.
+
+
 0.40     2016-01-30
 
 - Fixed the stringification of some headers with regards to encoding. The

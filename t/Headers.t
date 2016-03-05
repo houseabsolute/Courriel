@@ -666,6 +666,26 @@ EOF
 }
 
 {
+    my $header = Courriel::Header->new(
+        name => 'Subject',
+        value =>
+            '0000000000000000000000000000000000000000000000000000000000000000000 0',
+    );
+
+    my $expect = <<'EOF';
+Subject: 0000000000000000000000000000000000000000000000000000000000000000000
+  0
+EOF
+
+    $expect =~ s/\n/\r\n/g;
+    is(
+        $header->as_string,
+        $expect,
+        'header value that is all zeroes is folded correctly'
+    );
+}
+
+{
     my $real = <<'EOF';
 Return-Path: <rtcpan@cpan.rt.develooper.com>
 X-Spam-Checker-Version: SpamAssassin 3.3.1 (2010-03-16) on urth.org

@@ -27,10 +27,10 @@ sub fold_header {
     my $folded = q{};
 
     # Algorithm stolen from Email::Simple::Header
-    while ($line) {
+    while ( length $line ) {
         if ( $line =~ s/^(.{0,76})(\s|\z)// ) {
             $folded .= $1 . $CRLF;
-            $folded .= q{  } if $line;
+            $folded .= q{  } if length $line;
         }
         else {
 
