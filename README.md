@@ -281,13 +281,13 @@ button at [http://www.urth.org/~autarch/fs-donation.html](http://www.urth.org/~a
 
 # AUTHOR
 
-Dave Rolsky &lt;autarch@urth.org>
+Dave Rolsky <autarch@urth.org>
 
 # CONTRIBUTORS
 
-- Gregory Oschwald &lt;goschwald@maxmind.com>
-- Ricardo Signes &lt;rjbs@users.noreply.github.com>
-- Zbigniew Łukasiak &lt;zzbbyy@gmail.com>
+- Gregory Oschwald <goschwald@maxmind.com>
+- Ricardo Signes <rjbs@users.noreply.github.com>
+- Zbigniew Łukasiak <zzbbyy@gmail.com>
 
 # COPYRIGHT AND LICENCE
 

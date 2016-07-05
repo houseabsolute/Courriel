@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.42     2016-07-04
+
 - Require the latest version of DateTime::Format::Mail in order to avoid
   warnings from DateTime 1.32+ that will cause some tests to fail. Reported by
   Olaf Alders. RT #115868.
