@@ -14,7 +14,7 @@ use Courriel::Part::Multipart;
 use Courriel::Part::Single;
 use Courriel::Types qw( ArrayRef Bool Headers Maybe Part Str StringRef );
 use DateTime;
-use DateTime::Format::Mail;
+use DateTime::Format::Mail 0.403;
 use DateTime::Format::Natural;
 use Email::Address;
 use Encode qw( encode );

@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+- Require the latest version of DateTime::Format::Mail in order to avoid
+  warnings from DateTime 1.32+ that will cause some tests to fail. Reported by
+  Olaf Alders. RT #115868.
+
+
 0.41     2016-03-05
 
 - Fixed header folding for headers that contain non-true values like
