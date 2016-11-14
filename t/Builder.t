@@ -194,25 +194,6 @@ EOF
         'one of the parts returns true for is_attachment'
     );
 
-SKIP:
-    {
-        skip 'These tests rely on my local magic definitions', 2
-            unless $ENV{RELEASE_TESTING}
-            && hostname() eq 'houseabsolute.urth.org';
-
-        like(
-            $attachment->mime_type,
-            qr{/x-perl$},
-            'correct mime type detected for attachment'
-        );
-
-        is(
-            $attachment->charset,
-            'us-ascii',
-            'correct charset detected for attachment'
-        );
-    }
-
     is(
         $attachment->content,
         $pl_script,
