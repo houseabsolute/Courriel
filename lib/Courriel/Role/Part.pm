@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use namespace::autoclean;
 
-our $VERSION = '0.43';
+our $VERSION = '0.44';
 
 use Courriel::Header::ContentType;
 use Courriel::Header::Disposition;
