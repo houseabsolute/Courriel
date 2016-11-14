@@ -4,7 +4,7 @@ Courriel - High level email parsing and manipulation
 
 # VERSION
 
-version 0.42
+version 0.43
 
 # SYNOPSIS
 
@@ -260,7 +260,7 @@ changes.
 Bugs may be submitted through [the RT bug tracker](http://rt.cpan.org/Public/Dist/Display.html?Name=Courriel)
 (or [bug-courriel@rt.cpan.org](mailto:bug-courriel@rt.cpan.org)).
 
-I am also usually active on IRC as 'drolsky' on `irc://irc.perl.org`.
+I am also usually active on IRC as 'autarch' on `irc://irc.perl.org`.
 
 # DONATIONS
 
@@ -289,7 +289,7 @@ Dave Rolsky <autarch@urth.org>
 - Ricardo Signes <rjbs@users.noreply.github.com>
 - Zbigniew Łukasiak <zzbbyy@gmail.com>
 
-# COPYRIGHT AND LICENCE
+# COPYRIGHT AND LICENSE
 
 This software is Copyright (c) 2016 by Dave Rolsky.
 
