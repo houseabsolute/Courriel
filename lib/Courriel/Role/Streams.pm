@@ -7,19 +7,19 @@ use namespace::autoclean;
 our $VERSION = '0.43';
 
 use Courriel::Types qw( Streamable );
-use MooseX::Params::Validate qw( validated_list );
+use Params::ValidationCompiler qw( validation_for );
 
 use Moose::Role;
 
 {
-    my @spec = ( output => { isa => Streamable, coerce => 1 } );
+    my $validator = validation_for(
+        params        => [ output => { type => Streamable } ],
+        named_to_list => 1,
+    );
 
     sub stream_to {
         my $self = shift;
-        my ($output) = validated_list(
-            \@_,
-            @spec,
-        );
+        my ($output) = $validator->(@_);
 
         $self->_stream_to($output);
 

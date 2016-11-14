@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+- Replaced MooseX::Params::Validate with Params::ValidationCompiler.
+
+
 0.42     2016-07-04
 
 - Require the latest version of DateTime::Format::Mail in order to avoid

@@ -9,7 +9,6 @@ our $VERSION = '0.43';
 use Courriel::Types qw( Bool Maybe NonEmptyStr );
 use DateTime;
 use DateTime::Format::Mail;
-use MooseX::Params::Validate qw( validated_list );
 
 use Moose;
 use MooseX::StrictConstructor;

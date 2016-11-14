@@ -14,7 +14,7 @@ use Courriel::Types
 use Encode qw( decode );
 use MIME::Base64 qw( decode_base64 );
 use MIME::QuotedPrint qw( decode_qp );
-use MooseX::Params::Validate qw( pos_validated_list validated_list );
+use Params::ValidationCompiler qw( validation_for );
 use Scalar::Util qw( blessed reftype );
 
 use Moose;
@@ -127,28 +127,26 @@ sub _build_key_indices {
 }
 
 {
-    my @spec = ( { isa => NonEmptyStr } );
+    my $validator = validation_for(
+        params => [ { type => NonEmptyStr } ],
+    );
 
     sub get {
         my $self = shift;
-        my ($name) = pos_validated_list(
-            \@_,
-            @spec,
-        );
+        my ($name) = $validator->(@_);
 
         return @{ $self->_headers }[ $self->_key_indices_for($name) ];
     }
 }
 
 {
-    my @spec = ( { isa => NonEmptyStr } );
+    my $validator = validation_for(
+        params => [ { type => NonEmptyStr } ],
+    );
 
     sub get_values {
         my $self = shift;
-        my ($name) = pos_validated_list(
-            \@_,
-            @spec,
-        );
+        my ($name) = $validator->(@_);
 
         return
             map { $_->value }
@@ -164,17 +162,16 @@ sub _key_indices_for {
 }
 
 {
-    my @spec = (
-        { isa => NonEmptyStr },
-        { isa => Defined },
+    my $validator = validation_for(
+        params => [
+            { type => NonEmptyStr },
+            { type => Defined },
+        ],
     );
 
     sub add {
         my $self = shift;
-        my ( $name, $value ) = pos_validated_list(
-            \@_,
-            @spec,
-        );
+        my ( $name, $value ) = $validator->(@_);
 
         my $headers = $self->_headers;
 
@@ -200,9 +197,11 @@ sub _key_indices_for {
 }
 
 {
-    my @spec = (
-        { isa => NonEmptyStr },
-        { isa => Defined },
+    my $validator = validation_for(
+        params => [
+            { type => NonEmptyStr },
+            { type => Defined },
+        ],
     );
 
     # Used to add things like Resent or Received headers
@@ -210,12 +209,7 @@ sub _key_indices_for {
     ## no critic (Subroutines::ProhibitBuiltinHomonyms)
     sub unshift {
         my $self = shift;
-        my ( $name, $value ) = pos_validated_list(
-            \@_,
-            { isa => NonEmptyStr },
-            ( { isa => Defined } ) x ( @_ - 1 ),
-            MX_PARAMS_VALIDATE_NO_CACHE => 1,
-        );
+        my ( $name, $value ) = $validator->(@_);
 
         my $headers = $self->_headers;
 
@@ -232,16 +226,15 @@ sub _key_indices_for {
 }
 
 {
-    my @spec = (
-        { isa => NonEmptyStr },
+    my $validator = validation_for(
+        params => [
+            { type => NonEmptyStr },
+        ],
     );
 
     sub remove {
         my $self = shift;
-        my ($name) = pos_validated_list(
-            \@_,
-            @spec,
-        );
+        my ($name) = $validator->(@_);
 
         my $headers = $self->_headers;
 
@@ -256,17 +249,16 @@ sub _key_indices_for {
 }
 
 {
-    my @spec = (
-        { isa => NonEmptyStr },
-        { isa => Defined },
+    my $validator = validation_for(
+        params => [
+            { type => NonEmptyStr },
+            { type => Defined },
+        ],
     );
 
     sub replace {
         my $self = shift;
-        my ( $name, $value ) = pos_validated_list(
-            \@_,
-            @spec,
-        );
+        my ( $name, $value ) = $validator->(@_);
 
         $self->remove($name);
         $self->add( $name => $value );
@@ -289,16 +281,14 @@ sub _key_indices_for {
                       $horiz_ws+(\S$horiz_text*)?      # continuation line
                      /x;
 
-    my @spec = (
-        text => { isa => StringRef, coerce => 1 },
+    my $validator = validation_for(
+        params        => [ text => { type => StringRef } ],
+        named_to_list => 1,
     );
 
     sub parse {
         my $class = shift;
-        my ($text) = validated_list(
-            \@_,
-            @spec,
-        );
+        my ($text) = $validator->(@_);
 
         my @headers;
 
@@ -363,18 +353,20 @@ sub _maybe_fix_broken_headers {
 }
 
 {
-    my @spec = (
-        output => { isa => Streamable, coerce => 1 },
-        skip => { isa => ArrayRef [NonEmptyStr], default => [] },
-        charset => { isa => NonEmptyStr, default => 'utf8' },
+    my $validator = validation_for(
+        params => [
+            output => { type => Streamable },
+            skip   => {
+                type => ArrayRef [NonEmptyStr], default => sub { [] }
+            },
+            charset => { type => NonEmptyStr, default => 'utf8' },
+        ],
+        named_to_list => 1,
     );
 
     sub stream_to {
         my $self = shift;
-        my ( $output, $skip, $charset ) = validated_list(
-            \@_,
-            @spec
-        );
+        my ( $output, $skip, $charset ) = $validator->(@_);
 
         my %skip = map { lc $_ => 1 } @{$skip};
 

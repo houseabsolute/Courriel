@@ -19,7 +19,7 @@ use DateTime::Format::Natural;
 use Email::Address;
 use Encode qw( encode );
 use List::AllUtils qw( uniq );
-use MooseX::Params::Validate 0.21 qw( validated_list );
+use Params::ValidationCompiler 0.18 qw( validation_for );
 
 use Moose;
 use MooseX::StrictConstructor;
@@ -348,7 +348,12 @@ sub all_parts_matching {
 }
 
 {
-    my @spec = ( text => { isa => StringRef, coerce => 1 } );
+    my $validator = validation_for(
+        params => [
+            text => { type => StringRef },
+        ],
+        named_to_list => 1,
+    );
 
     # This is needed for Email::Abstract compatibility but it's a godawful
     # idea, and even Email::Abstract says not to do this.
@@ -356,10 +361,7 @@ sub all_parts_matching {
     # It's much safer to just make a new Courriel object from scratch.
     sub replace_body {
         my $self = shift;
-        my ($text) = validated_list(
-            \@_,
-            @spec,
-        );
+        my ($text) = $validator->(@_);
 
         my $part = Courriel::Part::Single->new(
             headers         => $self->headers,
@@ -373,17 +375,17 @@ sub all_parts_matching {
 }
 
 {
-    my @spec = (
-        text         => { isa => StringRef, coerce  => 1 },
-        is_character => { isa => Bool,      default => 0 },
+    my $validator = validation_for(
+        params => [
+            text         => { type => StringRef },
+            is_character => { type => Bool, default => 0 },
+        ],
+        named_to_list => 1,
     );
 
     sub parse {
         my $class = shift;
-        my ( $text, $is_character ) = validated_list(
-            \@_,
-            @spec,
-        );
+        my ( $text, $is_character ) = $validator->(@_);
 
         if ($is_character) {
             ${$text} = encode( 'UTF-8', ${$text} );

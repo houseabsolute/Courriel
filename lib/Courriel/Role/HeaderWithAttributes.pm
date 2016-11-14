@@ -9,7 +9,7 @@ our $VERSION = '0.43';
 use Courriel::HeaderAttribute;
 use Courriel::Helpers qw( parse_header_with_attributes );
 use Courriel::Types qw( HashRef NonEmptyStr );
-use MooseX::Params::Validate qw( pos_validated_list validated_list );
+use Params::ValidationCompiler qw( validation_for );
 use Scalar::Util qw( blessed reftype );
 
 use MooseX::Role::Parameterized;
@@ -71,11 +71,13 @@ sub attribute {
 }
 
 {
-    my @spec = ( { isa => NonEmptyStr } );
+    my $validator = validation_for(
+        params => [ { type => NonEmptyStr } ],
+    );
 
     sub attribute_value {
         my $self = shift;
-        my ($name) = pos_validated_list( \@_, @spec );
+        my ($name) = $validator->(@_);
 
         my $attr = $self->attribute($name);
 
@@ -92,9 +94,12 @@ sub _attributes_as_string {
 }
 
 {
-    my @spec = (
-        name  => { isa => NonEmptyStr, optional => 1 },
-        value => { isa => NonEmptyStr },
+    my $validator = validation_for(
+        params => [
+            name  => { isa => NonEmptyStr, optional => 1 },
+            value => { isa => NonEmptyStr },
+        ],
+        named_to_list => 1,
     );
 
     role {
@@ -104,7 +109,7 @@ sub _attributes_as_string {
 
         method new_from_value => sub {
             my $class = shift;
-            my ( $name, $value ) = validated_list( \@_, @spec );
+            my ( $name, $value ) = $validator->(@_);
 
             my ( $main_value, $attributes )
                 = parse_header_with_attributes($value);

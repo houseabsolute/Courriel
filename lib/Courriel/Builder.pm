@@ -21,7 +21,7 @@ use File::Basename qw( basename );
 use File::LibMagic;
 use File::Slurp::Tiny qw( read_file );
 use List::AllUtils qw( first );
-use MooseX::Params::Validate qw( pos_validated_list validated_list );
+use Params::ValidationCompiler qw( validation_for );
 use Scalar::Util qw( blessed reftype );
 
 our @CARP_NOT = __PACKAGE__;
@@ -48,22 +48,20 @@ use Sub::Exporter -setup => {
 };
 
 {
-    my $spec = { isa => HashRef };
+    my $validator = validation_for(
+        params => [ { type => HashRef } ],
+        slurpy => HashRef,
+    );
 
     sub build_email {
-        my $count = @_ ? @_ : 1;
-        pos_validated_list(
-            \@_,
-            ($spec) x $count,
-            MX_PARAMS_VALIDATE_NO_CACHE => 1,
-        );
+        my @p = $validator->(@_);
 
         my @headers;
         my $plain_body;
         my $html_body;
         my @attachments;
 
-        for my $p (@_) {
+        for my $p (@p) {
             ## no critic (ControlStructures::ProhibitCascadingIfElse)
             if ( $p->{header} ) {
                 push @headers, @{ $p->{header} };
@@ -156,26 +154,24 @@ sub _add_required_headers {
 }
 
 {
-    my $spec = { isa => Str };
+    my $validator = validation_for(
+        params => [ { type => Str } ],
+    );
 
     sub subject {
-        my ($subject) = pos_validated_list(
-            \@_,
-            $spec,
-        );
+        my ($subject) = $validator->(@_);
 
         return { header => [ Subject => $subject ] };
     }
 }
 
 {
-    my $spec = { isa => EmailAddressStr, coerce => 1 };
+    my $validator = validation_for(
+        params => [ { type => EmailAddressStr } ],
+    );
 
     sub from {
-        my ($from) = pos_validated_list(
-            \@_,
-            $spec,
-        );
+        my ($from) = $validator->(@_);
 
         if ( blessed $from ) {
             $from = $from->format;
@@ -186,15 +182,13 @@ sub _add_required_headers {
 }
 
 {
-    my $spec = { isa => EmailAddressStr, coerce => 1 };
+    my $validator = validation_for(
+        params => [ { type => EmailAddressStr } ],
+        slurpy => EmailAddressStr,
+    );
 
     sub to {
-        my $count = @_ ? @_ : 1;
-        my (@to) = pos_validated_list(
-            \@_,
-            ($spec) x $count,
-            MX_PARAMS_VALIDATE_NO_CACHE => 1,
-        );
+        my (@to) = $validator->(@_);
 
         @to = map { blessed($_) ? $_->format : $_ } @to;
 
@@ -203,15 +197,13 @@ sub _add_required_headers {
 }
 
 {
-    my $spec = { isa => EmailAddressStr, coerce => 1 };
+    my $validator = validation_for(
+        params => [ { type => EmailAddressStr } ],
+        slurpy => EmailAddressStr,
+    );
 
     sub cc {
-        my $count = @_ ? @_ : 1;
-        my (@cc) = pos_validated_list(
-            \@_,
-            ($spec) x $count,
-            MX_PARAMS_VALIDATE_NO_CACHE => 1,
-        );
+        my (@cc) = $validator->(@_);
 
         @cc = map { blessed($_) ? $_->format : $_ } @cc;
 
@@ -220,16 +212,15 @@ sub _add_required_headers {
 }
 
 {
-    my @spec = (
-        { isa => NonEmptyStr },
-        { isa => Str },
+    my $validator = validation_for(
+        params => [
+            { type => NonEmptyStr },
+            { type => Str },
+        ],
     );
 
     sub header {
-        my ( $name, $value ) = pos_validated_list(
-            \@_,
-            @spec,
-        );
+        my ( $name, $value ) = $validator->(@_);
 
         return { header => [ $name => $value ] };
     }
@@ -288,27 +279,26 @@ sub html_body {
 }
 
 {
-    my @spec = (
-        mime_type => { isa => NonEmptyStr },
-        charset   => {
-            isa     => NonEmptyStr,
-            default => 'UTF-8',
-        },
-        encoding => {
-            isa     => NonEmptyStr,
-            default => 'base64',
-        },
-        content => {
-            isa    => StringRef,
-            coerce => 1,
-        },
+    my $validator = validation_for(
+        params => [
+            mime_type => { type => NonEmptyStr },
+            charset   => {
+                type    => NonEmptyStr,
+                default => 'UTF-8',
+            },
+            encoding => {
+                type    => NonEmptyStr,
+                default => 'base64',
+            },
+            content => {
+                type => StringRef,
+            },
+        ],
+        named_to_list => 1,
     );
 
     sub _body_part {
-        my ( $mime_type, $charset, $encoding, $content ) = validated_list(
-            \@_,
-            @spec,
-        );
+        my ( $mime_type, $charset, $encoding, $content ) = $validator->(@_);
 
         my $ct = Courriel::Header::ContentType->new(
             mime_type  => $mime_type,
@@ -340,18 +330,18 @@ sub attach {
 my $flm = File::LibMagic->new;
 
 {
-    my @spec = (
-        file       => { isa => NonEmptyStr },
-        mime_type  => { isa => NonEmptyStr, optional => 1 },
-        filename   => { isa => NonEmptyStr, optional => 1 },
-        content_id => { isa => NonEmptyStr, optional => 1 },
+    my $validator = validation_for(
+        params => [
+            file       => { type => NonEmptyStr },
+            mime_type  => { type => NonEmptyStr, optional => 1 },
+            filename   => { type => NonEmptyStr, optional => 1 },
+            content_id => { type => NonEmptyStr, optional => 1 },
+        ],
+        named_to_list => 1,
     );
 
     sub _part_for_file {
-        my ( $file, $mime_type, $filename, $content_id ) = validated_list(
-            \@_,
-            @spec,
-        );
+        my ( $file, $mime_type, $filename, $content_id ) = $validator->(@_);
 
         my $ct
             = _content_type( $mime_type // $flm->checktype_filename($file) );
@@ -369,18 +359,19 @@ my $flm = File::LibMagic->new;
 }
 
 {
-    my @spec = (
-        content    => { isa => StringRef,   coerce   => 1 },
-        mime_type  => { isa => NonEmptyStr, optional => 1 },
-        filename   => { isa => NonEmptyStr, optional => 1 },
-        content_id => { isa => NonEmptyStr, optional => 1 },
+    my $validator = validation_for(
+        params => [
+            content    => { type => StringRef },
+            mime_type  => { type => NonEmptyStr, optional => 1 },
+            filename   => { type => NonEmptyStr, optional => 1 },
+            content_id => { type => NonEmptyStr, optional => 1 },
+        ],
+        named_to_list => 1,
     );
 
     sub _part_for_content {
-        my ( $content, $mime_type, $filename, $content_id ) = validated_list(
-            \@_,
-            @spec,
-        );
+        my ( $content, $mime_type, $filename, $content_id )
+            = $validator->(@_);
 
         my $ct = _content_type( $mime_type
                 // $flm->checktype_contents( ${$content} ) );

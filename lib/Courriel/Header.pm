@@ -11,7 +11,7 @@ use Courriel::Types qw( NonEmptyStr Str Streamable );
 use Email::Address::List;
 use Encode qw( encode find_encoding );
 use MIME::Base64 qw( encode_base64 );
-use MooseX::Params::Validate qw( validated_list );
+use Params::ValidationCompiler qw( validation_for );
 
 use Moose;
 use MooseX::StrictConstructor;
@@ -31,17 +31,17 @@ has value => (
 );
 
 {
-    my @spec = (
-        charset => { isa => NonEmptyStr, default => 'utf8' },
-        output  => { isa => Streamable,  coerce  => 1 },
+    my $validator = validation_for(
+        params => [
+            charset => { isa => NonEmptyStr, default => 'utf8' },
+            output  => { isa => Streamable },
+        ],
+        named_to_list => 1,
     );
 
     sub stream_to {
         my $self = shift;
-        my ( $charset, $output ) = validated_list(
-            \@_,
-            @spec
-        );
+        my ( $charset, $output ) = $validator->(@_);
 
         my $string = $self->name;
         $string .= ': ';

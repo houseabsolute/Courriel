@@ -424,7 +424,7 @@ EOF
 {
     like(
         exception { build_email(); },
-        qr/0 parameters were passed to Courriel::Builder::build_email but 1 was expected/,
+        qr/got 0 parameters but expected at least 1/,
         'got error when passing no arguments to build_email'
     );
 }
