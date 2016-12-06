@@ -33,8 +33,8 @@ has value => (
 {
     my $validator = validation_for(
         params => [
-            charset => { isa => NonEmptyStr, default => 'utf8' },
-            output  => { isa => Streamable },
+            charset => { type => NonEmptyStr, default => 'utf8' },
+            output  => { type => Streamable },
         ],
         named_to_list => 1,
     );

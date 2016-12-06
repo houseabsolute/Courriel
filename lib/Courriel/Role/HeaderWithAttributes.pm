@@ -96,8 +96,8 @@ sub _attributes_as_string {
 {
     my $validator = validation_for(
         params => [
-            name  => { isa => NonEmptyStr, optional => 1 },
-            value => { isa => NonEmptyStr },
+            name  => { type => NonEmptyStr, optional => 1 },
+            value => { type => NonEmptyStr },
         ],
         named_to_list => 1,
     );
