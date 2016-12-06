@@ -4,7 +4,7 @@ Courriel - High level email parsing and manipulation
 
 # VERSION
 
-version 0.43
+version 0.44
 
 # SYNOPSIS
 

@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.44     2016-12-05
+
 - The changes to use Params::ValidationCompiler in 0.43 were not quite
   correct, and since Params::ValidationCompiler 0.20 started doing more
   validation of calls to validation_for(), this cause an exception. Reported
