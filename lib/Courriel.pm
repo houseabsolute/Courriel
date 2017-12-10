@@ -6,7 +6,7 @@ use strict;
 use warnings;
 use namespace::autoclean;
 
-our $VERSION = '0.45';
+our $VERSION = '0.46';
 
 use Courriel::Headers;
 use Courriel::Helpers qw( unique_boundary );
