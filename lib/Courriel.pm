@@ -19,7 +19,7 @@ use DateTime::Format::Natural;
 use Email::Address;
 use Encode qw( encode );
 use List::AllUtils qw( uniq );
-use Params::ValidationCompiler 0.18 qw( validation_for );
+use Params::ValidationCompiler 0.26 qw( validation_for );
 
 use Moose;
 use MooseX::StrictConstructor;
