@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.45     2017-12-09
+
 - Fix tests that fail with Params::ValidationCompiler 0.26 and require that
   version.
 
