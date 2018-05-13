@@ -850,7 +850,7 @@ EOF
     like(
         Courriel::Headers->parse(
             text => \$bad,
-            )->as_string,
+        )->as_string,
         qr/Ok: 2Not ok/,
         'handle arbitrary newline without an exception'
     );
@@ -867,7 +867,7 @@ EOF
     like(
         Courriel::Headers->parse(
             text => \$bad,
-            )->as_string,
+        )->as_string,
         qr/Ok: 1/,
         'handle empty continuation line without an exception'
     );

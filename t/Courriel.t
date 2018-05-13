@@ -193,7 +193,7 @@ EOF
             minute    => 22,
             second    => 22,
             time_zone => '-0500',
-            )->set_time_zone('UTC')->strftime('%{datetime} %Z'),
+        )->set_time_zone('UTC')->strftime('%{datetime} %Z'),
         'email datetime is parsed from Date header correctly'
     );
 
@@ -252,7 +252,7 @@ EOF
             minute    => 24,
             second    => 44,
             time_zone => '-0500',
-            )->set_time_zone('UTC')->strftime('%{datetime} %Z'),
+        )->set_time_zone('UTC')->strftime('%{datetime} %Z'),
         'email datetime is parsed from Received header correctly'
     );
 }
@@ -283,7 +283,7 @@ EOF
             minute    => 22,
             second    => 23,
             time_zone => '-0500',
-            )->set_time_zone('UTC')->strftime('%{datetime} %Z'),
+        )->set_time_zone('UTC')->strftime('%{datetime} %Z'),
         'email datetime is parsed from Resent-Date header correctly'
     );
 }
@@ -485,7 +485,7 @@ EOF
             minute    => 1,
             second    => 2,
             time_zone => '-0500',
-            )->set_time_zone('UTC')->strftime('%{datetime} %Z'),
+        )->set_time_zone('UTC')->strftime('%{datetime} %Z'),
         'got creation_datetime from content disposition'
     );
 
@@ -500,7 +500,7 @@ EOF
             minute    => 1,
             second    => 3,
             time_zone => '-0500',
-            )->set_time_zone('UTC')->strftime('%{datetime} %Z'),
+        )->set_time_zone('UTC')->strftime('%{datetime} %Z'),
         'got modification_datetime from content disposition'
     );
 
@@ -514,7 +514,7 @@ EOF
             minute    => 1,
             second    => 4,
             time_zone => '-0500',
-            )->set_time_zone('UTC')->strftime('%{datetime} %Z'),
+        )->set_time_zone('UTC')->strftime('%{datetime} %Z'),
         'got read_datetime from content disposition'
     );
 }
