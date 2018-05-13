@@ -36,7 +36,7 @@ subtype EmailAddressStr,
     as NonEmptyStr;
 
 coerce EmailAddressStr,
-    from class_type('Email::Address'),
+    from class_type('Email::Address::XS'),
     via { $_->format };
 
 my $_check_header_array = sub {

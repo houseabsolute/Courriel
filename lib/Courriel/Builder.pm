@@ -494,17 +494,17 @@ an empty string, but not C<undef>.
 =head2 from($from)
 
 This sets the From header of the email. It expects a single string or
-L<Email::Address> object.
+an object with a C<format()> method like C<Email::Address::XS>.
 
 =head2 to($from)
 
-This sets the To header of the email. It expects a list of string and/or
-L<Email::Address> objects.
+This sets the To header of the email. It expects a list of strings and/or
+objects with a C<format()> method like C<Email::Address::XS>.
 
 =head2 cc($from)
 
-This sets the Cc header of the email. It expects a list of string and/or
-L<Email::Address> objects.
+This sets the Cc header of the email. It expects a list of strings and/or
+objects with a C<format()> method like C<Email::Address::XS>.
 
 =head2 header( $name => $value )
 

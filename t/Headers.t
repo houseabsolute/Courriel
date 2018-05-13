@@ -5,6 +5,7 @@ use utf8;
 use Test::Differences;
 use Test::Fatal;
 use Test::More 0.88;
+use Test::Warnings;
 
 use Courriel::Builder;
 use Courriel::Headers;
