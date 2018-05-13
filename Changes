@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.46     2018-05-13
+
 - Replaced all use of Email::Address with Email::Address::XS, as the former is
   deprecated. The latter is a drop-in replacement API-wise, except if you are
   checking `$address->isa('Email::Address')`. Reported by Greg Oschwald. GH
