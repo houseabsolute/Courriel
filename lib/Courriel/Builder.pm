@@ -183,7 +183,7 @@ sub _add_required_headers {
 
 {
     my $validator = validation_for(
-        params => [ { type => EmailAddressStr } ],
+        params => [ { type => EmailAddressStr, optional => 1 } ],
         slurpy => EmailAddressStr,
     );
 
@@ -198,7 +198,7 @@ sub _add_required_headers {
 
 {
     my $validator = validation_for(
-        params => [ { type => EmailAddressStr } ],
+        params => [ { type => EmailAddressStr, optional => 1 } ],
         slurpy => EmailAddressStr,
     );
 
@@ -496,12 +496,12 @@ an empty string, but not C<undef>.
 This sets the From header of the email. It expects a single string or
 an object with a C<format()> method like C<Email::Address::XS>.
 
-=head2 to($from)
+=head2 to($to, ... )
 
 This sets the To header of the email. It expects a list of strings and/or
 objects with a C<format()> method like C<Email::Address::XS>.
 
-=head2 cc($from)
+=head2 cc($cc, ... )
 
 This sets the Cc header of the email. It expects a list of strings and/or
 objects with a C<format()> method like C<Email::Address::XS>.
