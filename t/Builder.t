@@ -99,6 +99,21 @@ use Sys::Hostname qw( hostname );
 }
 
 {
+    my $email = build_email(
+        cc(),
+        plain_body(
+            content => 'Foo',
+        ),
+    );
+
+    is_deeply(
+        [ map { $_->value } $email->headers->get('Cc') ],
+        [],
+        'got no recipients for the Cc header',
+    );
+}
+
+{
     my $dt = DateTime->new(
         year      => 1980,
         month     => 1,
