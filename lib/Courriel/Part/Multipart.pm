@@ -49,7 +49,7 @@ sub BUILD {
     ## no critic (Subroutines::ProtectPrivateSubs)
     $self->content_type->_set_attribute(
         boundary => Courriel::HeaderAttribute->new(
-            name => ( $existing ? $existing->name : 'boundary' ),
+            name  => ( $existing ? $existing->name : 'boundary' ),
             value => $boundary,
         )
     );

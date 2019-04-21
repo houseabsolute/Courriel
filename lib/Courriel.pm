@@ -423,7 +423,7 @@ sub _parse_headers {
 
     if ( ${$text} =~ /^(.+?)($Courriel::Helpers::LINE_SEP_RE)\g{2}/s ) {
         $header_text = $1 . $2;
-        $sep_idx = ( length $header_text ) + ( length $2 );
+        $sep_idx     = ( length $header_text ) + ( length $2 );
     }
     else {
         return ( 0, Courriel::Headers::->new );

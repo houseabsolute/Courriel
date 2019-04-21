@@ -196,7 +196,7 @@ sub _maybe_encoded_address {
             else {
                 push @encoded,
                     ( $chunks[$i]{ascii} // q{} )
-                    . ( $chunks[$i]{ws} // q{} );
+                    . ( $chunks[$i]{ws}  // q{} );
             }
         }
 
