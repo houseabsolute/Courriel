@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.48     2019-04-21
+
 - Replaced File::Slurp::Tiny with File::Slurper. The former has been
   deprecated by its author for some time. Fixes GH #9. Reported by Greg
   Oschwald.
