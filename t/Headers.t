@@ -495,6 +495,43 @@ EOF
 
 {
     my $headers = <<'EOF';
+Content-Type: image/jpeg;
+ name="=?UTF-8?B?0YHRitC10YjRjCDQttC1INC10YnRkSDRjdGC0LjRhSDQvA==?=
+ =?UTF-8?B?0Y/Qs9C60LjRhSDRhNGA0LDQvdGG0YPQt9GB0LrQuNGFINCx?=
+ =?UTF-8?B?0YPQu9C+0LosINC00LAg0LLRi9C/0LXQuSDRh9Cw0Y4=?=.jpg"
+EOF
+    my $h = Courriel::Headers->parse( text => \$headers );
+
+    is_deeply(
+        _headers_as_arrayref($h),
+        [ 'Content-Type' => 'image/jpeg; name="съешь же ещё этих мягких французских булок, да выпей чаю.jpg"' ],
+        'parsed headers with MIME encoded attributes'
+    );
+}
+
+{
+    my $headers = <<'EOF';
+attachment;
+ filename*0*=UTF-8'ru'%D0%A1%D0%AA%D0%95%D0%A8%D0%AC%20%D0%96;
+ filename*1*=%D0%95%20%D0%95%D0%A9%D0%81%20%D0%AD%D0%A2%D0%98;
+ filename*2*=%D0%A5%20%D0%9C%D0%AF%D0%93%D0%9A%D0%98%D0%A5%20;
+ filename*3*=%D0%A4%D0%A0%D0%90%D0%9D%D0%A6%D0%A3%D0%97%D0%A1;
+ filename*4*=%D0%9A%D0%98%D0%A5%20%D0%91%D0%A3%D0%9B%D0%9E;
+ filename*5*=%D0%9A%2C%20%D0%94%D0%90%20%D0%92%D0%AB%D0%9F;
+ filename*6*=%D0%95%D0%99%20%D0%A7%D0%90%D0%AE%2E%44%4A%56%55
+EOF
+
+    my $h = Courriel::Header::Disposition->new_from_value( value => $headers );
+
+    is(
+        $h->filename,
+        "СЪЕШЬ ЖЕ ЕЩЁ ЭТИХ МЯГКИХ ФРАНЦУЗСКИХ БУЛОК, ДА ВЫПЕЙ ЧАЮ.DJVU",
+        'parsed Content-Disposition headers with a long UTF-8 attributes'
+    );
+}
+
+{
+    my $headers = <<'EOF';
 Subject: =?iso-8859-1?Q?=A1Hola,_se=F1or!?= not encoded
 EOF
 
