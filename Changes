@@ -4,6 +4,11 @@
   this would assume that the charset was present in every section, instead of
   just the first. Fixed by Vitaly Gimly. GH #10. PR #11.
 
+- Fixed handling of multi-section header attributes which encoded a UTF-8 (or
+  other multi-byte charset) value with the value broken mid-byte between
+  sections. Previously these would be end up in a corrupted form. Reported by
+  Vitaly Gimly. GH #10.
+
 
 0.48     2019-04-21
 

@@ -516,6 +516,23 @@ EOF
 
 {
     my $headers = <<'EOF';
+attachment;
+ filename*0*=UTF-8'jp'%E7%B5;
+ filename*1*=%B6%E6%9C%9B%E5%B9;
+ filename*2*=%B4%E8%A1%A8;
+EOF
+
+    my $h = Courriel::Header::Disposition->new_from_value( value => $headers );
+
+    is(
+        $h->filename,
+        '絶望年表',
+        'parsed Content-Disposition headers with UTF-8 split across bytes between sections'
+    );
+}
+
+{
+    my $headers = <<'EOF';
 Subject: =?iso-8859-1?Q?=A1Hola,_se=F1or!?= not encoded
 EOF
 
