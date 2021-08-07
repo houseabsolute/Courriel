@@ -495,6 +495,27 @@ EOF
 
 {
     my $headers = <<'EOF';
+attachment;
+ filename*0*=UTF-8'ru'%D0%A1%D0%AA%D0%95%D0%A8%D0%AC%20%D0%96;
+ filename*1*=%D0%95%20%D0%95%D0%A9%D0%81%20%D0%AD%D0%A2%D0%98;
+ filename*2*=%D0%A5%20%D0%9C%D0%AF%D0%93%D0%9A%D0%98%D0%A5%20;
+ filename*3*=%D0%A4%D0%A0%D0%90%D0%9D%D0%A6%D0%A3%D0%97%D0%A1;
+ filename*4*=%D0%9A%D0%98%D0%A5%20%D0%91%D0%A3%D0%9B%D0%9E;
+ filename*5*=%D0%9A%2C%20%D0%94%D0%90%20%D0%92%D0%AB%D0%9F;
+ filename*6*=%D0%95%D0%99%20%D0%A7%D0%90%D0%AE%2E%44%4A%56%55
+EOF
+
+    my $h = Courriel::Header::Disposition->new_from_value( value => $headers );
+
+    is(
+        $h->filename,
+        'СЪЕШЬ ЖЕ ЕЩЁ ЭТИХ МЯГКИХ ФРАНЦУЗСКИХ БУЛОК, ДА ВЫПЕЙ ЧАЮ.DJVU',
+        'parsed Content-Disposition headers multi-section UTF-8 attributes and a charset in the first section'
+    );
+}
+
+{
+    my $headers = <<'EOF';
 Subject: =?iso-8859-1?Q?=A1Hola,_se=F1or!?= not encoded
 EOF
 

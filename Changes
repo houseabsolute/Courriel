@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+- Fixed handling of charsets in multi-section header attributes. Previously
+  this would assume that the charset was present in every section, instead of
+  just the first. Fixed by Vitaly Gimly. GH #10. PR #11.
+
+
 0.48     2019-04-21
 
 - Replaced File::Slurp::Tiny with File::Slurper. The former has been

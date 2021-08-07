@@ -129,7 +129,7 @@ sub _parse_attributes {
             if ($order) {
                 $value = _decode_raw_value(
                     $+{value},
-                    $attrs->{$name}[$order]{charset},
+                    $attrs->{$name}[0]{charset},
                 );
             }
             else {
