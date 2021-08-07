@@ -9,6 +9,10 @@
   sections. Previously these would be end up in a corrupted form. Reported by
   Vitaly Gimly. GH #10.
 
+- Fixed parsing of MIME encoded words in a header when there was no space at
+  the start of the value. Previously this would leave the first MIME encoded
+  chunk as-is instead of decoding it. Fixed by Vitaly Gimly. GH #10. PR #11.
+
 
 0.48     2019-04-21
 

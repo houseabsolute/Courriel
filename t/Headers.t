@@ -495,6 +495,22 @@ EOF
 
 {
     my $headers = <<'EOF';
+Content-Type: image/jpeg;
+ name="=?UTF-8?B?0YHRitC10YjRjCDQttC1INC10YnRkSDRjdGC0LjRhSDQvA==?=
+ =?UTF-8?B?0Y/Qs9C60LjRhSDRhNGA0LDQvdGG0YPQt9GB0LrQuNGFINCx?=
+ =?UTF-8?B?0YPQu9C+0LosINC00LAg0LLRi9C/0LXQuSDRh9Cw0Y4=?=.jpg"
+EOF
+    my $h = Courriel::Headers->parse( text => \$headers );
+
+    is_deeply(
+        _headers_as_arrayref($h),
+        [ 'Content-Type' => 'image/jpeg; name="съешь же ещё этих мягких французских булок, да выпей чаю.jpg"' ],
+        'parsed headers with MIME encoded attributes'
+    );
+}
+
+{
+    my $headers = <<'EOF';
 attachment;
  filename*0*=UTF-8'ru'%D0%A1%D0%AA%D0%95%D0%A8%D0%AC%20%D0%96;
  filename*1*=%D0%95%20%D0%95%D0%A9%D0%81%20%D0%AD%D0%A2%D0%98;

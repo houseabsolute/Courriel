@@ -402,7 +402,7 @@ sub as_string {
                           (?<content>.*?)             # Base64-encoded contents
                           \?=                         # end encoded word
                           |
-                          (?<unencoded>\S+)
+                          (?<unencoded>\S+?)
                       )
                       (?<ws>[ \t]+)?
                       /x;
