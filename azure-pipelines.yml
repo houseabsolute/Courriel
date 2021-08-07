@@ -12,6 +12,9 @@ stages:
 
   - template: templates/helpers/linux.yml@ci-perl-helpers
     parameters:
+      apt:
+        - libmagic-dev
+        - libmagic1
       coverage: codecov
       debug: true
       test_xt: true
@@ -19,10 +22,7 @@ stages:
 
   - template: templates/helpers/macos.yml@ci-perl-helpers
     parameters:
-      debug: true
-      use_default_perls: true
-
-  - template: templates/helpers/windows.yml@ci-perl-helpers
-    parameters:
+      brew:
+        - libmagic
       debug: true
       use_default_perls: true
