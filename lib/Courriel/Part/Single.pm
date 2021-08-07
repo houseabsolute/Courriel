@@ -225,8 +225,8 @@ This method creates a new part object. It accepts the following parameters:
 
 =item * content
 
-This can either be a string or a reference to a scalar. It should be a character
-string, I<not> a byte string.
+This can either be a string or a reference to a scalar. It should be a
+character string, I<not> a byte string.
 
 If you pass a reference, then the scalar underlying the reference may be
 modified, so don't pass in something you don't want modified.
@@ -240,8 +240,8 @@ modified, so don't pass in something you don't want modified.
 
 =item * content_type
 
-A L<Courriel::Header::ContentType> object. This will default to one with the mime type
-"text/plain".
+A L<Courriel::Header::ContentType> object. This will default to one with the
+mime type "text/plain".
 
 =item * disposition
 
@@ -259,8 +259,8 @@ A L<Courriel::Headers> object containing headers for this part.
 
 =back
 
-You must pass a C<content> or C<encoded_content> value when creating a new part,
-but there's really no point in passing both.
+You must pass a C<content> or C<encoded_content> value when creating a new
+part, but there's really no point in passing both.
 
 It is strongly recommended that you pass a C<content> parameter and letting
 this module do the encoding for you internally.
@@ -322,13 +322,13 @@ part belongs, if any. This is set when the part is added to another object.
 
 =head2 $part->content_ref()
 
-This returns returns a reference to a scalar containing the decoded content
-for the part.
+This returns returns a reference to a scalar containing the decoded content for
+the part.
 
 =head2 $part->encoded_content_ref()
 
-This returns returns a reference to a scalar containing the encoded content
-for the part, without any decoding.
+This returns returns a reference to a scalar containing the encoded content for
+the part, without any decoding.
 
 =head2 $part->as_string()
 
@@ -337,12 +337,13 @@ with "\r\n".
 
 =head2 $part->stream_to( output => $output )
 
-This method will send the stringified part to the specified output. The
-output can be a subroutine reference, a filehandle, or an object with a
-C<print()> method. The output may be sent as a single string, as a list of
-strings, or via multiple calls to the output.
+This method will send the stringified part to the specified output. The output
+can be a subroutine reference, a filehandle, or an object with a C<print()>
+method. The output may be sent as a single string, as a list of strings, or via
+multiple calls to the output.
 
 =head1 ROLES
 
 This class does the C<Courriel::Role::Part> and C<Courriel::Role::Streams>
 roles.
+

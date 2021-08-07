@@ -142,8 +142,8 @@ required, but could be empty.
 
 =item * content_type
 
-A L<Courriel::Header::ContentType> object. This defaults to one with a mime type of
-"multipart/mixed".
+A L<Courriel::Header::ContentType> object. This defaults to one with a mime
+type of "multipart/mixed".
 
 =item * boundary
 
@@ -151,8 +151,8 @@ The part boundary. If none is provided, a unique value will be generated.
 
 =item * preamble
 
-Content that appears before the first part boundary. This will be seen by
-email clients that don't understand multipart messages.
+Content that appears before the first part boundary. This will be seen by email
+clients that don't understand multipart messages.
 
 =item * epilogue
 
@@ -213,10 +213,10 @@ part belongs, if any. This is set when the part is added to another object.
 
 =head2 $part->stream_to( output => $output )
 
-This method will send the stringified part to the specified output. The
-output can be a subroutine reference, a filehandle, or an object with a
-C<print()> method. The output may be sent as a single string, as a list of
-strings, or via multiple calls to the output.
+This method will send the stringified part to the specified output. The output
+can be a subroutine reference, a filehandle, or an object with a C<print()>
+method. The output may be sent as a single string, as a list of strings, or via
+multiple calls to the output.
 
 =head2 $part->as_string()
 
@@ -227,3 +227,4 @@ with "\r\n".
 
 This class does the C<Courriel::Role::Part> and C<Courriel::Role::Streams>
 roles.
+

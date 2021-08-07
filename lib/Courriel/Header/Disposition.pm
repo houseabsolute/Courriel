@@ -215,8 +215,7 @@ Returns a hash (not a reference) of the attributes passed to the constructor.
 Attributes are L<Courriel::HeaderAttribute> objects.
 
 The keys of the hash are all lower case, though the original casing is
-preserved in the C<name()> returned by the L<Courriel::HeaderAttribute>
-object.
+preserved in the C<name()> returned by the L<Courriel::HeaderAttribute> object.
 
 =head2 $disp->attribute($key)
 
@@ -243,3 +242,4 @@ This class extends L<Courriel::Header>.
 =head1 ROLES
 
 This class does the C<Courriel::Role::HeaderWithAttributes> role.
+

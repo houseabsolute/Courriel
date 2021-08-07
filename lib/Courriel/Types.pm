@@ -13,7 +13,7 @@ __PACKAGE__->provide_types_from(
         MooseX::Types::Common::String
         MooseX::Types::Moose
         Courriel::Types::Internal
-        )
+    )
 );
 
 1;

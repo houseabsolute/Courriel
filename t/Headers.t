@@ -350,7 +350,7 @@ EOF
     );
 
     is_deeply(
-        [ $value, $attrs ],
+        [ $value,    $attrs ],
         [ 'foo/bar', {} ],
         'handled trailing semi-colon correctly (parsed as having no attributes'
     );
@@ -370,7 +370,7 @@ EOF
     );
 
     is_deeply(
-        [ $value, $attrs ],
+        [ $value,    $attrs ],
         [ 'foo/bar', {} ],
         'handled bad attribute syntax correctly'
     );
@@ -504,7 +504,10 @@ EOF
 
     is_deeply(
         _headers_as_arrayref($h),
-        [ 'Content-Type' => 'image/jpeg; name="съешь же ещё этих мягких французских булок, да выпей чаю.jpg"' ],
+        [
+            'Content-Type' =>
+                'image/jpeg; name="съешь же ещё этих мягких французских булок, да выпей чаю.jpg"'
+        ],
         'parsed headers with MIME encoded attributes'
     );
 }
@@ -521,7 +524,8 @@ attachment;
  filename*6*=%D0%95%D0%99%20%D0%A7%D0%90%D0%AE%2E%44%4A%56%55
 EOF
 
-    my $h = Courriel::Header::Disposition->new_from_value( value => $headers );
+    my $h
+        = Courriel::Header::Disposition->new_from_value( value => $headers );
 
     is(
         $h->filename,
@@ -538,7 +542,8 @@ attachment;
  filename*2*=%B4%E8%A1%A8;
 EOF
 
-    my $h = Courriel::Header::Disposition->new_from_value( value => $headers );
+    my $h
+        = Courriel::Header::Disposition->new_from_value( value => $headers );
 
     is(
         $h->filename,
@@ -688,7 +693,7 @@ EOF
 
 {
     my $header = Courriel::Header->new(
-        name => 'To',
+        name  => 'To',
         value =>
             q{Ďāᶌȩ ȒȯƖŝķẏ <āutarch@urth.org>, "Joe Smith" <joe@example.com>},
     );
@@ -722,7 +727,7 @@ EOF
 
 {
     my $header = Courriel::Header->new(
-        name => 'Subject',
+        name  => 'Subject',
         value =>
             '0000000000000000000000000000000000000000000000000000000000000000000 0',
     );

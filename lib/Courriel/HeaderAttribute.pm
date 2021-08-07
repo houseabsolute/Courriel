@@ -239,9 +239,8 @@ The attribute's language.
 
 =head2 $attribute->as_string()
 
-This returns the attribute in a form suitable for putting in an email. This
-may involve escaping, quoting, splitting up, and otherwise messing with the
-value.
+This returns the attribute in a form suitable for putting in an email. This may
+involve escaping, quoting, splitting up, and otherwise messing with the value.
 
 If the value needs to be split across continuations, each name/value pair is
 returned separate by a space, but not folded across multiple lines.
@@ -256,3 +255,4 @@ strings, or via multiple calls to the output.
 =head1 ROLES
 
 This class does the C<Courriel::Role::Streams> role.
+

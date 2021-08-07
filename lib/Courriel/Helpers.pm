@@ -127,12 +127,12 @@ sub _parse_attributes {
 
         if ( $+{is_encoded} ) {
             if ($order) {
-                $value = $+{value}
+                $value = $+{value};
             }
             else {
                 ( $charset, $language, my $raw ) = split /\'/, $+{value}, 3;
                 $language = undef unless length $language;
-                $value = $raw;
+                $value    = $raw;
             }
         }
         elsif ( defined $+{quoted_value} ) {
@@ -160,7 +160,7 @@ sub _inflate_attribute {
     my $raw_data = shift;
 
     my $value = join q{}, grep {defined} map { $_->{value} } @{$raw_data};
-    my %p = (
+    my %p     = (
         name  => $_,
         value => $value,
     );

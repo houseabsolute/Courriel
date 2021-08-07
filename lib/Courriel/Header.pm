@@ -293,3 +293,4 @@ See the C<as_string()> method for documentation on the C<charset> parameter.
 =head1 ROLES
 
 This class does the C<Courriel::Role::Streams> role.
+

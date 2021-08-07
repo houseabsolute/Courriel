@@ -493,8 +493,8 @@ associated object representing its headers. This class makes no distinction
 between top-level headers and headers for a sub part.
 
 Each individual header name/value pair is represented internally by a
-L<Courriel::Header> object. Some headers have their own special
-subclass. These are:
+L<Courriel::Header> object. Some headers have their own special subclass. These
+are:
 
 =over 4
 
@@ -605,3 +605,4 @@ parameters.
 =head1 ROLES
 
 This class does the C<Courriel::Role::Streams> role.
+

@@ -19,7 +19,7 @@ use MooseX::Types -declare => [
         Printable
         Streamable
         StringRef
-        )
+    )
 ];
 use MooseX::Types::Common::String qw( NonEmptyStr );
 use MooseX::Types::Moose
