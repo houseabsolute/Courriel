@@ -18,7 +18,7 @@ stages:
       coverage: codecov
       debug: true
       test_xt: true
-      use_default_perls: true
+      from_perl: "5.12"
 
   - template: templates/helpers/macos.yml@ci-perl-helpers
     parameters:
