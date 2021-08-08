@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.49     2021-08-08
+
 - Fixed handling of charsets in multi-section header attributes. Previously
   this would assume that the charset was present in every section, instead of
   just the first. Fixed by Vitaly Gimly. GH #10. PR #11.
