@@ -8,7 +8,7 @@ our $VERSION = '0.50';
 
 use Courriel::HeaderAttribute;
 use Courriel::Helpers qw( unique_boundary );
-use Courriel::Types qw( ArrayRef NonEmptyStr Part );
+use Courriel::Types   qw( ArrayRef NonEmptyStr Part );
 use Email::MessageID;
 
 use Moose;

@@ -7,7 +7,7 @@ use namespace::autoclean;
 our $VERSION = '0.50';
 
 use List::AllUtils qw( all );
-use Scalar::Util qw( blessed );
+use Scalar::Util   qw( blessed );
 
 use MooseX::Types -declare => [
     qw(

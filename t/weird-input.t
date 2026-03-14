@@ -9,7 +9,7 @@ use Test::Requires (
 );
 
 use File::Slurper qw( read_binary );
-use Path::Class qw( dir );
+use Path::Class   qw( dir );
 
 use Courriel;
 

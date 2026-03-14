@@ -1,0 +1,4 @@
+[default.extend-words]
+Signes = "Signes"
+helo = "helo"
+HELO = "HELO"

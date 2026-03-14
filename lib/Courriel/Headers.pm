@@ -11,11 +11,11 @@ use Courriel::Header::ContentType;
 use Courriel::Header::Disposition;
 use Courriel::Types
     qw( ArrayRef Defined HashRef HeaderArray NonEmptyStr Str Streamable StringRef );
-use Encode qw( decode );
-use MIME::Base64 qw( decode_base64 );
-use MIME::QuotedPrint qw( decode_qp );
+use Encode                     qw( decode );
+use MIME::Base64               qw( decode_base64 );
+use MIME::QuotedPrint          qw( decode_qp );
 use Params::ValidationCompiler qw( validation_for );
-use Scalar::Util qw( blessed reftype );
+use Scalar::Util               qw( blessed reftype );
 
 use Moose;
 use MooseX::StrictConstructor;
@@ -326,7 +326,7 @@ sub _key_indices_for {
                 [ $count - 1 ];
 
             die defined $line
-                ? "Found an unparseable chunk in the header text starting at line $count:\n  $line"
+                ? "Found an unparsable chunk in the header text starting at line $count:\n  $line"
                 : 'Could not parse headers at all';
         }
 

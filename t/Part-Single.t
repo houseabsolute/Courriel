@@ -11,7 +11,7 @@ use Courriel::Header::Disposition;
 use Courriel::Headers;
 use Courriel::Part::Single;
 use Email::MIME::Encodings;
-use Encode qw( encode );
+use Encode       qw( encode );
 use MIME::Base64 qw( encode_base64 );
 use Scalar::Util qw( blessed );
 

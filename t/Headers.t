@@ -800,7 +800,7 @@ EOF
     is_deeply(
         [ map { $_->value } $h->get('Precedence') ],
         ['normal'],
-        'Precendence header was parsed properly'
+        'Precedence header was parsed properly'
     );
 
     is_deeply(
@@ -893,7 +893,7 @@ EOF
                 text => \$bad,
             );
         },
-        qr/Found an unparseable .+ at line 2/,
+        qr/Found an unparsable .+ at line 2/,
         'exception on bad headers'
     );
 }

@@ -5,8 +5,8 @@ use warnings;
 
 our $VERSION = '0.50';
 
-use Encode qw( decode );
-use Exporter qw( import );
+use Encode         qw( decode );
+use Exporter       qw( import );
 use List::AllUtils qw( first );
 
 our @EXPORT_OK = qw(

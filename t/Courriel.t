@@ -10,7 +10,7 @@ use Courriel;
 use Courriel::Builder;
 use Courriel::Helpers;
 use Email::Address::XS;
-use Encode qw( encode is_utf8 );
+use Encode       qw( encode is_utf8 );
 use Scalar::Util qw( blessed );
 
 ## no critic (InputOutput::RequireCheckedSyscalls)

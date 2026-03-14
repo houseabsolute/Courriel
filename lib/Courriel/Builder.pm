@@ -19,10 +19,10 @@ use DateTime::Format::Mail;
 use Devel::PartialDump;
 use File::Basename qw( basename );
 use File::LibMagic;
-use File::Slurper qw( read_binary );
-use List::AllUtils qw( first );
+use File::Slurper              qw( read_binary );
+use List::AllUtils             qw( first );
 use Params::ValidationCompiler qw( validation_for );
-use Scalar::Util qw( blessed reftype );
+use Scalar::Util               qw( blessed reftype );
 
 our @CARP_NOT = __PACKAGE__;
 

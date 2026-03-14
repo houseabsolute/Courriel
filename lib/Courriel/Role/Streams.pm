@@ -6,7 +6,7 @@ use namespace::autoclean;
 
 our $VERSION = '0.50';
 
-use Courriel::Types qw( Streamable );
+use Courriel::Types            qw( Streamable );
 use Params::ValidationCompiler qw( validation_for );
 
 use Moose::Role;

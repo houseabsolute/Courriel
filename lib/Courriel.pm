@@ -17,8 +17,8 @@ use DateTime;
 use DateTime::Format::Mail 0.403;
 use DateTime::Format::Natural;
 use Email::Address::XS;
-use Encode qw( encode );
-use List::AllUtils qw( uniq );
+use Encode                          qw( encode );
+use List::AllUtils                  qw( uniq );
 use Params::ValidationCompiler 0.26 qw( validation_for );
 
 use Moose;

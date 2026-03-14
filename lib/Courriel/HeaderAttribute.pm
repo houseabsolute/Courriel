@@ -8,8 +8,8 @@ our $VERSION = '0.50';
 
 use Courriel::HeaderAttribute;
 use Courriel::Helpers qw( quote_and_escape_attribute_value );
-use Courriel::Types qw( Maybe NonEmptyStr Str );
-use Encode qw( encode );
+use Courriel::Types   qw( Maybe NonEmptyStr Str );
+use Encode            qw( encode );
 
 use Moose;
 use MooseX::StrictConstructor;

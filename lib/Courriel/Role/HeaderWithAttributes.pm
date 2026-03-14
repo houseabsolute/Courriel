@@ -7,10 +7,10 @@ use namespace::autoclean;
 our $VERSION = '0.50';
 
 use Courriel::HeaderAttribute;
-use Courriel::Helpers qw( parse_header_with_attributes );
-use Courriel::Types qw( HashRef NonEmptyStr );
+use Courriel::Helpers          qw( parse_header_with_attributes );
+use Courriel::Types            qw( HashRef NonEmptyStr );
 use Params::ValidationCompiler qw( validation_for );
-use Scalar::Util qw( blessed reftype );
+use Scalar::Util               qw( blessed reftype );
 
 use MooseX::Role::Parameterized;
 

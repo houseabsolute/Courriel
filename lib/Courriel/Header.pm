@@ -6,11 +6,11 @@ use namespace::autoclean;
 
 our $VERSION = '0.50';
 
-use Courriel::Helpers qw( fold_header );
-use Courriel::Types qw( NonEmptyStr Str Streamable );
-use Email::Address::XS qw( parse_email_groups );
-use Encode qw( encode find_encoding );
-use MIME::Base64 qw( encode_base64 );
+use Courriel::Helpers          qw( fold_header );
+use Courriel::Types            qw( NonEmptyStr Str Streamable );
+use Email::Address::XS         qw( parse_email_groups );
+use Encode                     qw( encode find_encoding );
+use MIME::Base64               qw( encode_base64 );
 use Params::ValidationCompiler qw( validation_for );
 
 use Moose;

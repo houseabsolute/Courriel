@@ -4,7 +4,7 @@ Courriel - High level email parsing and manipulation
 
 # VERSION
 
-version 0.49
+version 0.50
 
 # SYNOPSIS
 
@@ -242,8 +242,6 @@ changes.
 
 Bugs may be submitted at [https://github.com/houseabsolute/Courriel/issues](https://github.com/houseabsolute/Courriel/issues).
 
-I am also usually active on IRC as 'autarch' on `irc://irc.perl.org`.
-
 # SOURCE
 
 The source code repository for Courriel can be found at [https://github.com/houseabsolute/Courriel](https://github.com/houseabsolute/Courriel).
@@ -263,7 +261,7 @@ software much more, unless I get so many donations that I can consider working
 on free software full time (let's all have a chuckle at that together).
 
 To donate, log into PayPal and send money to autarch@urth.org, or use the
-button at [https://www.urth.org/fs-donation.html](https://www.urth.org/fs-donation.html).
+button at [https://houseabsolute.com/foss-donations/](https://houseabsolute.com/foss-donations/).
 
 # AUTHOR
 
@@ -278,7 +276,7 @@ Dave Rolsky <autarch@urth.org>
 
 # COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2021 by Dave Rolsky.
+This software is Copyright (c) 2026 by Dave Rolsky.
 
 This is free software, licensed under:
 

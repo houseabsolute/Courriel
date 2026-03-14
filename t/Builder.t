@@ -10,7 +10,7 @@ use Courriel::Builder;
 use Courriel::Helpers;
 use Email::Address::XS;
 use List::AllUtils qw( all );
-use Sys::Hostname qw( hostname );
+use Sys::Hostname  qw( hostname );
 
 {
     my $email = build_email(
