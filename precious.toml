@@ -6,6 +6,7 @@ exclude = [
     "blib/**/*",
     "t/00-*",
     "t/author-*",
+    "t/data/**/*",
     "t/release-*",
     "t/zzz-*",
     "xt/**/*",
@@ -80,7 +81,7 @@ lint-failure-exit-codes = 1
 [commands.typos]
 type = "both"
 include = "**/*"
-exclude = [".stopwords", "t/data/**"]
+exclude = [".stopwords"]
 cmd = "typos"
 tidy_flags = "--write-changes"
 invoke = "once"
