@@ -10,6 +10,9 @@ jobs:
     with:
       dist: Courriel
       ref: v0
-      # File::LibMagic is a develop dep and needs the libmagic headers to
-      # build.
-      apt-packages-for-author-tests: libmagic-dev
+      # File::LibMagic is a runtime dep and cannot build without the libmagic
+      # headers. There is no reasonable way to get libmagic on Windows, which
+      # is why this dist never had a Windows stage under Azure either.
+      apt-packages: libmagic-dev libmagic1
+      brew-packages: libmagic
+      with-windows: false
