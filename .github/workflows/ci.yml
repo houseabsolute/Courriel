@@ -10,3 +10,6 @@ jobs:
     with:
       dist: Courriel
       ref: v0
+      # File::LibMagic is a develop dep and needs the libmagic headers to
+      # build.
+      apt-packages-for-author-tests: libmagic-dev
