@@ -1,6 +1,8 @@
 exclude = [
     ".build/**/*",
     "Courriel-*/**/*",
+    "META.yml",
+    "MYMETA.yml",
     "blib/**/*",
     "t/00-*",
     "t/author-*",
@@ -12,20 +14,22 @@ exclude = [
 [commands.omegasort-gitignore]
 type = "both"
 include = "**/.gitignore"
-cmd = ["omegasort", "--sort=path", "--unique"]
+cmd = ["omegasort", "--sort", "path", "--unique"]
 lint_flags = "--check"
 tidy_flags = "--in-place"
 ok_exit_codes = 0
 lint_failure_exit_codes = 1
+ignore-stderr = ["The .+ file is not sorted", "The .+ file is not unique"]
 
 [commands.omegasort-stopwords]
 type = "both"
 include = ".stopwords"
-cmd = ["omegasort", "--sort=text", "--case-insensitive", "--unique"]
+cmd = ["omegasort", "--sort", "text", "--case-insensitive", "--unique"]
 lint_flags = "--check"
 tidy_flags = "--in-place"
 ok_exit_codes = 0
 lint_failure_exit_codes = 1
+ignore-stderr = ["The .+ file is not sorted", "The .+ file is not unique"]
 
 [commands.perlcritic]
 type = "lint"
@@ -50,7 +54,12 @@ include = ["**/*.{pl,pm,pod}"]
 cmd = ["podchecker", "--warnings", "--warnings"]
 ok_exit_codes = [0, 2]
 lint_failure_exit_codes = 1
-ignore_stderr = [".+ pod syntax OK", ".+ does not contain any pod commands"]
+ignore_stderr = [
+    ".+ pod syntax OK",
+    ".+ does not contain any pod commands",
+    '\*\*\* WARNING: multiple occurrences \(\d+\) of link target .+',
+    '\*\*\* WARNING: empty section in previous paragraph .+',
+]
 
 [commands.podtidy]
 type = "tidy"
@@ -59,29 +68,19 @@ cmd = ["podtidy", "--columns", "80", "--inplace", "--nobackup"]
 ok_exit_codes = 0
 lint_failure_exit_codes = 1
 
-[commands.prettier]
+[commands.oxfmt]
 type = "both"
-include = ["**/*.yml"]
-cmd = ["prettier", "--no-config", "--prose-wrap", "always", "--print-width", "100"]
-lint_flags = "--check"
-tidy_flags = "--write"
-ok_exit_codes = 0
-lint_failure_exit_codes = 1
-ignore_stderr = "Code style issues"
-
-[commands.taplo]
-type = "both"
-include = "**/*.toml"
-cmd = ["taplo", "format", "--option", "indent_string=    ", "--option", "column_width=100"]
-lint_flags = "--check"
-ok_exit_codes = 0
-lint_failure_exit_codes = 1
-ignore_stderr = "INFO taplo.+"
+include = ["**/*.yml", "**/*.toml"]
+cmd = ["oxfmt"]
+lint-flags = "--check"
+tidy-flags = "--write"
+ok-exit-codes = 0
+lint-failure-exit-codes = 1
 
 [commands.typos]
 type = "lint"
 include = "**/*"
-exclude = "t/data/**"
+exclude = [".stopwords", "t/data/**"]
 cmd = "typos"
 invoke = "once"
 ok-exit-codes = 0
